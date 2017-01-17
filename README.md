@@ -3,7 +3,7 @@
 
 Welcome to the release and issue tracking portal for the Liveapp Framework. This is where Liveapp partners can view and download releases and submit new issues and track their progress.
 
-Nightly Build (Use at your own risk!): [here](https://dev.liveapp.com.au/Partner/Updates/Nightly.zip)
+Nightly Build (Use at your own risk!): [here](https://dev.liveapp.com.au/Downloads/Nightly.zip)
 
 # Submit an issue
 
