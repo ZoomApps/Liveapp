@@ -3,12 +3,16 @@
 
 Welcome to the release and issue tracking portal for the Liveapp Framework. This is where Liveapp partners can view and download releases and submit new issues and track their progress.
 
-Nightly Build (Use at your own risk!): [here](https://dev.liveapp.com.au/Downloads/Nightly.zip)
+## Nightly Builds ##
 
-# Submit an issue
+Use at your own risk :bomb::fire::skull:!
+
+The current nightly build can be downloaded from [here](https://dev.liveapp.com.au/Downloads/Nightly.zip).
+
+## Submit an issue
 
 Submitting an issue is easy. Simply goto the issue section (https://github.com/LiveappSolutions/Liveapp/issue) and click "New Issue". Please be descriptive and attach any images if possible.
 
-# Track the progress of an issue
+## Track the progress of an issue
 
 To track the progress of issues, please use the project page (https://github.com/LiveappSolutions/Liveapp/projects/1). This will display the issue progress as it is Approved, In Progress, Done and Released.
