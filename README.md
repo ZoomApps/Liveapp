@@ -3,6 +3,10 @@
 
 Welcome to the release and issue tracking portal for the Liveapp Framework. This is where Liveapp partners can view and download releases and submit new issues and track their progress.
 
+## Features Timeline ##
+
+Learn about upcoming features currently under development [here](FeaturesTimeline.md)
+
 ## Nightly Builds ##
 
 Use at your own risk :bomb::fire::skull:!
