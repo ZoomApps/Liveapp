@@ -8,6 +8,7 @@ This feature list is a peek into the Liveapp features under development. It iden
 |---|---|
 |2017 Q1|Clean solution - Allow a solution to be removed from the Objects table. This will allow you to resync all objects on update of solution|
 |2017 Q1|Stored Procedures - Add support for SQL stored procedures to the framework|
+|2017 Q1|App Template - Customize the application template for desktop and mobile experience|
 
 ##Current Features##
 
