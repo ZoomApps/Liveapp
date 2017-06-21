@@ -1,0 +1,59 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">
+<head>
+
+    <title>%LANG:APP_NAME%</title>
+
+    <link href="%SERVERADDRESS%f/?t=css&mobile=true&ver=%VERSION%&instance=none" type="text/css" rel="stylesheet" />     
+    <script src="%SERVERADDRESS%f/?t=js&mobile=true&ver=%VERSION%" type="text/javascript"></script>    
+
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+    <script language="javascript" type="text/javascript">
+
+        function PageLoad(){
+
+            //Set title.
+            document.title = "%PARAM:TITLE%";
+
+            $("#mainPage,.ui-panel-wrapper").css("background-color", $("#divMessage").css("background-color"));
+
+        };
+
+    </script>
+
+</head>
+<body onload="PageLoad();">  
+    
+    <div id="mainPage" data-role="page" data-theme="a" style="overflow-y: hidden;">   
+
+        <div id="divContent" data-role="content">			
+
+            <center>
+                    <br />
+                    <div id="divMessage" class="ui-bar-a" style="max-width: 400px; margin-top: 0px; padding: 10px; border: 0px;">
+    
+                        <p>
+                            <img id="imgHeader" src="%SERVERADDRESS%Images/Logo.png" alt="Logo">
+                        </p>
+                        <br />
+                        <h3>
+                             <table><tr><td><img id="imgIcon" src="%SERVERADDRESS%Images/Icons/%PARAM:ICON%.png" /></td><td style="padding-left: 10px;"><span style="font-size: 16pt;">%PARAM:TITLE%</span></td></tr></table> 
+                        </h3>
+
+
+                        <p style="padding: 5px;">
+                            <span style="font-size: 14pt;">%PARAM:MESSAGE%</span>
+                        </p>                        
+
+                    </div>
+                    </center>       
+
+            <center>            
+                                   
+	    </div><!-- /content -->  
+
+    </div>        
+
+</body>
+</html>

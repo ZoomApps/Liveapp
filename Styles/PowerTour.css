@@ -1,0 +1,139 @@
+/*
+ * ************************************************************* *
+ * Name         :  Power Tour                                    *
+ * Description  :  CSS for the tour plugin.                      *
+ * Version      :  Version 2.5.1                                 *
+ * Author       :  CreativeMilk                                  *
+ * Author URI   :  www.creativemilk.net                          *
+ * Updated      :  2015-07-19 12:44:50 UTC+02:00                 *
+ * Copyright    :  (c) 2015 CreativeMilk                         *
+ * ************************************************************* *
+ */
+
+.powertour-step{
+	padding    : 0;
+	position   : absolute;
+	visibility : hidden;
+	z-index    : -1;
+}
+.powertour-hook{
+	position : relative;
+}
+.powertour-step.powertour-hide iframe{
+	visibility : hidden; /* opera issue with yt video*/
+}
+.powertour-step.powertour-show iframe{
+	visibility : visible;
+	display    : block
+}
+.powertour-step.animated,
+.powertour-step.powertour-show{
+	z-index    : 9999999;
+	visibility : visible;
+}
+.powertour-step:before,
+.powertour-step:after,
+.powertour-step > *:before,
+.powertour-step > *:after{
+	content : "";
+	display : table;
+}
+.powertour-step:after,
+.powertour-step > *:after{
+	clear : both; 
+}
+.powertour-step,
+.powertour-step > *:after{
+	zoom : 1;/*IE*/
+}
+#powertour-mask{
+	width    : 100%;
+	height   : 100%;
+	z-index  : 9000;
+	position : fixed;
+	top      : 0;
+	left     : 0;
+	display  : none;
+}
+.powertour-highlight{
+	z-index : 9001!important;
+}
+.powertour-step > *{
+	position : relative;
+}
+.powertour-tooltip:hover .powertour-step{
+	visibility : visible;	
+}
+
+/*
+ * ************************************************************* *
+ * Name         :  Power Tour style : clean                      *
+ * Description  :  CSS styling for the tour plugin.              *
+ * Version      :  Version 1.0.0                                 *
+ * Author       :  CreativeMilk                                  *
+ * Author URI   :  www.creativemilk.net                          *
+ * Updated      :  2014-08-27 14:13:58 UTC+02:00                 *
+ * Copyright    :  (c) 2015 CreativeMilk                         *
+ * ************************************************************* *
+ */
+ 
+#powertour-mask{
+	background-color : #000;
+	filter           : alpha(opacity=80);
+	-moz-opacity     : 0.8;
+	-khtml-opacity   : 0.8;
+	opacity          : 0.8;
+}
+.single-step{
+	position         : relative;
+	display          : none;
+	z-index          : 9001;
+	/*
+	-webkit-box-shadow : 0 0 4px 0 #ccc;
+	-moz-box-shadow    : 0 0 4px 0 #ccc;
+	box-shadow         : 0 0 4px 0 #ccc;
+	*/
+	padding          : 20px;
+	background-color : #fff;
+	color            : #333;
+	text-align       : left;
+	border           : 5px solid #ccc;
+	font-size		 : 14px;
+	border-radius	 : 5px;
+}
+.single-step header{
+	float       : left;
+	height      : 30px;
+	width       : 100%;
+	margin      : 5px 0 10px 0;
+	line-height : 30px;
+}
+.single-step header h3{
+	margin      : 0;
+	font-size   : 18px;
+	line-height : 22px;
+}
+.single-step footer{
+	float       : left;
+	height      : auto;
+	width       : 100%;
+	margin      : 20px 0 0 0;
+	line-height : 30px;
+}
+.single-step .close-btn{
+	position         : absolute;
+	top              : -34px;
+	right            : -1px;
+	height           : 24px;
+	width            : 24px;
+	background-color : #eee;
+	font-family      : Verdana, Geneva, sans-serif;
+	font-size        : 14px;
+	font-weight      : 700;
+	color            : #333;
+	color            : #999;
+	line-height      : 18px;
+	text-align       : center;
+	text-decoration  : none;
+	border           : 1px solid #ccc;
+}

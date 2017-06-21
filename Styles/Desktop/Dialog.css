@@ -1,0 +1,26 @@
+﻿/* Dialog
+----------------------------------*/
+.ui-dialog  {
+    position: relative; 
+    padding: .2em; 
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+.ui-dialog .ui-dialog-titlebar  {
+    padding: .3em .3em .1em 3px;     
+    position: relative;  
+	text-align: center;	
+	cursor: default;
+	margin: 0em;
+}
+.ui-dialog .ui-dialog-content  {
+    border: 0; 
+    overflow: auto; 
+    zoom: 1; 
+    background: 16px 16px;
+	padding: 1em 1.75em;
+	margin: 0em;                            
+}
+input.text { margin-bottom:12px; width:95%; padding: .4em; }
+fieldset { padding:0; border:0; margin-top:25px; }

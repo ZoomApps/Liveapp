@@ -1,0 +1,50 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">
+<head>
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />    
+    
+    <link href="%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=none&includecustom=true" type="text/css" rel="stylesheet" />
+        
+    <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=none&min=true&includecustom=true" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+
+        var PAGE_PARAMETERS = "";
+
+        Application.EngineError = Application.Error;
+
+        Application.Error = function (err) {
+            $("#EngineOutput").append("~Application Error: " + err);
+            Application.EngineError(err);
+        };
+
+        Application.Message = function (err) {
+            $("#EngineOutput").append("~Application Message: " + err)
+        };
+
+        console.log = console.warn = console.error = function (msg) {
+            $("#EngineOutput").append("~" + msg);
+        };
+
+        Application.ConsoleInput = function (input_, insert_) {
+            if (insert_) {
+                $("#EngineOutput").append("~ConsoleInsert:" + input_);
+                return;
+            }
+            $("#EngineOutput").append("~Console:" + input_);
+        };
+
+        Application.EngineInput = function (input_) {
+            $("#EngineOutput").append("~Engine:" + input_);
+        };
+
+    </script>
+
+</head>
+<body id="pagebody">
+
+    <div id="EngineOutput">Liveapp Engine Loaded~Version:%VERSION%~URL:%SERVERADDRESS%</div>    
+
+</body>
+</html>

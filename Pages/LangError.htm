@@ -1,0 +1,125 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">
+<head>
+
+    <title>Language File Not Found</title>
+
+    <link href="%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=none" type="text/css" rel="stylesheet" />        
+    <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%" type="text/javascript"></script> 
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+    <!--[if lte IE 8]>    	    
+    <style type="text/css">
+        .main-table {
+            width: 100%; 
+            height: 90%;
+        }
+    </style>
+    <![endif]-->
+    <!--[if IE 8]>    	    
+    <style type="text/css">
+        .main-table {
+            width: 100%; 
+            height: 98%;
+        }
+    </style>
+    <![endif]-->
+
+</head>
+<body class="main-page">
+
+    <table class="main-table" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="main-side"></td>
+                <td class="main-center main-content">
+
+                    <p>
+                    <img src="%SERVERADDRESS%Images/Logo.png" alt="%APPNAME%" border="0" style="max-height: 30px;" />
+                    </p>
+
+                    <center>
+                    <br />
+                    <div class="ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all" 
+                        style="text-align: left; width: 600px; margin-top: 50px; background-color: #FBFBFF; padding: 10px;">
+    
+                        <table>
+                            <tr>
+                                <td>
+                                    &nbsp;&nbsp;
+                                    <img src="%SERVERADDRESS%Images/Icons/icon-important.png" />
+                                    &nbsp;&nbsp;&nbsp;
+                                </td>
+                                <td>
+                                    <h3>
+                                        <span>Language has not been loaded</span>
+                                    </h3>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p style="padding: 5px;">
+                            <span>A language file has not been loaded because it is missing or was not found. Please follow the steps below:</span>
+                        </p>     
+                        
+                        <div>
+        
+                            <p style="padding: 5px;">
+                                <b>1) Make sure you have a language file.</b> 
+                                <br /><br />Example: ENA.lang
+                            </p>
+                            <p style="padding: 5px;">
+                                <b>2) Copy the language file into the language sub directory.</b> 
+                                <br /><br />Example: c:\inetpub\wwwroot\%APPNAME%\Language
+                            </p>
+
+                        </div>  
+                        
+                        <br /><br />
+                        <hr />
+                        <p style="padding: 5px;">
+                            <span><b>%LANGERROR%</b></span>
+                        </p>                                        
+
+                    </div>
+                    </center>
+
+                </td>
+                <td class="main-side"></td>
+            </tr>
+            <tr id="trFooter">
+            <td class="main-side">
+            </td>
+            <td class="main-center footer-box">
+                <table id="tdFooter" style="width: 100%;">
+                    <tr>
+                        <td id="tdOffline" class="footer-text" style="display: none;">
+                            <table><tr><td>
+                            <div id="offlineIndicator" class="indicator">                                
+                            </div></td>
+                            <td>
+                            <span id="offlineIndicatorText" style="cursor: pointer">   
+                                Online                             
+                            </span>
+                            </td>
+                            <td> | </td>
+                            </tr></table>
+                        </td>
+                        <td class="footer-text" style="width: 60%;">
+                            <script type="text/javascript">
+                                if (typeof Application != 'undefined')
+                                    document.write(Application.copyright + '. ' + Application.name + ' v' + Application.version);
+                            </script>                                                                                    
+                        </td>           
+                        <td style="width: 40%; text-align: right;">
+                            <div id="divStatus" class="footer-text">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="main-side">
+            </td>
+        </tr>
+        </table>             
+</body>
+</html>

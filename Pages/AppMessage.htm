@@ -1,0 +1,148 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">
+<head>
+
+    <title>%LANG:APP_NAME%</title>
+
+    <link href="%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=none" type="text/css" rel="stylesheet" />     
+    <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%" type="text/javascript"></script>    
+
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+    <script language="javascript" type="text/javascript">
+
+        function PageLoad(){
+
+            //Set title.
+            parent.document.title = document.title;
+            
+            $("#divTop").css("width", $(window).width());
+            $("#divTop").css("display", "");
+
+        };
+
+    </script>
+
+    <!--[if lte IE 8]>    	    
+    <style type="text/css">
+        .main-table {
+            width: 100%; 
+            height: 90%;
+        }
+    </style>
+    <![endif]-->
+    <!--[if IE 8]>    	    
+    <style type="text/css">
+        .main-table {
+            width: 100%; 
+            height: 98%;
+        }
+    </style>
+    <![endif]-->
+
+</head>
+<body class="main-page" onload="PageLoad();">  
+    
+    <div id="divTop" style="position: fixed; top: 0; left:0; z-index: 900; display: none;">
+        <table class="main-table" cellpadding="0" cellspacing="0"><tr class="main-title ui-widget-header" style="padding-bottom: 0px;">
+        <td class="main-side main-titleBorder" style="width: 16%"></td>
+        <td class="main-center main-titleBorder" style="padding-bottom: 0px;">
+            <table>
+                <tr>
+                    <td id="imgLogo" style="vertical-align: bottom;">
+                        <img src="%SERVERADDRESS%Images/Logo.png" alt="%LANG:APP_NAME%" border="0" style="max-height: 30px;" />
+                    </td>
+                    <td style="width: 100%;">
+                        <table id="tblTop" style="width: 100%; height: 34px; vertical-align: middle;">
+                            <tr>
+                                <td style="width: 100%;">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td class="main-side main-titleBorder" style="width: 24%"></td>
+    </tr></table></div>
+    <table class="main-table" cellpadding="0" cellspacing="0">
+            <tr class="main-title" style="padding-bottom: 0px; height: 44px;">
+                <td class="main-side main-titleBorder" colspan="2"></td>
+                <td class="main-center main-titleBorder" style="padding-bottom: 0px;"></td>
+                <td class="main-side main-titleBorder"></td>
+            </tr>         
+            <tr>
+                <td style="width: 3%">                               
+                </td>
+                <td class="main-side" style="width: 13%">                
+                </td>
+                <td id="tdMain" class="main-center main-content">
+                                        
+                    <center>
+                    <br />
+                    <div class="ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all" 
+                      style="text-align: left; width: 600px; margin-top: 50px; background-color: #FBFBFF; padding: 10px;">
+    
+                        <table>
+                            <tr>
+                                <td>
+                                    &nbsp;&nbsp;
+                                    <img src="%SERVERADDRESS%Images/Icons/%PARAM:ICON%.png" />
+                                    &nbsp;&nbsp;&nbsp;
+                                </td>
+                                <td>
+                                    <h3>
+                                        <span style="font-size: 16pt;">%PARAM:TITLE%</span>
+                                    </h3>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p style="padding: 5px;">
+                            <span style="font-size: 14pt;">%PARAM:MESSAGE%</span>
+                        </p>                        
+
+                    </div>
+                    </center>                                        
+                    
+                </td>
+                <td class="main-side" style="width: 24%">                     
+                </td>
+            </tr>
+            <tr id="trFooter">
+            <td class="main-side" colspan="2">
+            </td>
+            <td class="main-center footer-box">
+                <table id="tdFooter" style="width: 100%;">
+                    <tr>
+                        <td id="tdOffline" class="footer-text" style="display: none;">
+                            <table><tr><td>
+                            <div id="offlineIndicator" class="indicator">                                
+                            </div></td>
+                            <td>
+                            <span id="offlineIndicatorText" style="cursor: pointer">   
+                                Online                             
+                            </span>
+                            </td>
+                            <td> | </td>
+                            </tr></table>
+                        </td>
+                        <td class="footer-text" style="width: 60%;">
+                            <script type="text/javascript">
+                                if (typeof Application != 'undefined')
+                                    document.write(Application.copyright + '. ' + Application.name + ' v' + Application.version);
+                            </script>                                                                                    
+                        </td>           
+                        <td style="width: 40%; text-align: right;">
+                            <div id="divStatus" class="footer-text">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="main-side">
+            </td>
+        </tr>
+        </table>              
+</body>
+</html>

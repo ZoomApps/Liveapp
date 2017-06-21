@@ -1,0 +1,23 @@
+﻿.app-placeholder-mandatory::-webkit-input-placeholder {
+   color: #E74C3C;
+}
+
+.app-placeholder-mandatory:-moz-placeholder { /* Firefox 18- */
+   color: #E74C3C;  
+}
+
+.app-placeholder-mandatory::-moz-placeholder {  /* Firefox 19+ */
+   color: #E74C3C;  
+}
+
+.app-placeholder-mandatory:-ms-input-placeholder {  
+   color: #E74C3C;  
+}
+
+.javascriptCode{
+	background-color: LightGreen;
+}
+
+.app-tooltip-text{
+	font-size: 12px !important;
+}

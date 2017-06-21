@@ -1,0 +1,185 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+    <title></title>
+
+    <link href="%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=none" type="text/css" rel="stylesheet" />        
+    <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%&includecustom=true" type="text/javascript"></script> 
+    
+    <script language="javascript" type="text/javascript">
+
+        var PAGE_PARAMETERS = "";
+
+        //Check if the scripts loaded.
+        if (typeof Application == 'undefined') {
+            alert("%LANG:ERR_LOADFAILED%");
+            throw "";
+        }
+
+        //Page Loader
+        $(document).ready(function () {
+
+            $('.userfields,.instancefields,.submitbuttons').hide();
+
+            Application.LoadModules(Application.windowType.Normal);
+
+            $thread(function () {
+                parent.document.title = "Welcome!";
+                Application.OnError = OnError;
+            });            
+        });
+
+        function OnError(err) {
+            Application.Loading.Hide('bodyMain');
+            Application.ShowError(err);
+        };
+
+        function CreateInstance() {
+            $('.mobilebtn').hide(); 
+            $('.instancefields,.submitbuttons').show();
+        };
+
+        function InstallDB() {
+            $('.mobilebtn').hide(); 
+            $('.userfields,.submitbuttons').show();
+        };
+
+        function SubmitForm() {
+
+            if ($(".instancefields").is(':visible')) { //Create instance.
+
+                if ($("#txtName,#txtCustomerCode,#txtDBServer,#txtDB").val() == "")
+                    Application.Error("All form fields are required.");
+
+                Application.RunNext(function () {
+                    return $codeblock(
+                        function () {
+                            return Application.WebServiceWait("SetupInstance", { name_: $("#txtName").val(), cust_: $("#txtCustomerCode").val(), dbserver_: $("#txtDBServer").val(), db_: $("#txtDB").val() }, null, null, true);
+                        },
+                        function () {
+                            Application.Loading.Hide('bodyMain');
+                            $("#txtInstance").val($("#txtName").val());
+                            $("#txtName,#txtCustomerCode,#txtDBServer,#txtDB").val("");
+                            Back();
+                            Application.Message('Great work! Lets setup the database.');
+                            InstallDB();
+                        }
+                    );
+                });
+
+            } else {
+
+                    if ($("#txtInstance,#txtUsername,#txtPassword").val() == "")
+                        Application.Error("All form fields are required.");
+
+                    Application.RunNext(function () {
+                        return $codeblock(
+                            function () {
+                                var auth = new Application.Objects.AuthInfo();
+                                auth.Instance = $("#txtInstance").val();
+                                auth.Username = $("#txtUsername").val();
+                                auth.Password = $("#txtPassword").val();
+                                return Application.WebServiceWait("SetupDatabase", { auth_: auth, host_: location.hostname }, null, null, true);
+                            },
+                            function () {
+                                Application.Loading.Hide('bodyMain');
+                                var instance = $("#txtInstance").val();
+                                $("#txtInstance,#txtUsername,#txtPassword").val("");
+                                Back();
+                                Application.Confirm('Would you like to visit your new instance?', function (r) {
+                                    if (r) {
+                                        parent.window.location = "%SERVERADDRESS%" + instance;
+                                    }
+                                },"All done!");
+                            }
+                        );
+                    });
+            }
+            Application.Loading.Show('bodyMain');                        
+        };
+
+        function Back() {
+            $('.mobilebtn').show(); 
+            $('.userfields,.instancefields,.submitbuttons').hide();
+        };
+
+    </script>
+
+</head>
+<body id="bodyMain">      
+    
+     <div id="divTop" style="position: fixed; top: 0; left:0; z-index: 900; display: none;">
+        <table class="main-table" cellpadding="0" cellspacing="0"><tr class="main-title ui-widget-header" style="padding-bottom: 0px;">        
+        <td class="main-center main-titleBorder" style="padding-bottom: 0px;">
+            <table>
+                <tr>
+                    <td id="imgLogo" style="vertical-align: bottom;">
+                        <img src="%SERVERADDRESS%Images/Logo.png" alt="%LANG:APP_NAME%" border="0" style="max-height: 30px;" />
+                    </td>
+                    <td style="width: 100%;">
+                        <table id="tblTop" style="width: 100%; height: 34px; vertical-align: middle;">
+                            <tr>
+                                <td style="width: 100%;">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>        
+    </tr></table></div>
+    <center>
+    <br />
+    <br />
+    <div id="frmMain" class="ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all" 
+    style="text-align: center; width: 600px; margin-top: 50px; background-color: #FBFBFF; color: #666; padding: 10px;"> 
+
+        <h1>Awesome install, Great Job!</h1>
+
+        <h3>To get started with the %APPNAME%, please install an instance</h3>
+
+        <br /><br />
+
+        <div id="btnCreateInstance" onclick="CreateInstance();" 
+            onmouseover="$(this).addClass('mobilebtn-hover');" 
+            onmouseout="$(this).removeClass('mobilebtn-hover');"  
+            class="mobilebtn unselectable">
+            Create Instance
+        </div>
+
+        <div id="btnInstallDB" onclick="InstallDB();" 
+            onmouseover="$(this).addClass('mobilebtn-hover');" 
+            onmouseout="$(this).removeClass('mobilebtn-hover');"  
+            class="mobilebtn unselectable">
+            Install Database
+        </div>
+
+        <br class="instancefields" />
+        <label style="font-size: 16pt; text-align:left; cursor: pointer;" class="instancefields" onclick="Back();"><img src="%SERVERADDRESS%Images/ActionIcons/nav_left_blue.png" /> Instance Details</label>
+        <br class="instancefields" />
+        <input type="text" id="txtName" class="text ui-widget-content ui-corner-all instancefields" style="font-size: 16pt;" value="" tabindex="1" placeholder="Instance Name" />
+        <input type="text" id="txtCustomerCode" class="text ui-widget-content ui-corner-all instancefields" style="font-size: 16pt;" value="" tabindex="1" placeholder="Customer Code" />
+        <input type="text" id="txtDBServer" class="text ui-widget-content ui-corner-all instancefields" style="font-size: 16pt;" value="" tabindex="1" placeholder="Database Server" />
+        <input type="text" id="txtDB" class="text ui-widget-content ui-corner-all instancefields" style="font-size: 16pt;" value="" tabindex="1" placeholder="Database Name" />
+
+        <br class="userfields" />
+        <label style="font-size: 16pt; text-align:left; cursor: pointer;" class="userfields" onclick="Back();"><img src="%SERVERADDRESS%Images/ActionIcons/nav_left_blue.png" /> Connection Details</label>
+        <br class="userfields" />
+        <input type="text" id="txtInstance" class="text ui-widget-content ui-corner-all userfields" style="font-size: 16pt;" value="" tabindex="1" placeholder="Instance Name" />
+        <input type="text" id="txtUsername" class="text ui-widget-content ui-corner-all userfields" style="font-size: 16pt;" value="" tabindex="1" placeholder="Username" />
+        <input type="password" id="txtPassword" class="text ui-widget-content ui-corner-all userfields" style="font-size: 16pt;" value="" tabindex="1" placeholder="Password" />
+        
+        <div id="btnOK" onclick="SubmitForm();" 
+            onmouseover="$(this).addClass('mobilebtn-hover');" 
+            onmouseout="$(this).removeClass('mobilebtn-hover');"  
+            class="mobilebtn unselectable submitbuttons">
+            OK
+        </div>
+
+    </div>  
+    </center>     
+</body>
+</html>
+
+

@@ -1,0 +1,6 @@
+﻿/* Auto Complete
+----------------------------------*/
+
+.ui-autocomplete { position: absolute; cursor: default; height: 300px; overflow-y: scroll; overflow-x: hidden; }	
+.ui-autocomplete-category {font-weight: bold; padding-top: 5px;}
+* html .ui-autocomplete { width:1px; } /* without this, the menu expands to 100% in IE6 */

@@ -1,0 +1,30 @@
+﻿CACHE MANIFEST
+      
+# Manifest Version %VERSION%.0
+# Instance Version %PARAM:INSTANCEVERSION%
+
+CACHE:
+%SERVERADDRESS%%PARAM:INSTANCE%?mobile=true
+%SERVERADDRESS%f/?t=css&mobile=true&ver=%VERSION%&instance=%PARAM:INSTANCE%
+%SERVERADDRESS%f/?t=css&mobile=true&custom=true&ver=%VERSION%
+%SERVERADDRESS%f/?t=js&mobile=true&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%
+%SERVERADDRESS%f/?t=js&mobile=true&custom=true&ver=%VERSION%&min=%PARAM:MINIFY%
+
+%SERVERADDRESS%Images/icon.png
+%SERVERADDRESS%Images/icon-highres.png
+
+# Issue #70 - Offline icons
+%SERVERADDRESS%Images/ActionIcons/home.png
+%SERVERADDRESS%Images/ActionIcons/navigate_right.png
+%SERVERADDRESS%Images/ActionIcons/navigate_left.png
+%SERVERADDRESS%Images/ActionIcons/navigate_plain_red.png
+%SERVERADDRESS%Images/ActionIcons/mailbox_empty.png
+%SERVERADDRESS%Images/ActionIcons/cubes.png
+%SERVERADDRESS%Images/ActionIcons/document_certificate.png
+%SERVERADDRESS%Images/ActionIcons/window_edit.png
+%SERVERADDRESS%Images/ActionIcons/box_next.png
+
+NETWORK:
+*
+http://*
+https://*

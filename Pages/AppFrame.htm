@@ -1,0 +1,126 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;" manifest="%SERVERADDRESS%Pages/2?instance=%PARAM:INSTANCE%">
+<head>
+    <title></title>
+
+    <link rel="icon" href="favicon.png" type="image/x-icon" /> 
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon" /> 
+    
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+
+    <script type="text/javascript">
+        var PAGE_PARAMETERS = "%PARAM:PAGEPARAMS%";    
+    </script>
+
+    <link href="%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/css" rel="stylesheet" />
+    
+    <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+
+        //Check if the scripts loaded.
+        if (typeof Application == 'undefined') {
+
+            //Check for bad browser version.
+            if (!document.addEventListener) {
+                window.location = "%SERVERADDRESS%/Pages/8911";
+                throw "";
+            }
+
+            alert("%LANG:ERR_LOADFAILED%");
+            throw "";
+        }  
+
+        //Page Loader
+        $(document).ready(function () {
+
+            Application.LoadModules(Application.windowType.Frame);
+            Application.HookPageEvents();
+        });
+       
+    </script>
+
+    <!--[if lte IE 8]>    	    
+    <style type="text/css">
+        .main-table {
+            width: 98%; 
+            height: 90%;
+        }
+    </style>
+    <![endif]-->
+    <!--[if IE 8]>    	    
+    <style type="text/css">
+        .main-table {
+            width: 98%; 
+            height: 98%;
+        }
+    </style>
+    <![endif]-->
+
+</head>
+<body class="ui-widget-content main-page">    
+    <table class="main-table" cellpadding="0" cellspacing="0">     
+        <tr id="trMain">           
+            <td id="tdMain" class="main-center main-content" style="padding-left: 10px">
+                <div id="divWarning" style="display: none; background-color: #FFFFA6; padding: 4px; margin: 5px; font-weight: bold;">
+                    %LANG:S_CONNECTIVITY% 
+                </div>
+                <div id="AppWindows" class="main-windowstb">
+                </div>
+                <div id="AppWorkspace" class="main-window">
+                </div>
+                <center>
+                    <!-- LOGIN FORM -->
+                    <div id="divLogin" class="ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all"
+                        style="text-align: left; width: 400px; display: none; margin-top: 50px; background-color: #FBFBFF; padding: 10px;">
+                        <h1 id="hdrLogin">%LANG:S_LOGINPROMPT%</h1>                     
+                        <fieldset>                
+                            <input type="text" id="txtUsername" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="1" placeholder="Username" />
+                            <input type="password" id="txtPassword" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="2" placeholder="Password" />
+                            <br />
+                            <span id="spanRemember"><input type="checkbox" id="chkRemember" onclick="Application.App.RememberOnClick();" tabindex="3">%LANG:S_REMEMBER%</value></span>
+                        </fieldset>
+                        <br />
+                        <br />
+                        <div id="btnLogin" onclick="Application.RunNext(Application.App.Login);" 
+                            onmouseover="$(this).addClass('mobilebtn-hover');" 
+                            onmouseout="$(this).removeClass('mobilebtn-hover');"  
+                            class="mobilebtn unselectable">
+                            Login
+                        </div>
+                    </div>                      
+                </center>
+            </td>            
+            <td id="tdSide" class="main-side" style="width: 24%; min-width: 30px;">
+                <div id="SideWindows" class="main-windowstb" style="height: 30px;">
+                    <a href='#' onclick='Application.App.ToggleSide();' class='ui-corner-all'><img id="sideToggle" border="0" src="%SERVERADDRESS%Images/Icons/icon-arrowright.png" style="display: none;"></span></a>
+                </div>
+                <div id="AppSideWorkspace" class="main-window-side">
+                </div>
+            </td>
+        </tr>        
+        <tr id="trFooter">
+            <td class="main-center footer-box">
+                <table id="tdFooter" style="width: 100%;">
+                    <tr>
+                        <td class="footer-text" style="width: 60%;">
+                            <script type="text/javascript">
+                                if (typeof Application != 'undefined')
+                                    document.write(Application.copyright + '. ' + Application.name + ' v' + Application.version);
+                            </script>
+                        </td>
+                        <td style="width: 40%; text-align: right;">
+                            <div id="divStatus" class="footer-text">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="main-side">
+            </td>
+        </tr>
+    </table>
+  
+</body>
+</html>

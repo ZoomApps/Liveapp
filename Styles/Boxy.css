@@ -1,0 +1,20 @@
+﻿.boxy-wrapper { position: absolute; }
+.boxy-wrapper.fixed { position: fixed; }
+
+/* Modal */
+  
+.boxy-modal-blackout { position: absolute; background-color: black; left: 0; top: 0; }
+  
+/* Border */
+
+.boxy-wrapper { empty-cells: show; }
+
+/* Content Region */
+	
+.boxy-inner { overflow: hidden; background-color: white; padding: 0 }
+.boxy-content { padding: 15px; overflow-y: auto; }
+	
+/* Question Boxes */
+
+.boxy-wrapper .question { width: 350px; min-height: 80px; }
+.boxy-wrapper .answers { text-align: right; }
