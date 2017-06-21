@@ -16,7 +16,3 @@ The current nightly build can be downloaded from [here](https://dev.liveapp.com.
 ## Submit an issue
 
 Submitting an issue is easy. Simply goto the issue section [here](https://github.com/LiveappSolutions/Liveapp/issues) and click "New Issue". Please be descriptive and attach any images if possible.
-
-## Track the progress of an issue
-
-To track the progress of issues, please use the project page [here](https://github.com/LiveappSolutions/Liveapp/projects/1). This will display the issue progress as it is Approved, In Progress, Done and Released.
