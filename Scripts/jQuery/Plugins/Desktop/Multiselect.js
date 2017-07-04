@@ -406,7 +406,7 @@
 
           // setTimeout is to fix multiselect issue #14 and #47. caused by jQuery issue #3827
           // http://bugs.jquery.com/ticket/3827
-          setTimeout($.proxy(self.update, self), 10);
+          setTimeout($.proxy(self.refresh, self), 10);
       });
 
             // close each widget when clicking on any other element/anywhere else on the page
