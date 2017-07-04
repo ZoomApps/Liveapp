@@ -33,7 +33,7 @@ Define("ImageLookup",
         this.CreateDesktop = function (window_) {
 
             //Create the control.
-            var container = $('<div id="' + _base.ID() + '" style="padding: 10px; text-align: left;"><img id="ctl' + _base.ID() + '" src="" style="max-height: 300px;" /><br /><br /><a id="edit' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true">Add/Edit</a><a id="clear' + _base.ID() + '" data-role="button" data-icon="delete" data-iconpos="notext" data-theme="c" data-inline="true">Delete</a><br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /><div id="placeholder' + _base.ID() + '" style="width: 300px; height: 400px; display: none;"></div></div>');
+            var container = $('<div id="' + _base.ID() + '" style="padding: 10px; text-align: left;"><img id="ctl' + _base.ID() + '" src="" style="max-height: 300px;" /><br /><br /><a id="edit' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true">Add/Edit</a><a id="clear' + _base.ID() + '" data-role="button" data-icon="delete" data-iconpos="notext" data-theme="c" data-inline="true">Delete</a><br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /></div>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
@@ -71,6 +71,12 @@ Define("ImageLookup",
 
                         $('#file' + _base.ID()).fileReaderJS({
                             on: {
+                                beforestart: function (e, file) {
+                                    _base.Viewer().ShowLoad();
+                                },
+                                loadend: function (e, file) {
+                                    _base.Viewer().HideLoad();
+                                },
                                 load: function (url) {
 
                                     m_loaded = false;
@@ -78,19 +84,55 @@ Define("ImageLookup",
 
                                     if (Application.HasOption(_base.Field().Options, "crop")) {
 
-                                        m_cropper = new Croppic('placeholder' + _base.ID(), {
+                                        var id = $id();
+                                        var win = "<div id='" + id + "' style='max-height: "+(UI.Height()-50)+"px; max-width: "+(UI.Width()-50)+"px;  max-width: "+(UI.Width()-50)+"px;'>" +
+						                "<div id='" + id + "actions' class='ui-widget ui-state-default' style='border: 0px;'></div>"+
+                                        "<div id='" + id + "main' class='ui-widget-content' style='border-width: 0px; width: 300px; height: 400px;'>" +
+						                "<img id='" + id + "image' style='max-height: 300px; height: 300px; max-width: 100%; display: block; margin: auto;'>" +
+						                "</div></div>";
+                                    
+                                        var cropbox = new Boxy(win, {
+                                            title: "Loading...",
+                                            closeText: "X",
                                             modal: true,
-                                            loadPicture: url,
-                                            rotateControls: false,
-                                            onAfterImgCrop: function (i) {
-                                                UI.ImageManager.Resize(i.imgUrl, i.imgW, i.imgH, i.rotation, function (img) {                                                                                                        
-                                                    UI.ImageManager.Crop(img, i.imgX1, i.imgY1, i.cropW, i.cropH, function (img) {
-                                                        _self.OnValueChange(_base.Field().Name, UI.ImageManager.Base64(img));
-                                                    });                                                        
-                                                });
-                                            }
+                                            unloadOnHide: true,
+                                            show: false,
                                         });
 
+                                        var rotate1 = $("<button class='unselectable app-button' style='border-width: 0px;'>Rotate -45</button>").button().on("click", function () {
+                                            $('#' + id + 'image').cropper("rotate", -45);
+                                        });
+                                        $("#" + id + "actions").append(rotate1);
+
+                                        var rotate2 = $("<button class='unselectable app-button' style='border-width: 0px;'>Rotate +45</button>").button().on("click", function () {
+                                            $('#' + id + 'image').cropper("rotate", 45);
+                                        });
+                                        $("#" + id + "actions").append(rotate2);
+
+                                        var zoom1 = $("<button class='unselectable app-button' style='border-width: 0px;'>Zoom In</button>").button().on("click", function () {
+                                            $('#' + id + 'image').cropper("zoom", 0.1);
+                                        });
+                                        $("#" + id + "actions").append(zoom1);
+
+                                        var zoom2 = $("<button class='unselectable app-button' style='border-width: 0px;'>Zoom Out</button>").button().on("click", function () {
+                                            $('#' + id + 'image').cropper("zoom", -0.1);
+                                        });
+                                        $("#" + id + "actions").append(zoom2);
+
+                                        var crop = $("<button class='unselectable app-button' style='border-width: 0px;'>Finish Crop</button>").button().on("click", function () {
+                                            var url = $('#' + id + 'image').cropper("getCroppedCanvas", {
+                                                width: 300
+                                            }).toDataURL();
+                                            cropbox.hide();
+                                            _self.OnValueChange(_base.Field().Name, UI.ImageManager.Base64(url));
+                                        });
+                                        $("#" + id).append(crop);
+
+                                        $('#' + id + 'image').attr("src", url).cropper();
+                                        cropbox.setTitle("Crop");
+                                        cropbox.center();
+                                        cropbox.show();
+                                        
                                     } else {
 
 										if(_base.Viewer() && _base.Viewer().OnSaveImage){
