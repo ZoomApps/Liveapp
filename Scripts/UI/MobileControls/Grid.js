@@ -468,7 +468,7 @@ Define("Grid",
 
 				var new_cols = [];
                 var new_colNames = [];
-                for(var i = 0; i < value.length; i++){
+                for(var i = 1; i < value.length; i++){
                     new_cols.push(m_cols[value[i]]);
                     new_colNames.push(m_colNames[value[i]]);
                 }
