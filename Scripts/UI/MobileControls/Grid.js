@@ -467,10 +467,12 @@ Define("Grid",
 				m_newSort = value;
 
 				var new_cols = [];
-                var new_colNames = [];
-                for(var i = 1; i < value.length; i++){
-                    new_cols.push(m_cols[value[i]]);
-                    new_colNames.push(m_colNames[value[i]]);
+				var new_colNames = [];
+
+				value.splice(0, 1);
+                for(var i = 0; i < value.length; i++){
+                    new_cols.push(m_cols[value[i] - 1]);
+                    new_colNames.push(m_colNames[value[i] - 1]);
                 }
 
                 m_cols = new_cols;
