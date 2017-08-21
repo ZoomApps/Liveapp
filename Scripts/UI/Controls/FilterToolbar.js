@@ -45,8 +45,8 @@ Define("FilterToolbar",
             toolbar.append("<select id='" + window_.ID() + "filterfields' class='ui-widget ui-widget-content ui-corner-left' style='width: auto; max-width: 100px; float: right; margin-right: 15px;' />");
             toolbar.append("<input type='text' id='" + window_.ID() + "filterinput' placeholder='Type to filter (F7)' class='ui-widget ui-widget-content ui-corner-left' style='width: 150px; float: right;' />");
 
-            toolbar.append("<div id='" + window_.ID() + "filterclear' class='ui-state-hover' style='display: none; cursor: pointer; float: right; margin-right: 15px; padding: 1px; border: 0px;'>" + UI.IconImage('delete') + "</div>");
-            toolbar.append("<label id='" + window_.ID() + "filtertxt' class='ui-state-hover' style='display: none; font-size: 11px; width: auto; float: right; margin-right: 3px; padding: 5px; border: 0px;'></label>");
+            toolbar.append("<div id='" + window_.ID() + "filterclear' class='ui-state-hover' style='display: none; cursor: pointer; float: right; margin-right: 15px; padding: 1px; border: 0px; background: gainsboro;'>Clear All " + UI.IconImage('delete') + "</div>");
+            toolbar.append("<label id='" + window_.ID() + "filtertxt' class='ui-state-hover' style='display: none; width: auto; float: right; margin-right: 3px; border: 0px;'></label>");
 
             //Save the filter controls.
             m_filterFields = $("#" + window_.ID() + "filterfields");
@@ -74,26 +74,38 @@ Define("FilterToolbar",
 
             //Hide the filter text.
             m_filterClear.css("display", "none");
-            m_filterText.css("display", "none");
+            m_filterText.css("display", "none").html("");
 
             //Get the page filters.
             var filters = _base.Viewer().Filters();
-            for (var i = 0; i < filters.length; i++) {
-                var pagefield = _base.Viewer().Page().GetField(filters[i].Name.replace("FF$", ""));
+            $.each(filters, function (index, filter) {
+                var pagefield = _base.Viewer().Page().GetField(filter.Name.replace("FF$", ""));
                 if (pagefield) {
-                    if (filtertxt == "") {
-                        filtertxt = 'Filter: ' + filters[i].Name.replace("FF$", "") + " = FILTER(" + filters[i].Value + ")";
-                    } else {
-                        filtertxt += ", " + filters[i].Name.replace("FF$", "") + " = FILTER(" + filters[i].Value + ")";
-                    }
+                    var filterbox = $("<div style='display: inline-block; background-color: gainsboro; margin-left: 4px; cursor: pointer; padding: 1px;'>" + pagefield.Name + "=FILTER(" + filter.Value + ")&nbsp;&nbsp;</div>");
+                    m_filterText.append(filterbox);
+                    filterbox.on("click", function () {
+                        _self.GetFilter(pagefield.Name);
+                        m_filterFields.val(pagefield.Name);
+                    });
+                    var delbox = $(UI.IconImage('delete'));
+                    delbox.on("click", function () {
+                        Application.RunNext(function () {
+                            return $codeblock(
+                                function () {
+                                    return _base.Viewer().Filter(pagefield.Name, null, true);
+                                },
+                                function () {
+                                    m_filterFields.val(pagefield.Name);
+                                    m_filterInput.val('');
+                                }
+                            );
+                        });
+                    });
+                    filterbox.append(delbox);
+                    m_filterText.css("display", "");
                     m_filterClear.css("display", "");
                 }
-            }
-
-            if (filtertxt != "")
-                m_filterText.css("display", "");
-
-            m_filterText.html(filtertxt);
+            });
 			
 			if(clear)
 				m_filterInput.val("");
