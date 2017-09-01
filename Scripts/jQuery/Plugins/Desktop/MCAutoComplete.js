@@ -17,7 +17,7 @@ $.widget('custom.mcautocomplete', $.ui.autocomplete, {
     _renderMenu: function (ul, items) {
         var self = this, thead;
 
-        ul.css("z-index", 30002);
+        ul.css("z-index", 30001);
 
         if (this.options.menu)
             ul.css("overflow", "hidden").css("height", "auto");

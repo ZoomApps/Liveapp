@@ -142,7 +142,7 @@ jQuery.extend(Boxy, {
     DEFAULT_X: 50,
     DEFAULT_Y: 50,
     MODAL_OPACITY: 0.7,
-    zIndex: 29999,
+    zIndex: 29000,
     dragConfigured: false, // only set up one drag handler for all boxys
     resizeConfigured: false,
     dragging: null,
