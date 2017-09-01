@@ -25,7 +25,7 @@ DefineModule("FileDownloadManager",
         var m_timer = null; //Timer        
         var m_requests = [];		
 		var m_chunksize = null;
-		var m_timeout = null;
+		var m_timeout = 5000;
 		var m_showProgress = true;
 
         //#endregion
@@ -58,10 +58,12 @@ DefineModule("FileDownloadManager",
         };
 
         this.Start = function () {
+            if(m_timer)
             m_timer.Start(true);
         };
 
         this.Finish = function () {
+            if(m_timer)
             m_timer.Stop(true);
         };
 
@@ -107,7 +109,7 @@ DefineModule("FileDownloadManager",
             return $codeblock(
 
                 function () {
-                    return Application.CreateFileForUpload(name_, data_.length, Default(m_chunksize,100000));
+                    return Application.CreateFileForUpload(name_, data_.length, 30000);
                 },
 
                 function (info_) {
@@ -118,7 +120,9 @@ DefineModule("FileDownloadManager",
                     info_.finish = function(file){
 						w.resolve(file);
 					};
-                    info_.chunksize = Default(m_chunksize,100000);
+                    info_.chunksize = 30000;
+					if(m_chunksize)
+						info_.chunksize = m_chunksize;
                     info_.showUI = showUI_;
 					info_.failedChunks = [];
 
@@ -403,8 +407,9 @@ DefineModule("FileDownloadManager",
                         m_files[file].error = e;
                         m_files[file].finished = true;						
                     }else if(typeof e == "string" && e == "timeout"){
-							//Dont do anything
-						}
+						//Increase timeout
+						m_timeout += 5000;
+					}
                 } catch (ex) {
                 }
             };
@@ -458,7 +463,8 @@ DefineModule("FileDownloadManager",
                             m_files[file].error = e;
                             m_files[file].finished = true;
                         }else if(typeof e == "string" && e == "timeout"){
-							//Dont do anything
+							//Increase timeout
+							m_timeout += 5000;
 						}
                     }					
                 } catch (ex) {					

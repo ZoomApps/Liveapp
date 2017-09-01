@@ -11129,6 +11129,8 @@ $.widget( "mobile.popup", {
 		$.mobile.popup.active = this;
 		this._scrollTop = this.window.scrollTop();
 
+		currentOptions.history = false; //Liveapp v4
+		
 		// if history alteration is disabled close on navigate events
 		// and leave the url as is
 		if ( !( currentOptions.history ) ) {

@@ -28,8 +28,7 @@ function () {
     var m_modifiedRecords = [];
     var m_deletedRecords = [];
     var m_insertedRecords = [];
-    var m_pack = null;
-    var m_key = "";
+    var m_pack = null;    
     var m_downloadReq = null;
     var m_downloadInfo = null;
     var m_offlineInfo = null;
@@ -39,6 +38,8 @@ function () {
 	var m_zipDataPacks = true;
 	var m_showsuccess = true;
 	var m_offlineMode = 0; //0 = Classic Offline, 1 = Toggle Offline 
+	var m_datapackid = 0;
+	var m_lastSwitchCallback = null;
 
     //#endregion
 
@@ -60,19 +61,26 @@ function () {
 			Application.On("MenuLoaded", _self.MenuLoadedEvent);
 			Application.On("ShowLogin", _self.ShowLoginEvent);
 			Application.On("Login", _self.LoginEvent);		
-			Application.On("Logout", _self.LogoutEvent);
-			//Application.On("Exit", _self.Save);
+			Application.On("Logout", _self.LogoutEvent);			
 		}
 		
 		Application.On("Connected", function () {
 			if(m_offline == false && m_offlineMode == 1){
-				_self.HasDataPack(function(ret){
-					if(ret){
-						Application.Confirm("You have an existing offline data package to upload.", function (r) {
-							if(!r){
+				
+				//Reset transactions
+				Application.transactionStarted = 0;			
+				
+				function Reconnect(){
+					Application.Confirm("You have an existing offline data package to upload.", function (r) {
+							if(!r){										
 								Application.RunNext(function(){
 									return $codeblock(
-									  _self.CheckForUpload
+									  _self.CheckForUpload,
+									  function(){
+										  _self.HideLoad();
+										  if(ThisViewer()) ThisViewer().HideLoad();
+										  if(m_lastSwitchCallback) return m_lastSwitchCallback();
+									  }
 									)
 								});
 							}else{
@@ -82,10 +90,26 @@ function () {
 										RemoveDataPack(MainPackName());
 										RemoveDataPack(SecondaryPackName());
 										Reset();
+										Application.RunNext(function(){
+											_self.HideLoad();
+											if(ThisViewer()) ThisViewer().HideLoad();
+											if(m_lastSwitchCallback) return m_lastSwitchCallback();
+										});
+									}else{
+										Reconnect();
 									}
 								});
 							}
 						},null,"Delete the data pack","Upload the data pack");
+				}
+				
+				_self.HasDataPack(function(ret){
+					UI.Progress(false);	
+					if(ret){
+						Reconnect();
+					}else{
+						_self.HideLoad();
+						if(ThisViewer()) ThisViewer().HideLoad();
 					}
 				});
 			}
@@ -93,19 +117,25 @@ function () {
 		
 		Application.On("ConnectionLost", function () {
 			if(m_offline == false && m_offlineMode == 1){
-				_self.HasDataPack(function(ret){
-					if(ret){
-						UI.StatusBar(true,"%LANG:S_CONNECTIVITY% Offline data package saved.");						
-					}
-				});
+				_self.ShowLoad();
+				UI.StatusBar(false);
+				UI.Progress(true, "%LANG:S_CONNECTIVITY% Offline data package saved. <br/><br/>Attempting to reconnect... <br/><br/><a onclick='Application.App.OnTimer();'><u>Click here to reconnect now</u></a><br/><br/>", "Connection Lost", null, null, null, true);						
 			}
 		});
     };
-
+	
     this.Clear = function () {
 		//Not Used
     };
 
+	this.ShowLoad = function(){
+		Application.Loading.Show("ui-mobile-viewport",".");
+	};
+	
+	this.HideLoad = function(){
+		Application.Loading.Hide("ui-mobile-viewport");
+	};
+	
     this.Load = function (callback) {
 
         GetDataPack(SecondaryPackName(), null, function(pack){
@@ -209,11 +239,7 @@ function () {
         var uploading = false;
         if ((m_insertedRecords.length + m_modifiedRecords.length + m_deletedRecords.length) > 0) {   
 
-			// for(var i = 0; i < m_modifiedRecords.length; i++){
-				// m_modifiedRecords[i] = StripFlowFields(m_modifiedRecords[i]);
-			// }
-		
-            return Application.FileDownload.UploadFile("Data" + $id(), $.toJSON([m_insertedRecords, m_modifiedRecords, m_deletedRecords]), function (file) {
+            return Application.FileDownload.UploadFile("DataPack" + m_datapackid, $.toJSON([m_insertedRecords, m_modifiedRecords, m_deletedRecords]), function (file) {
 
                 if (uploading == true)
                     return;
@@ -227,7 +253,7 @@ function () {
 
                 var int_id = null;
                 var callbacks = new Object();
-                callbacks.onerror = function (err) {											
+                callbacks.onerror = function (err) {			
                     Application.Error(err);
                 };
                 callbacks.onsuccess = function (err) {
@@ -319,28 +345,11 @@ function () {
 
     this.GetRecordSet = function (id_, view_) {
 
-        //Try to get the records from memory.
-        // for (var i = 0; i < m_recordSets.length; i++) {
-            // if (m_recordSets[i][0] == id_ && m_recordSets[i][1] == view_) {
-                // var list = [];
-                // for (var j = 0; j < m_recordSets[i][2].length; j++) {
-                    // list.push(m_recordSets[i][2][j]);
-                // }
-                // return list;
-            // }
-        // }
-
         //Add the records from pack to memory.
         var r = [];
         r[0] = id_;
         r[1] = view_;
         r[2] = GetRecordsFromPack(id_, view_);
-
-        //Make sure the record sets don't get too big.
-        // if (m_recordSets.length > 50)
-            // m_recordSets.splice(0, 1);
-
-        //m_recordSets.push(r);
 
         //Return the record set.
         return r[2];
@@ -385,11 +394,9 @@ function () {
             setTimeout(function () {
 
                 if (Default(Application.auth.OfflineAuth,"") == "") {
-                    Application.auth.Username = Application.auth.Username.replace(/\/{1,}/g, "\\");
-                    //m_key = CreateKey();
+                    Application.auth.Username = Application.auth.Username.replace(/\/{1,}/g, "\\");                    
                 } else {
-                    Application.auth.Username = Application.auth.OfflineAuth.split("|")[0];
-                    //m_key = Application.auth.OfflineAuth.split("|")[1];
+                    Application.auth.Username = Application.auth.OfflineAuth.split("|")[0];                    
                 }
 
                 GetDataPack(MainPackName(), null, function(pack){
@@ -397,7 +404,7 @@ function () {
                 if (pack == null || pack == ""){
 					Application.Confirm("You do not have an offline data package. Would you like to change to online mode?", function(ret){
 						if(ret){
-							$("#offlineIndicatorText").click();							
+							_self.Toggle();						
 						}
 					});
 					Application.Error("");
@@ -410,11 +417,6 @@ function () {
 				if (pack == "" )
                     Application.Error("%LANG:ERR_BADLOGIN%");
                 m_pack = $.parseJSON(pack);
-
-				//Authenticate the user.
-				//var pakkey = Application.EncryptData(Application.auth.Username.toUpperCase(), m_key);		
-				//if(m_pack[4] != pakkey)
-				//	Application.Error("%LANG:ERR_BADLOGIN%");
 					
                 Application.auth.Password = '';
                 Application.auth.LoginDate = new Date();
@@ -590,7 +592,48 @@ function () {
             }
 
             Application.Error("Offline codemodule not found: " + args.name_);
-        }
+			
+        } else if (method == "BatchProcess"){
+		
+			var recs = [];
+			
+			for(var i = 0; i < args.insert_.length; i++){
+				recs.push([args.insert_[i],"INS",args.insert_[i].Timestamp]);
+			}
+		
+			for(var i = 0; i < args.modify_.length; i++){
+				recs.push([args.modify_[i],"MOD",args.modify_[i].Timestamp]);
+			}
+			
+			for(var i = 0; i < args.delete_.length; i++){
+				recs.push([args.delete_[i],"DEL",args.delete_[i].Timestamp]);
+			}
+			
+			recs.sort(function (a, b) {
+				if (a[2] == b[2])
+					return 0;
+				if (a[2] > b[2]) {
+					return 1;
+				} else {
+					return -1;
+				}
+			});
+			
+			for(var i = 0; i < recs.length; i++){				
+				if(recs[i][1] == "DEL"){
+					_self.Process("RecordDelete",{rec_: {Record: recs[i][0]}},function(){});
+				}
+				if(recs[i][1] == "INS"){
+					_self.Process("RecordInsert",{rec_: {Record: recs[i][0]}},function(){});
+				}
+				if(recs[i][1] == "MOD"){
+					_self.Process("RecordModify",{rec_: {Record: recs[i][0]}},function(){});
+				}
+			}
+			
+			callback(null);
+			return true;
+		}
 
         return false;
     };
@@ -666,6 +709,9 @@ function () {
 		
 		m_instance = Application.auth.Instance;
 		m_offlineMode = 1;
+		m_lastSwitchCallback = callback_;
+		Application.FileDownload.ShowProgress(false);
+		_self.ShowLoad();
 		
 		function DownloadTempDataPack(){
 			
@@ -678,8 +724,8 @@ function () {
 				m_pack = null;
 				try {								
 					m_pack = $.parseJSON(f);						
-					}catch(e){					
-					}
+				}catch(e){					
+				}
 				if(!m_pack)
 					Application.Error("Data pack corruption");									
 
@@ -692,6 +738,7 @@ function () {
 					Application.RunNext(function(){
 						return $codeblock(
 							function(){
+								_self.HideLoad();
 								if(callback_) return callback_();
 							}
 						);
@@ -740,7 +787,8 @@ function () {
 				return $codeblock(
 				  _self.CheckForUpload,
 				  function(){
-					  if (callback_) return callback_();					  
+					_self.HideLoad();
+					if (callback_) return callback_();					  
 				  }
 				)
 			});
@@ -751,6 +799,8 @@ function () {
 		
 		Application.RunNext(function () {
 
+			var w = $wait();
+		
             UI.ScrollToTop();
             
             var callback = new Object();
@@ -771,7 +821,9 @@ function () {
                 m_downloadInfo = info;
 
                 UI.ScrollToTop();
-                UI.StatusBar(true, "<img src='%SERVERADDRESS%Images/loader.gif' /> Downloading offline data (" + PrintLength(m_downloadInfo.Length) + ")", "#99FF66");
+				
+				if(m_offlineMode == 0)
+					UI.StatusBar(true, "<img src='%SERVERADDRESS%Images/loader.gif' /> Downloading offline data (" + PrintLength(m_downloadInfo.Length) + ")", "#99FF66");
 
                 Application.FileDownload.DownloadFile(info, function (file) { //Download success.
 
@@ -787,12 +839,23 @@ function () {
 					Application.FileDownload.RemoveFile(m_downloadInfo);
                     m_downloadInfo = null;
 					
-					UI.StatusBar(false);
+					Application.ExecuteWebService("DownloadedDataPack",{ auth: Application.auth, name_: file.Name },function(){
+						
+						_self.SetDataPackID(file.Name.replace("DataPack","").replace(".pak",""));
+						
+						UI.StatusBar(false);
 					
-                    //Save datapack.                                        
-                    SaveDataPack(MainPackName(), f, function(){
-						if(callback_) callback_(f);
-					});                                       
+						//Save datapack.                                        
+						SaveDataPack(MainPackName(), f, function(){
+							
+							w.resolve();							
+							
+							Application.RunNext(function(){
+								if(callback_) callback_(f);
+							});							
+						}); 
+						
+					});										                                    
 
                 }, function () { //Cancel download.
                     if (m_downloadInfo)
@@ -800,6 +863,7 @@ function () {
                     m_downloadInfo = null;
                     m_downloadReq = null;
                     UI.StatusBar(false);
+					w.resolve();
                 }, false);
 
             };
@@ -810,22 +874,33 @@ function () {
                 m_downloadInfo = null;
                 m_downloadReq = null;
                 UI.StatusBar(false);
+				Application.HideProgress();        	
+				Application.Offline.HideLoad();						
                 if (e != "abort")
                     Application.Error(e);
             };
 
             Application.ExecuteWebService("DownloadDataPack", { auth: Application.auth }, null, true, null, false, callback);
-        });
-
-    };
+			
+			return w.promise();
+			
+        },null,null,true);
+		
+	};
 
     this.SetOffline = function (value) {
 
         m_offline = value;
         Application.Storage.Set("IsOffline-" + m_instance, value.toString());
+	
+	};
+	
+	this.SetDataPackID = function (value) {
 
-        _self.UpdateIndicator();
-    };
+        m_datapackid = value;
+        Application.Storage.Set("DataPackID-" + m_instance, value.toString());
+	
+	};
 
     this.UpdateMenuItem = function () {
         if (m_offline) {
@@ -834,53 +909,6 @@ function () {
         } else {
             $('.Offline').text('Go Offline');
             m_offlineInfo.hide();
-        }
-    };
-
-    this.UpdateIndicator = function () {
-
-        $("#offlineIndicatorText").unbind("click");
-        $("#offlineIndicatorText").bind("click", function () {
-            _self.Toggle();			
-			Application.RunNext(function(){
-				Application.Message("The App is now in "+(m_offline ? "offline" : "online")+" mode. Please log in.");
-			});
-        });
-
-        if (m_offline) {
-            $("#offlineIndicator").css("background-color", "Red");
-            $("#offlineIndicatorText").text("Offline");
-        } else {
-            $("#offlineIndicator").css("background-color", "Green");
-            $("#offlineIndicatorText").text("Online");
-        }
-
-        if (Application.IsInMobile()) {
-            var txt = ["red", "offline", "online"];
-            if (!m_offline) {
-                txt = ["green", "online", "offline"];
-            }
-            $("#offlineIndicatorText").html(Application.StrSubstitute("<br/><br/><br/><table><tr><td><div class='indicator' style='background-color: $1'></div> </td><td>&nbsp;&nbsp;You are $2. (Click here to go $3)</td></tr></table>"
-                , txt[0], txt[1], txt[2]));
-        } else {
-            var txt = "Click here to go Online.";
-            if (!m_offline)
-                txt = "Click here to go Offline.";
-            $("#offlineIndicatorText").qtip({
-                content: txt,
-                position: {
-                    my: 'top right',
-                    adjust: {
-                        y: -60,
-                        x: 100
-                    }
-                },
-                style: {
-                    tip: {
-                        corner: false
-                    }
-                }
-            });
         }
     };
 
@@ -996,14 +1024,19 @@ function () {
 		
         Application.Storage.Get("IsOffline-" + m_instance, function(err, lastState){
 			
-        lastState = Default(lastState, "false");
-        if (lastState != "false") {
-            m_offline = true;
-        }
-
-        _self.UpdateIndicator();
+			lastState = Default(lastState, "false");
+			if (lastState != "false") {
+				m_offline = true;
+			}
 			
-			w.resolve();
+			Application.Storage.Get("DataPackID-" + m_instance, function(err, dpid){
+				
+				m_datapackid = dpid;
+				
+				w.resolve();
+				
+			});
+			
 		});   
 
 		return w.promise();
@@ -1011,7 +1044,7 @@ function () {
 
     this.CreateMenuEvent = function (mnu) {
 
-        Application.App.PrintSideLink(mnu, Application.executionPath + 'Images/ActionIcons/replace2.png', "Offline", "Application.Offline.Toggle();");
+        //Application.App.PrintSideLink(mnu, Application.executionPath + 'Images/ActionIcons/replace2.png', "Offline", "Application.Offline.Toggle();");
         m_offlineInfo = Application.App.PrintSideLink(mnu, Application.executionPath + 'Images/ActionIcons/preferences.png', "Offline Info", "Application.Offline.Info();");
         _self.UpdateMenuItem();
     };
@@ -1027,9 +1060,6 @@ function () {
 
     this.ShowLoginEvent = function () {
 
-        if (Application.IsInMobile())
-            $("#offlineIndicatorText").show();
-
         if (m_offline) {
             $("#spanRemember").hide();
         } else {
@@ -1041,10 +1071,7 @@ function () {
     };
 
     this.LoginEvent = function () {
-
-        if (Application.IsInMobile())
-            $("#offlineIndicatorText").hide();                    
-    };
+	};
 	
 	this.LoadDatapack = function(){
 		
@@ -1073,8 +1100,7 @@ function () {
 		//_self.Save();
 	
         m_recordSets = [];
-        m_pack = null;
-        m_key = "";
+        m_pack = null;        
         m_info = { mainsize: 0, subsize: 0 };
         Reset();
 
@@ -1158,11 +1184,11 @@ function () {
     };
 
     function MainPackName() {
-        return ("MainPak-" + m_instance + "-" + Application.auth.Username).toLowerCase();
+        return ("MainPak-" + m_datapackid).toLowerCase();
     };
 
     function SecondaryPackName() {
-        return ("SubPak-" + m_instance + "-" + Application.auth.Username).toLowerCase();
+        return ("SubPak-" + m_datapackid).toLowerCase();
     };
 
     function GetRecord(recid_, arr_) {

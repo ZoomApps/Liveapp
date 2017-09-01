@@ -99,6 +99,7 @@ DefineModule("App",
                         m_params["generate"] = "false";
                         m_params["auth"] = null;
                         m_params["windowsauth"] = "false";
+                        m_params["custom"] = null;
                         Application.LoadParams(m_params, PAGE_PARAMETERS);
 
                         //Check if browser is supported.
@@ -183,8 +184,10 @@ DefineModule("App",
 									_self.OnSearch($(this));
 							},900)
                         );
+						
 						$("body").on("click",function(){
 							$(".searchdropdown").remove();
+							$(".lineactions,.lineactionsoverlay").remove();
 						});
 						
 						if(Application.IsMobileDisplay()){							
@@ -201,7 +204,7 @@ DefineModule("App",
 						if (m_params["returnurl"] != null) {
 							$("#lnkLogout").html("EXIT");							
 						}
-							
+								
                         //Windows auth.
                         if (m_params["windowsauth"] == "true") {
                             return _self.LoginFromWindowsAuth();
@@ -225,7 +228,7 @@ DefineModule("App",
                         }
 						
                         //Attempt to login from cookie.
-                        return _self.LoginFromCookie();
+						return _self.LoginFromCookie();
                     }
                 );
             });
@@ -547,6 +550,12 @@ DefineModule("App",
                             Application.auth.Type = Application.authType.Token;
                             Application.auth.AppSecret = options_.token;
 
+						} else if (options_.type == "Tile") { //Login tile.
+
+                            Application.auth.Type = 999;
+                            Application.auth.Username = options_.username;
+                            Application.auth.Password = options_.passcode;                            
+							
                         } else { //Cookie.
 
                             Application.auth.Type = Application.authType.Cookie;
@@ -559,7 +568,7 @@ DefineModule("App",
 
                 function (a) {
 
-                    // Liveware 04/03/14 3.2.9.10 AS
+                    // Liveapp 04/03/14 3.2.9.10 AS
                     if (a.SessionID == null) {
                         parent.window.location.reload();
                     }
@@ -906,7 +915,9 @@ DefineModule("App",
                     e.toLowerCase() == "not found") {
                         Application.connected = false;
                         return;
-                    } else if (Application.HasDisconnected(e)) {
+                    } else if (Application.HasDisconnected(e)) {					
+						if (m_params["returnurl"] != null) 
+							window.location = m_params["returnurl"]+(Application.IsInMobile() ? "?mobile=true" : "");
                         m_hideErrors = true;
                         if (Application.restrictedMode) {
                             window.location = Application.url + m_params["instance"];
@@ -1074,14 +1085,16 @@ DefineModule("App",
 
 				    var id = "VP$RoleCenterPage" //Dynamic Virtual Page.
 
-				    var mnu = _self.PrintSideGroup('%LANG:S_MAINMENU%');
+                    var mnu = _self.PrintSideGroup('%LANG:S_MAINMENU%');
 
 				    if (id != 0) {
 
 				        _self.PrintSideLink(mnu, Application.executionPath + 'Images/ActionIcons/home.png', "%LANG:S_HOME%", "Application.App.LoadPage('" + id + "',null,{homepage:true});");
 				    }
-
-				    Application.Fire("CreateMenu", mnu);
+					
+					var mnu2 = Application.Fire("CreateMenu", mnu);		    
+					if (mnu2)
+					    mnu = mnu2;
 
                     m_mainMenu = mnu;
 
@@ -1385,7 +1398,7 @@ DefineModule("App",
 
         //#region Login Functions
 
-        this.ShowLogin = function (fromError_) {
+        this.ShowLogin = function (fromError_, skipFocus_) {
 
             Application.Loading.Hide("divLogin");
 
@@ -1398,7 +1411,9 @@ DefineModule("App",
 
             $("#txtUsername, #txtPassword, #chkRemember").unbind("keyup", _self.LoginClick);
             $("#txtUsername, #txtPassword, #chkRemember").keyup(_self.LoginClick);
-            $("#txtUsername").focus();
+            
+			if(!skipFocus_)
+				$("#txtUsername").focus();
 
             Application.Fire("ShowLogin");
 			
@@ -1638,6 +1653,7 @@ DefineModule("App",
 
             //Start the page timer.
             m_serverInfo = $("#divServerInfo");
+            if(m_timer)
             m_timer.Start(true);
 
             if ($moduleloaded("FileDownloadManager"))
@@ -1741,10 +1757,11 @@ DefineModule("App",
                     if (r == true) {
                         if (Application.IsOffline())
                             Application.Offline.RemoveLoginCookie();
-                        _self.Disconnect(true);
-						if (m_params["returnurl"] != null) {
+                        if (m_params["returnurl"] != null) {
 							window.location = m_params["returnurl"]+(Application.IsInMobile() ? "?mobile=true" : "");
-						}
+						}else{
+                            _self.Disconnect(true);
+                        }
                     }
                 }, "We'll miss you..");
 
@@ -1770,6 +1787,7 @@ DefineModule("App",
             m_loaded = false;
 
             //Page timer finish.
+            if(m_timer)
             m_timer.Stop(true);
 
             if (m_serverInfo != null) {

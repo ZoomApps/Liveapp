@@ -26,7 +26,7 @@ Define("Textbox",
         this.Create = function (window_) {
 
             var type = "text";
-            if (_base.Viewer && _base.Viewer().Page && _base.Viewer().Page().FieldOption(_base.Field(), "password"))
+            if (Application.HasOption(_base.Field().Options, "password"))
                 type = "password";
 
 //            var validate = "";

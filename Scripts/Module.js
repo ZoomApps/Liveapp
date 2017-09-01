@@ -83,8 +83,8 @@ DefineModule("ModuleManager",
          requiresVersion: '3.0',
          created: new Date(2013, 09, 03),
          version: '1.1',
-         author: 'Liveware Soultions',
-         copyright: 'Copyright 2013, Liveware Soultions',
+         author: 'Liveapp Soultions',
+         copyright: 'Copyright 2013, Liveapp Soultions',
 
          changelog: [
         '03/09/13   PF  Created class.',

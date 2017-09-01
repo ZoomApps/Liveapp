@@ -267,6 +267,8 @@ Define("Grid",
                 img = UI.IconImage(_base.Viewer().Page().DoubleClickAction().Image);
             if (_base.Viewer().EnableEditMode())
                 img = UI.IconImage("redo");
+			if(_base.Viewer().LineActions().length > 0)
+				img = UI.IconImage("table_selection_column");
 
             row += "<th class='rowselector' id='rs" + id + "' style='max-width: 15px; min-width: 15px; background-color: gainsboro;'></th>";
 
@@ -279,12 +281,16 @@ Define("Grid",
                         align = "text-align: " + m_cols[j].align + ";";
                     if (m_cols[j].hidden)
                         align += " display: none;";
+					
+					var link = "";
+					if(_base.Viewer() && _base.Viewer().Page() && Application.OptionValue(_base.Viewer().Page().Options,"hyperlink") === m_cols[j].name)					
+						link = " color: blue; text-decoration: underline;";
 
                     var val = data[m_cols[j].name];
                     if (m_cols[j].onformat) {
-                        row += "<th rid='" + data.RowId + "'  style='" + align + "' class='" + m_cols[j].name + _base.ID() + "'>" + m_cols[j].onformat(val, data) + "</th>";
+                        row += "<th rid='" + data.RowId + "'  style='" + align + link + "' class='" + m_cols[j].name + _base.ID() + "'>" + m_cols[j].onformat(val, data) + "</th>";
                     } else {
-                        row += "<th rid='" + data.RowId + "'  style='" + align + "' class='" + m_cols[j].name + _base.ID() + "'>" + val + "</th>";
+                        row += "<th rid='" + data.RowId + "'  style='" + align + link + "' class='" + m_cols[j].name + _base.ID() + "'>" + val + "</th>";
                     }
 
                 }
@@ -295,10 +301,28 @@ Define("Grid",
             r.bind("tap", function (ev) {
                 if (ev.originalEvent.isDefaultPrevented()) return;
 
+				var lineEditMode = _base.Viewer().LineActions().length > 0;
+				var isRowSelector = false;
+				var isHyperLink = false;
+				try{
+					isRowSelector = ev.target.parentElement.className == "rowselector" || ev.target.className == "rowselector";
+				}catch(e){				
+				}
+				try{
+					isHyperLink = ev.target.style.color == "blue";
+				}catch(e){				
+				}
+				
                 var rowid = parseInt($(this).attr("rid"));
 
-                if (m_tapped == rid) {
-                    _self.OnDoubleClick(rowid);
+				if(lineEditMode && (isRowSelector || isHyperLink)){
+					setTimeout(function(){
+						_base.Viewer().ShowLineActions($($(this).children()[0]),rowid);						
+					},500);
+				}
+				
+                if (m_tapped == rid && !lineEditMode) {
+					_self.OnDoubleClick(rowid);					
                     return;
                 }
 
@@ -383,6 +407,8 @@ Define("Grid",
                 img = UI.IconImage(_base.Viewer().Page().DoubleClickAction().Image);
             if (_base.Viewer().EnableEditMode())
                 img = UI.IconImage("redo");
+			if(_base.Viewer().LineActions().length > 0)
+				img = UI.IconImage("table_selection_column");
 			
 			m_grid.find("#rid"+i).css("background-color", "Gainsboro");	
 			if (img)

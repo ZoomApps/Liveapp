@@ -503,7 +503,7 @@
             $inputs.eq(0).focus();
 
             // update button text
-            this.update();
+            this.refresh();
 
             // gather an array of the values that actually changed
             var values = $inputs.map(function () {
@@ -723,7 +723,7 @@
                 case 'selectedList':
                 case 'noneSelectedText':
                     this.options[key] = value; // these all needs to update immediately for the update() call
-                    this.update();
+                    this.refresh();
                     break;
                 case 'classes':
                     menu.add(this.button).removeClass(this.options.classes).addClass(value);

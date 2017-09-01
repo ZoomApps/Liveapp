@@ -17,6 +17,7 @@ Define("FilterToolbar",
         var m_filterText = null;
         var m_filterFields = null;
         var m_filterClear = null;
+        var m_firstCol = null;
 
         //#endregion
 
@@ -30,7 +31,7 @@ Define("FilterToolbar",
 
         this.Create = function (window_, form_, table_) {
 
-			m_id = window_.ID();
+            m_id = window_.ID();
 		
             //Use toolbar 2 on the window.
             var toolbar = window_.Toolbar2();
@@ -61,6 +62,8 @@ Define("FilterToolbar",
                     if (form_.Fields[i].LookupDisplayField != "") {
                         name = "FF$" + form_.Fields[i].Name;
                     }
+                    if (!m_firstCol)
+                        m_firstCol = name;
                     m_filterFields.append("<option value='" + name + "'>" + form_.Fields[i].Caption + "</option>");
                 }
             }
@@ -68,7 +71,7 @@ Define("FilterToolbar",
             HookPageEvents();
         };
         
-        this.SetFilters = function (clear) {
+        this.SetFilters = function (clear, first) {
 
             var filtertxt = "";
 
@@ -106,9 +109,13 @@ Define("FilterToolbar",
                     m_filterClear.css("display", "");
                 }
             });
-			
-			if(clear)
-				m_filterInput.val("");
+
+            if (clear) {
+                m_filterInput.val("");
+            } else if(m_firstCol && first) {
+				m_filterFields.val(m_firstCol);
+                _self.GetFilter(m_firstCol);
+            }
         };
 
         this.GetFilter = function (col) {

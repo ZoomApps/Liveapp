@@ -13,7 +13,8 @@ Define("OptionsWindow", null, function (options_) {
 	var m_options = null; //Options
 	
 	//Option Members
-    var m_record = new Object();    
+	var m_record = new Object();
+	var m_xRecord = new Object();
     var m_controls = []; 
 	var m_fields = [];
 	
@@ -39,6 +40,7 @@ Define("OptionsWindow", null, function (options_) {
 		//Filtering
 		m_page = options_.page;
         m_view = options_.view;
+		
     };
 
     this.Open = function (parent_) {
@@ -89,6 +91,9 @@ Define("OptionsWindow", null, function (options_) {
                 m_window.UID(uid);
 
                 m_window.ShowLoad();
+				
+				if(Application.IsInMobile())
+					m_window.Main().css("margin-bottom","100px");
 
                 if (parent_) {
                     m_openedFrom = parent_;
@@ -106,8 +111,7 @@ Define("OptionsWindow", null, function (options_) {
             function () {
                 m_loaded = true;
 				_self.OnShow();
-            }
-
+			}
         );
     };
 
@@ -234,6 +238,8 @@ Define("OptionsWindow", null, function (options_) {
 						}						
 					}
 				}
+
+				app_transferObjectProperties.call(m_xRecord, m_record);
 				
                 m_window.CenterDialog();
 
@@ -458,7 +464,7 @@ Define("OptionsWindow", null, function (options_) {
 	this.FixValue = function (field, value_) {
 
 		//Check for nulls
-		if (value_ == "")
+		if (value_ == "" || value_ == "null")
 			value_ = null;
 
 		if (value_ != null && field.OptionCaption == "") {
@@ -572,7 +578,8 @@ Define("OptionsWindow", null, function (options_) {
 						_self.ShowLoad();
 						return func(m_record,_self);
 					},
-					function(){					
+					function () {
+					    app_transferObjectProperties.call(m_xRecord, m_record);
 						return _self.UpdateControls();
 					},
 					function(){
@@ -580,6 +587,8 @@ Define("OptionsWindow", null, function (options_) {
 					}
 				);
 			});
+		} else {
+		    app_transferObjectProperties.call(m_xRecord, m_record);
 		}
 				
 		Application.RunNext(_self.Update);
@@ -781,7 +790,7 @@ Define("OptionsWindow", null, function (options_) {
         return m_window;
     };
 
-    this.CloseFunction = function (func_) {
+    this.CloseFunction = function (func_) {		
         if (typeof func_ == "undefined") {
             return m_closeFunc;
         } else {
@@ -909,7 +918,7 @@ Define("OptionsWindow", null, function (options_) {
         m_window.HideLoad();
     };
 
-    this.Close = function (save) {
+    this.Close = function (save) {		
         if (m_options.closeButton == false) return;
         m_window.HideDialog(save);
     };
@@ -922,6 +931,8 @@ Define("OptionsWindow", null, function (options_) {
 
 		_self.HideLoad(true);
 		m_okClicked = false;
+
+		app_transferObjectProperties.call(m_record, m_xRecord);
 		
         Application.ShowError(e, function () {
 			 if(!m_loaded){
@@ -930,7 +941,9 @@ Define("OptionsWindow", null, function (options_) {
 					return;
 				Application.RunNext(_self.Close);
 				return;                
-			 }					
+			 } else {
+			     Application.RunNext(_self.UpdateControls);
+			 }
         });        
     };
 
@@ -955,7 +968,7 @@ Define("OptionsWindow", null, function (options_) {
             for (var j = 0; j < m_controls.length; j++) {
                 var field = m_controls[j].Field();
                 if (field.Mandatory) {
-                    if ((m_record[field.Name] == 0 || m_record[field.Name] == null || m_record[field.Name] == "null") && field.OptionCaption == "") {
+                    if ((m_record[field.Name] === 0 || m_record[field.Name] === null || m_record[field.Name] === "null") && field.OptionCaption === "") {
                         Application.Error(field.Caption + " must have a value.");
                         return false;
                     }

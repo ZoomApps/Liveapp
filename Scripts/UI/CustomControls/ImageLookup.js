@@ -33,13 +33,17 @@ Define("ImageLookup",
         this.CreateDesktop = function (window_) {
 
             //Create the control.
-            var container = $('<div id="' + _base.ID() + '" style="padding: 10px; text-align: left;"><img id="ctl' + _base.ID() + '" src="" style="max-height: 300px;" /><br /><br /><a id="edit' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true">Add/Edit</a><a id="clear' + _base.ID() + '" data-role="button" data-icon="delete" data-iconpos="notext" data-theme="c" data-inline="true">Delete</a><br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /></div>');
+            var container = $('<div id="' + _base.ID() + '" style="padding: 10px; text-align: left;"><div id="zoom'+_base.ID()+'"><div id="wrapper' + _base.ID() + '" data-download-url="false"><img id="ctl' + _base.ID() + '" src="" style="max-width: 200px;" /></div></div><br /><br /><a id="edit' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true">Add/Edit</a><a id="clear' + _base.ID() + '" data-role="button" data-icon="delete" data-iconpos="notext" data-theme="c" data-inline="true">Delete</a><br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /><div id="placeholder' + _base.ID() + '" style="width: 600px; height: 800px; display: none;"></div></div>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
                 cont.removeClass("app-control");
 
+				if (Application.HasOption(_base.Field().Options, "zoom")) {
+					_self.SetupZoom();
+				}
+				
                 if (_base.Field().Editable) {
 
                     $('#clear' + _base.ID()).button().click(function () {
@@ -62,9 +66,7 @@ Define("ImageLookup",
                         });
 
                         $('#ctl' + _base.ID()).click(function () {
-							if (Application.HasOption(_base.Field().Options, "zoom")) {
-								_self.Zoom();
-							} else {
+							if (!Application.HasOption(_base.Field().Options, "zoom")) {
 								$('#file' + _base.ID()).click();
 							}
                         });
@@ -165,11 +167,6 @@ Define("ImageLookup",
                 } else {
                     $('#edit' + _base.ID()).css("display", "none");
                     $('#clear' + _base.ID()).css("display", "none");
-					if (Application.HasOption(_base.Field().Options, "zoom")) {
-						$('#ctl' + _base.ID()).click(function () {
-							_self.Zoom();
-						});
-					}
                 }
 				
 				if(Application.HasOption(_base.Field().Options, "nodelete"))
@@ -195,11 +192,15 @@ Define("ImageLookup",
         this.CreateMobile = function (window_) {
 
             //Create the control.
-            var container = $('<div id="' + _base.ID() + '" style="padding: 10px; text-align: left;"><img id="ctl' + _base.ID() + '" src="" style="max-height: 300px;" /><br/><a id="edit' + _base.ID() + '" data-role="button" data-icon="edit" data-theme="c" data-inline="true">Edit</a> <a id="clear' + _base.ID() + '" data-role="button" data-icon="delete" data-iconpos="notext" data-theme="c" data-inline="true">Delete</a><br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /></div>');
+            var container = $('<div id="' + _base.ID() + '" style="padding: 10px; text-align: left;"><div id="zoom'+_base.ID()+'"><div id="wrapper' + _base.ID() + '" data-download-url="false"><img id="ctl' + _base.ID() + '" src="" style="max-width: 200px;" /></div></div><br/><a id="edit' + _base.ID() + '" data-role="button" data-icon="edit" data-theme="c" data-inline="true">Edit</a> <a id="clear' + _base.ID() + '" data-role="button" data-icon="delete" data-theme="c" data-inline="true">Delete</a><br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /></div>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
+				if (Application.HasOption(_base.Field().Options, "zoom")) {
+					_self.SetupZoom();
+				}
+				
                 if (_base.Field().Editable) {
 
                     $('#clear' + _base.ID()).buttonMarkup().click(function () {
@@ -221,9 +222,7 @@ Define("ImageLookup",
                             $('#file' + _base.ID()).click();
                         });
                         $('#ctl' + _base.ID()).click(function () {
-							if (Application.HasOption(_base.Field().Options, "zoom")) {
-								_self.Zoom();
-							} else {
+							if (!Application.HasOption(_base.Field().Options, "zoom")) {
 								$('#file' + _base.ID()).click();
 							}
                         });
@@ -232,7 +231,7 @@ Define("ImageLookup",
                                 load: function (url) {
                                     m_loaded = false;
                                     $('#file' + _base.ID()).val("");
-                                    UI.ImageManager.Resize(url, 200, 0, 0, function (img) {
+                                    UI.ImageManager.Resize(url, 400, 0, 0, function (img) {
                                         _self.OnValueChange(_base.Field().Name, UI.ImageManager.Base64(img));
                                     });
                                 }
@@ -245,11 +244,6 @@ Define("ImageLookup",
                 } else {
                     $('#edit' + _base.ID()).css("display", "none");
                     $('#clear' + _base.ID()).css("display", "none");
-					if (Application.HasOption(_base.Field().Options, "zoom")) {
-						$('#ctl' + _base.ID()).click(function () {
-							_self.Zoom();
-						});
-					}
                 }
 				
 				if(Application.HasOption(_base.Field().Options, "nodelete"))
@@ -308,6 +302,12 @@ Define("ImageLookup",
 		this.SetSize = function(w){
 			_base.Container().width(w);
 		};
+		
+		this.SetupZoom = function(){
+			$("#zoom"+_base.ID()).lightGallery({                
+				cssEasing: 'cubic-bezier(1.000, 0.000, 0.000, 1.000)'
+			});
+		};
 
         //#endregion
 
@@ -321,41 +321,6 @@ Define("ImageLookup",
             return true;
         };
 
-		this.Zoom = function () {
-			if (m_value!==null && m_value.indexOf("data:image") == -1){
-				m_id = $id();
-				var win = "";
-				
-				if (Application.IsInMobile()) {
-					win = "<div id='" + m_id + "' class='app-dialog' style='" +
-						"max-width: "+UI.MagicWidth()+"px;  min-width: "+UI.MagicWidth()+"px; height: " + (UI.Height()-50) + "px; max-height: " + (UI.Height()-50) + "px'>" +
-						"<div id='" + m_id + "actions' class='ui-bar ui-bar-b' style='border-width: 0px; padding: 0px; overflow: visible;'></div>" +
-						"<div id='" + m_id + "main' style='padding: 10px;'>" +
-						"<img id='" + m_id + "image' style='height: 95%; width: 95%; display: block; margin: auto;'>" +
-						"</div></div>";
-				} else {
-					win = "<div id='" + m_id + "' style='max-height: "+(UI.Height()-50)+"px; max-width: "+(UI.Width()-50)+"px;'><div id='" + m_id + "actions' class='ui-widget ui-state-default' style='border: 0px;'>" +
-						"</div>" +
-						"<div id='" + m_id + "toolbar2' style='display: none;'>" +
-						"</div>" +
-						"<div id='" + m_id + "main' class='ui-widget-content' style='border-width: 0px;'>" +
-						"<img id='" + m_id + "image' style='height: 95%; width: 95%; display: block; margin: auto;'>" +
-						"</div></div>";
-				}
-
-				m_boxy = new Boxy(win, {
-					title: "Loading...",
-					closeText: "X",
-					modal: true,
-					unloadOnHide: true,
-					show: false,
-				});				
-				$('#' + m_id + 'image').attr("src", "data:image/png;base64," + m_value);
-				m_boxy.setTitle("Zoom");
-				m_boxy.center();
-				m_boxy.show();		
-			}
-		}
         //#endregion
 
         //Constructor

@@ -20,7 +20,7 @@ function Extend(obj, objExt){
 
 //Global variables.
 Application.name = "%APPNAME%";
-Application.version = '4.2 CU6';
+Application.version = '4.2 CU7';
 //Application.version = "%VERSION%";
 Application.copyright = "%COPYRIGHT%";
 Application.url = "%SERVERADDRESS%";
@@ -43,6 +43,22 @@ AppObject = function (type_) {
               
     //Constructor
     this.Constructor(type_);
+};
+
+window.onpopstate = function(event) {
+	if(event.state==null)
+	    return;
+	if(!event.state.windowid || typeof event.state.hash != "undefined") 
+	    return;
+
+	var homepage = false;
+	if(ThisViewer().Options && ThisViewer().Options() && ThisViewer().Options()["homepage"])
+		homepage = true;
+	
+	if(ThisViewer() && !homepage)
+		Application.RunNext(function(){
+			return UI.WindowManager.Close(ThisViewer().ID());
+		});
 };
 
 //#region Speed Fixes
@@ -429,10 +445,14 @@ Application.Fire = function () {
         var ref = Application.event[name];
         for (var i = 0; i < ref.length; i++) {
             handler = ref[i];
-            if(ref.length==1){
+            if(ref.length==1 || (i == ref.length - 1 && name=="ProcessCaption")){
                 return handler.apply(null, args);
             }else{
-                handler.apply(null, args);
+				if(name=="ProcessCaption"){
+					args[0] = handler.apply(null, args);
+				}else{
+					handler.apply(null, args);	
+				}
             }
         }
     }
@@ -838,6 +858,10 @@ Application.ExportUserLayout = function(user_){
     return Application.WebServiceWait("ExportUserLayout", { auth: Application.auth, user_: user_ });
 };
 
+Application.BatchProcess = function(insert_, modify_, delete_){
+	return Application.WebServiceWait("BatchProcess", { auth: Application.auth, insert_: insert_, modify_: modify_, delete_: delete_ });
+};
+
 //#endregion
 
 //#region Public Functions
@@ -894,10 +918,15 @@ Application.SaveUserData = function (data) {
 
 Application.SwitchMode = function (mobile, instance) {
     
+	//This should be in the app module...
+	var extra = "";
+	if(Application.App.Params()["returnurl"])
+		extra += "&returnurl="+Application.App.Params()["returnurl"];
+	
     if (mobile) {
-        window.location = "%SERVERADDRESS%" + instance + "?mobile=true";
+        window.location = "%SERVERADDRESS%" + instance + "?mobile=true"+extra;
     } else {
-        window.location = "%SERVERADDRESS%" + instance + "?mobile=false";
+        window.location = "%SERVERADDRESS%" + instance + "?mobile=false"+extra;
     }   
 };
 
@@ -1335,6 +1364,9 @@ Application.Error = function (msg) {
 	}
     
     Application.HideProgress();        
+	if($moduleloaded("OfflineManager")){
+		Application.Offline.HideLoad();
+	}
 
 	if (typeof msg.indexOf != 'undefined') {
 		if (msg == "%LANG:SYS_ERR%" || msg.toLowerCase() == "unknown") {
@@ -2376,7 +2408,7 @@ RECORD = function (id, callback) {
         }
     );    
 };
-FINDSET = function (id, filters, callback, lookupfields) {
+FINDSET = function (id, filters, callback, lookupfields, calculatedfields) {
     $codeinsert(
         function () {
             $flag;
@@ -2397,6 +2429,11 @@ FINDSET = function (id, filters, callback, lookupfields) {
                 for (var i = 0; i < lookupfields.length; i++) {
                     r.AddLookupField(lookupfields[i]);
                 }
+            }
+			if(calculatedfields){
+                for (var i = 0; i < calculatedfields.length; i++) {
+                    r.CalculateField(calculatedfields[i]);
+                }				
             }
             return r.FindFirst();
         },

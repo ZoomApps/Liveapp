@@ -210,6 +210,7 @@ Define("NotesBox",
 
         this.SetSize = function (width, height) {
             if (showlabel == false) {
+                _base.Container().width(width);
                 _base.Control().css("width", width - 30);
             } else {
                 _base.SetSize(width, height);

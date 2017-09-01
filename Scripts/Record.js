@@ -1202,6 +1202,8 @@ Define("Record", null, function (name_) {
             if (f) {
 
                 var code = f.FlowField;                
+                if (Application.IsOffline() && f.OfflineCode != "")
+                    code = f.OfflineCode;
 
                 if (code != "" && code != null && code.indexOf("function") == 0 && (code.indexOf("FINDSET") != -1 || code.indexOf("COUNT") != -1))
                     fields.push(f);
@@ -1223,6 +1225,8 @@ Define("Record", null, function (name_) {
                     function () {
 
                         var code = fields[i].FlowField;                        
+                        if (Application.IsOffline() && fields[i].OfflineCode != "")
+                            code = fields[i].OfflineCode;
 
                         eval("var func = " + code);
                         return func(_self);

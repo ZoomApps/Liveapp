@@ -4012,35 +4012,30 @@
                         ts.p.ondblClickRow.call(ts, $(ptr)
                             .attr("id"), ri, ci, e);
                     }
-                });
-            // liveware mod : disable the context menu binding when on the client documents virtual page
-            if (ThisViewer().Page().Name !== ("VP$ClientDocumentsPage")){
-                $(ts)
-                    .bind('contextmenu', function(e) {
-                        td = e.target;
-                        ptr = $(td, ts.rows)
-                            .closest("tr.jqgrow");
-                        if ($(ptr)
-                            .length === 0) {
-                            return;
-                        }
-                        if (!ts.p.multiselect) {
-                            $(ts)
-                                .jqGrid("setSelection", ptr[0].id, true, e);
-                        }
-                        ri = ptr[0].rowIndex;
-                        ci = $.jgrid.getCellIndex(td);
+                })
+                .bind('contextmenu', function(e) {
+                    td = e.target;
+                    ptr = $(td, ts.rows)
+                        .closest("tr.jqgrow");
+                    if ($(ptr)
+                        .length === 0) {
+                        return;
+                    }
+                    if (!ts.p.multiselect) {
                         $(ts)
-                            .triggerHandler("jqGridRightClickRow", [$(ptr)
-                                .attr("id"), ri, ci, e
-                            ]);
-                        if ($.isFunction(ts.p.onRightClickRow)) {
-                            ts.p.onRightClickRow.call(ts, $(ptr)
-                                .attr("id"), ri, ci, e);
-                        }
-                    });
-            }
-            // end mod : disable the context menu binding when on the client documents virtual page
+                            .jqGrid("setSelection", ptr[0].id, true, e);
+                    }
+                    ri = ptr[0].rowIndex;
+                    ci = $.jgrid.getCellIndex(td);
+                    $(ts)
+                        .triggerHandler("jqGridRightClickRow", [$(ptr)
+                            .attr("id"), ri, ci, e
+                        ]);
+                    if ($.isFunction(ts.p.onRightClickRow)) {
+                        ts.p.onRightClickRow.call(ts, $(ptr)
+                            .attr("id"), ri, ci, e);
+                    }
+                });
             grid.bDiv = document.createElement("div");
             if (isMSIE) {
                 if (String(ts.p.height)

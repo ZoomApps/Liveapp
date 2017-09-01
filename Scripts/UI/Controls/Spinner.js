@@ -66,7 +66,9 @@ Define("Spinner",
 	        .css("width", "80%")
 	        .css("width", "calc(100% - 2px)");
 
-			cont.on("blur",function () {
+            cont.on("blur", function () {
+                if (value_ && $(this).val() == value_.toString())
+                    return;
                 var grd = _base.Viewer().GetPageGrid();
 				if(grd)
 					grd.Save();

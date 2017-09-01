@@ -100,7 +100,7 @@ Define("Combobox",
             });
         };
 
-        this.CreateList = function (value_) {
+        this.CreateList = function (value_,hidebutton_) {
 
             //Create the control.
             var container = $('<span>')
@@ -115,13 +115,15 @@ Define("Combobox",
 	        .css("width", "80%")
 	        .css("width", "calc(100% - 18px)");
 
-            if (!Application.HasOption(_base.Field().Options, "menu")) {
-                m_button = CreateDropdownButton(container);
-            } else {
-                cont.mcautocomplete("search", "");
-                cont.css("visibility", "hidden");
-                container.append("<span id='mnu" + _base.ID() + "'>" + value_ + "</span>");
-            }
+			if(!hidebutton_){
+				if (!Application.HasOption(_base.Field().Options, "menu")) {
+					m_button = CreateDropdownButton(container);
+				} else {
+					cont.mcautocomplete("search", "");
+					cont.css("visibility", "hidden");
+					container.append("<span id='mnu" + _base.ID() + "'>" + value_ + "</span>");
+				}
+			}
 
             //Call base method.
             return _base.CreateList(container, cont, value_);
@@ -324,6 +326,14 @@ Define("Combobox",
             var value = rec_[_base.Field().Name];
             if (typeof value == 'undefined') //Issue #47 - Combo box does not display null value
                 return;
+
+            if (_base.Field().Mandatory) {
+                if (value == null) {
+                    _base.Valid(false);
+                } else {
+                    _base.Valid();
+                }
+            }
 
             //Options combo.
             if (m_values != null) {

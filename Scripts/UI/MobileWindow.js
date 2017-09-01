@@ -115,6 +115,7 @@ Define("Window", null, function () {
 
                 if (Application.IsMobileDisplay() && m_options.editormode == null) {
                     m_window.addClass("xpress-window-mobile");										
+					m_window.css("max-width",UI.Width()-5);
                     $("#" + m_id + "main").css("padding", "5px").css("text-align", "center");                    
                 }
 

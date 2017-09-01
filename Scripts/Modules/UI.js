@@ -103,6 +103,7 @@ DefineModule("AppUI",
 			m_progressTitle = title;
 			
 			m_progClosed = false;			
+            if(m_timer)		
 			m_timer.Start(true);						
         };
 
@@ -110,6 +111,7 @@ DefineModule("AppUI",
 						
             m_progClosed = true;
             _self.Progress(false);
+            if(m_timer)
             m_timer.Stop(true);			
 			
         };
@@ -235,6 +237,7 @@ DefineModule("AppUI",
 			m_queue.push(function(){
 
 				msg = FixMessage(msg);
+				title = Default(title, "");
 
 				if (title.indexOf('Error') != -1) {
 
@@ -456,6 +459,9 @@ DefineModule("AppUI",
                 msg = msg.replace(/\n/g, '<br />')
             } catch (e) {
             }
+
+            if(msg)
+                msg = Application.ProcessCaption(msg);
 
             return msg;
 

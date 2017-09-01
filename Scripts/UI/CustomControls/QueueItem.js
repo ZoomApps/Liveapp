@@ -31,65 +31,75 @@ Define("QueueItem",
         this.CreateDesktop = function (window_) {
 
             //Create the control.
-            var container = $('<div id="' + _base.ID() + '" class="main-windowsbtn ui-widget ui-state-default" onmouseover="$(this).addClass(\'ui-state-hover\')" onmouseout="$(this).removeClass(\'ui-state-hover\')" style="padding: 4px; margin: 5px; text-align: center; display: none; width: 150px; height: 100px; border: 0px;" ><table id="tbl' + _base.ID() + '" style="width: 100%"><tr><td style="width: 50%;"><img id="img' + _base.ID() + '" src="' + Application.executionPath + 'Images/Icons/icon-queueitem.png" /></td><td style="width: 50%;"><label id="ctl' + _base.ID() + '" class="unselectable" style="font-size: 16pt; font-weight: normal; font-family: Arial;"></label></td></tr><tr><td colspan="2" style="padding: 5px; vertical-align: top;"><label id="lbl' + _base.ID() + '" class="unselectable"></label></td></tr></table></div>');
-
+            //var container = $('<div id="' + _base.ID() + '" class="main-windowsbtn ui-widget ui-state-default" onmouseover="$(this).addClass(\'ui-state-hover\')" onmouseout="$(this).removeClass(\'ui-state-hover\')" style="padding: 4px; margin: 5px; text-align: center; display: none; width: 150px; height: 100px; border: 0px;" ><table id="tbl' + _base.ID() + '" style="width: 100%"><tr><td style="width: 50%;"><img id="img' + _base.ID() + '" src="' + Application.executionPath + 'Images/Icons/icon-queueitem.png" /></td><td style="width: 50%;"><label id="ctl' + _base.ID() + '" class="unselectable" style="font-size: 16pt; font-weight: normal; font-family: Arial;"></label></td></tr><tr><td colspan="2" style="padding: 5px; vertical-align: top;"><label id="lbl' + _base.ID() + '" class="unselectable"></label></td></tr></table></div>');
+			var container = $('<table id="' + _base.ID() + '" style="width: 120px; max-width: 210px; display: inline-block; margin: 5px; height: 200px;"><tbody><tr><td><div id="bg'+_base.ID()+'" style="padding: 4px; text-align: center; width: 100px; height: 100px; border: 0px; border-radius: 50%; cursor: pointer; background-color: whitesmoke;"><img id="img' + _base.ID() + '" src="' + Application.executionPath + 'Images/Icons/icon-queueitem.png" style="margin-top: 23px;"><div id="ctl' + _base.ID() + '" style="font-size: 20px; width: 40px; height: 40px; border-radius: 50%; color: white; background-color: transparent;text-align: center;line-height: 40px;margin-top: -12px;"></div></div></td></tr><tr><td id="lbl' + _base.ID() + '" style="font-size: 14px; text-align: center;"></td></tr></tbody></table>')
+			
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
-                container.width("100px");
-                container.css("min-width", "100px");
+                container.width("120px");
+                container.css("min-width", "120px");
+				
+				_base.Viewer().Main().css("padding-top","30px").css("text-align","center");
 
                 cont[0].disabled = false;
 
                 _base.Label().removeClass("app-label");
                 cont.removeClass("app-control");
-
+				
+				if(Application.IsMobileDisplay()){
+					container.css("height", "120px");	
+					$('#bg'+_base.ID()).css({
+						width: "70px",
+						height: "70px",
+						"margin-left": "15%",
+					});	
+					$('#img'+_base.ID()).css({
+						"margin-top": "10px"
+					});
+					_base.Label().css({
+						width: "120px",
+						"text-align": "center"
+					});
+					_base.Control().css({
+						"margin-top": "-26px",
+						"margin-left": "-21px"
+					})
+					_base.Viewer().Main().css("padding-top","10px");		
+				}
+							
                 container.on("click", function (e) {
 
                     //Open the page viewer.
                     if (m_page)
                         Application.App.LoadPage(m_page, Application.MergeView(m_view, m_record), { caption: _base.Field().Caption, mode: Application.OptionValue(_base.Field().Options, "mode") }, _base.Viewer().ParentWindow().ID());
 
+					var bg = $('#bg'+_base.ID());
+					bg.css("background-color","gainsboro");
+					setTimeout(function(){
+						bg.css("background-color","whitesmoke");
+					},500);
                 });
 
-                container.qtip({
-                    position: {
-                        at: 'center right'
-                    },
-                    content: 'View ' + _base.Field().Caption,
-                    style: {
-                        tip: {
-                            corner: false
-                        }
-                    }
-                });
+				if(!Application.IsInMobile()){
+					container.qtip({
+						position: {
+							at: 'center right'
+						},
+						content: 'View ' + _base.Field().Caption,
+						style: {
+							tip: {
+								corner: false
+							}
+						}
+					});
+				}
 
             });
         };
 
         this.CreateMobile = function (window_) {
-
-            window_.css("text-align", "center");
-
-            //Create the control.            
-            var container = $('<div id="' + _base.ID() + '" class="main-windowsbtn ui-page-theme-a ui-btn" style="padding: 4px; margin: 5px; text-align: center; width: 150px; height: 100px; border: 0px;" ><table id="tbl' + _base.ID() + '" style="width: 100%"><tr><td style="width: 50%;"><img id="img' + _base.ID() + '" src="' + Application.executionPath + 'Images/Icons/icon-queueitem.png" /></td><td style="width: 50%;"><label id="ctl' + _base.ID() + '" class="unselectable" style="font-size: 14pt; font-weight: normal; font-family: Arial; color: black;"></label></td></tr><tr><td colspan="2" style="padding: 5px; vertical-align: top; white-space: pre-wrap;"><label id="lbl' + _base.ID() + '" style="font-size: 8pt;"></label></td></tr></table></div>');
-
-            //Call base method.
-            _base.Create(window_, container, _self.OnValueChange, function (cont) {
-
-                container.width("100px");
-                container.css("min-width", "100px");
-                _base.Label().css("text-align", "center");
-                cont[0].disabled = false;
-
-                container.on("click", function (e) {
-
-                    //Open the page viewer.
-                    if (m_page)
-                        Application.App.LoadPage(m_page, Application.MergeView(m_view, m_record), { caption: _base.Field().Caption, mode: Application.OptionValue(_base.Field().Options, "mode") }, _base.Viewer().ParentWindow().ID());
-
-                });
-            });
+            return _self.CreateDesktop(window_);
         };
 
         this.FormatValue = function (value_, rec_) {
@@ -109,17 +119,20 @@ Define("QueueItem",
             var b_limit = Default(Application.OptionValue(_base.Field().Options, "queue_b"), 0);
 
             if (value_ >= parseInt(b_limit)) {
-                _base.Container().css("border-left", "4px solid Gainsboro");
+                _base.Control().css("background-color", "Gainsboro");
             }
             if (value_ >= parseInt(g_limit)) {
-                _base.Container().css("border-left", "4px solid #00CC00");
+                _base.Control().css("background-color", "#00CC00");
             }
             if (value_ >= parseInt(y_limit)) {
-                _base.Container().css("border-left", "4px solid #FFFF00");
+                _base.Control().css("background-color", "#F1C40F");
             }
             if (value_ >= parseInt(r_limit)) {
-                _base.Container().css("border-left", "4px solid #FF9999");
+                _base.Control().css("background-color", "#FF9999");
             }
+			
+			_base.Label().css("display","");
+			_base.Label().css("text-align","center");
 
             if (value_ == -1) {
                 _base.Control().hide();
@@ -127,6 +140,7 @@ Define("QueueItem",
                 _base.Control().show();
                 _base.Control().text(value_);
             }
+				
         };
 
         this.CreateList = function (value_) {
@@ -146,6 +160,11 @@ Define("QueueItem",
 
         this.SetSize = function (width, height) {
 
+        };
+		
+		this.Show = function () {
+			_base.Show();
+            _base.Container().css("display", "inline-block");            
         };
 
         this.SetupTest = function () {

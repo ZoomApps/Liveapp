@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("PageViewer",
 
@@ -51,6 +51,7 @@ Define("PageViewer",
         var m_comboSelected = false;
 		var m_buttons = new Object();
 		var m_causedUpdate = null;	
+		var m_lineActions = [];
 		var m_lastView = null;
 
         //#endregion
@@ -290,7 +291,8 @@ Define("PageViewer",
                 if (m_options.factbox)
                     pos = Application.position.right;
                 if (m_options.block == true)
-                    pos = Application.position.block;
+					if (!Application.IsInMobile())
+						pos = Application.position.block;
                 if (m_options.position != null) {
                     pos = m_options.position;
                 }
@@ -316,7 +318,7 @@ Define("PageViewer",
                     editpage = { type: "Table", name: m_options.tableid };
 				if (m_form.GetAction("Customize Page") != null)
                     editpage = { type: "PageCustom", name: m_form.Name };
-
+		    
                 //Create the window.
                 if (m_options.workspace != null) {
                     _base.Create(UI.IconImage(m_form.Icon) + ' ' + m_form.Caption, {
@@ -329,7 +331,8 @@ Define("PageViewer",
                         editpage: editpage,
                         editormode: m_options.editlinemode,
 						removetitle: m_options.removetitle,
-                        type: m_form.Type
+                        type: m_form.Type,
+                        homepage: m_options.homepage
                     });
                 } else if (m_parent == null) {
                     _base.Create(UI.IconImage(m_form.Icon) + ' ' + m_form.Caption, {
@@ -342,7 +345,8 @@ Define("PageViewer",
                         editpage: editpage,
                         editormode: m_options.editlinemode,
 						removetitle: m_options.removetitle,
-                        type: m_form.Type
+                        type: m_form.Type,
+                        homepage: m_options.homepage
                     });
                 } else {
 
@@ -364,6 +368,9 @@ Define("PageViewer",
                         homepage: m_options.homepage
                     });
                 }
+				
+				if(Application.IsInMobile() && window.history && window.history.pushState && (diag || m_parent == null))
+				    window.history.pushState({ windowid: _base.ID() }, window.title);
 				
                 if (m_form.Type == "List" && Default(m_form.CustomControl,"") == "")
                     _base.ShowExportCSV(_self.ExportCSV);
@@ -423,7 +430,7 @@ Define("PageViewer",
                                             w.resolve(true);
 
                                         }
-                                    }, "Save changes?");
+                                    }, "Save changes?","Yes","No");
 
                                 } else if (unsaved) {
 
@@ -523,9 +530,17 @@ Define("PageViewer",
                         if (action.Image == "")
                             action.Image = "nav_plain_blue";
 
-                        var btn = _base.AddButton(action.Name, action.Image, Application.ProcessCaption(action.Name), func);
-						m_buttons[action.Name] = btn;
-                        added = true;
+						if(Application.IsInMobile() && Application.HasOption(action.Options,"lineaction")){
+							
+							m_lineActions.push(action);
+							
+						}else{
+						
+							var btn = _base.AddButton(action.Name, action.Image, Application.ProcessCaption(action.Name), func);
+							m_buttons[action.Name] = btn;
+							added = true;
+						
+						}
                     }
                 }
 
@@ -717,7 +732,7 @@ Define("PageViewer",
 			var skipupdate = false;
 			if(m_causedUpdate && m_record){
 				
-				skipupdate = true;	
+				skipupdate = true;														
 
 				if(Application.HasOption(m_form.Options,"skiprefresh"))				
 					return true;
@@ -905,7 +920,7 @@ Define("PageViewer",
                if (!_self || skipupdate) return r;
 
 			   if(m_options.pos && first_)
-			       r.SetPosition(m_options.pos);
+					r.SetPosition(m_options.pos);
 			   
                if (!Application.IsOffline() && !Application.HasOption(m_form.Options, "calcclientfields"))
                    return r.CalcClientSideFields();
@@ -942,8 +957,8 @@ Define("PageViewer",
                     _base.Progress(30);
 
                 if (r == null)
-                    Application.Error("Invalid record");
-
+                    Application.Error("Invalid record");			
+				
                 m_record = r;
                 m_record.Temp = m_temp;
 
@@ -962,7 +977,7 @@ Define("PageViewer",
 
                 //Update filters.
                 if (m_form.ShowFilters && m_filterToolbar)
-                    m_filterToolbar.SetFilters();
+                    m_filterToolbar.SetFilters(null, first_ && !skipOpenFunc_);
 
                 return _self.UpdateControls(first_, showProgress_);
             },
@@ -989,7 +1004,7 @@ Define("PageViewer",
                     }
                 }
 
-                return _self.UpdateSubPages(true, showProgress_, skipOpenFunc_);
+                return _self.UpdateSubPages(true, showProgress_,skipOpenFunc_);
             },
 
             Application.CommitTransaction,
@@ -1097,7 +1112,7 @@ Define("PageViewer",
 							                                
                                 var v = Application.MergeView(page.FormView(), m_record);
                                 page.View(v);
-                                return page.Update(first_, showProgress_, skipOpenFunc_);
+                                	return page.Update(first_, showProgress_, skipOpenFunc_);
                             },
 
                             function () {
@@ -1195,7 +1210,7 @@ Define("PageViewer",
             };
         };
 
-        this.Caption = function (caption) {								
+        this.Caption = function (caption) {
             m_options.caption = caption;
             _self.UpdateCaption();
         };
@@ -1544,10 +1559,10 @@ Define("PageViewer",
 
                     _self.ShowLoad();				
 					
-                    //Don't save temp records.					
-					if (Application.HasOption(m_form.Options, "temp") || m_okClicked == false)
-						if (!Application.HasOption(m_form.Options, "savetemp"))
-							return false;
+                    //Don't save temp records.
+                    if (Application.HasOption(m_form.Options, "temp") || m_okClicked == false)
+                        if (!Application.HasOption(m_form.Options, "savetemp"))
+                            return false;
 
 					if(_self.ReadOnly())
 						return false;
@@ -1561,7 +1576,7 @@ Define("PageViewer",
                                     function () {
                                         m_record.Temp = false;
                                         //m_record.ClearXRec(false, m_table.TableKeys[0].Columns.split(",")); //Issue #78 - Xrec issue in mobile
-                                        if (m_record.NewRecord == true) {											
+                                        if (m_record.NewRecord == true) {
                                             return m_record.Insert(true, null, _self);
                                         } else {
                                             return m_record.Modify(true, _self);
@@ -1578,7 +1593,7 @@ Define("PageViewer",
 
                     m_record.Temp = false;
                     //m_record.ClearXRec(false, m_table.TableKeys[0].Columns.split(",")); //Issue #78 - Xrec issue in mobile
-                    if (m_record.NewRecord == true) {						
+                    if (m_record.NewRecord == true) {
                         return m_record.Insert(true, null, _self);
                     } else {
                         return m_record.Modify(true, _self);
@@ -2097,21 +2112,21 @@ Define("PageViewer",
 
             return $codeblock(
 
-				Application.BeginTransaction,
+            Application.BeginTransaction,
 
-				function () {
-					//Get the record (List form only).                    
-					if (m_form.Type == "List") {
-						_self.GetRecordByRowId(rowid_);
-					}
-					return _self.Validate(name_, value_, rowid_, field_);
-				},
+            function () {
+                //Get the record (List form only).                    
+                if (m_form.Type == "List") {
+                    _self.GetRecordByRowId(rowid_);
+                }
+                return _self.Validate(name_, value_, rowid_, field_);
+            },
 
-				Application.CommitTransaction,
+            Application.CommitTransaction,
 
-				function () {
+            function () {
 
-					m_col = null;
+                m_col = null;
 					m_row = null;									
 
 					if (m_form.Type == "List")
@@ -2120,9 +2135,9 @@ Define("PageViewer",
 					//A change has been made.
 					_self.ChangeMade();
 
-					//Reload page?
-					if (field_.ReloadOnValidate || (m_form.Type == "Card" && !Application.HasOption(field_.Options,"skipupdate"))) {
-						return _self.Update(false, false);
+                //Reload page?
+                if (field_.ReloadOnValidate || (m_form.Type == "Card" && !Application.HasOption(field_.Options,"skipupdate"))) {
+                    return _self.Update(false, false);
 					} else {
 						if(!skipupdate)
 							_self.HideLoad();
@@ -2138,11 +2153,11 @@ Define("PageViewer",
 			);
         };
 
-        this.Validate = function (name_, value_, rowid_, field_) {			
-			
+        this.Validate = function (name_, value_, rowid_, field_) {
+
             if (!m_form.FieldOption(field_, "anyvalue"))
-                value_ = _self.FixValue(field_, value_);		
-			
+                value_ = _self.FixValue(field_, value_);
+
             return $codeblock(
 
             function () {
@@ -2166,7 +2181,7 @@ Define("PageViewer",
                 if (m_temp)
                     return r;
 
-                if (r.NewRecord == true) {					
+                if (r.NewRecord == true) {
                     return r.Insert(true, null, _self);
                 } else {
                     return r.Modify(true, _self);
@@ -2178,7 +2193,7 @@ Define("PageViewer",
             function (r) {
 
                 if (r == false)
-                    return;										
+                    return;
 
                 if (m_temp) {
                 } else {
@@ -2197,7 +2212,8 @@ Define("PageViewer",
 					var filters = Application.GetFilters(m_view);
 					for (var i = 0; i < filters.length; i++) {
 						var f = m_record.GetField(filters[i][0]);
-						if (f && filters[i][1] != f.Value && filters[i][1] == "null") {
+						var field = m_table.Column(f.name);
+						if (f && field && filters[i][1] != f.Value && field.PrimaryKey){
 							m_record.Filter(filters[i][0], f.Value);
 						}
 					}
@@ -2225,7 +2241,7 @@ Define("PageViewer",
                     //Refresh totals.
                     if (grd.Footer() == true)
                         _self.GridLoadFooter(grd);
-					
+
 					return _self.UpdateSubPages(true, false);
                 }
             }
@@ -2568,7 +2584,8 @@ Define("PageViewer",
                 workspace: $(workspace),
                 shortcutWorkspace: null,
                 position: pos,
-				removetitle: m_form.TabOption(tab_,"removetitle")
+                removetitle: m_form.TabOption(tab_,"removetitle"),
+                type: "Card"
             });
 
             //Add padding to the top.
@@ -3042,11 +3059,11 @@ Define("PageViewer",
                                 p.Copy(m_form);
                                 p.Type = "Card";
 								
-                                var rec = new Record();																													
-								rec.Copy(m_record);
-								rec.Count = 1;
-								rec.Position = 0;															
-								                                
+                                var rec = new Record();
+                                rec.Copy(m_record);
+                                rec.Count = 1;
+                                rec.Position = 0;
+								
 								var t = new Object();
 								app_deepTransferObjectProperties.call(t, m_table);
 								
@@ -3238,7 +3255,7 @@ Define("PageViewer",
 
             function () {
 
-                if (Application.IsInMobile() && action.Type == "Open Form") {
+                if (Application.IsInMobile() && action.Type == "Open Page") {
                     window.scrollTo(0, 0);
                     document.body.scrollTop = 0;
                 }
@@ -3353,6 +3370,75 @@ Define("PageViewer",
             );
         };
 
+		this.ShowLineActions = function(row,rowid){
+			
+			$(".lineactions,.lineactionsoverlay").remove();	
+			
+			var dd = $("<div style='position:fixed; background-color: white; max-width: 400px; border: 1px solid gainsboro; max-height: 400px; overflow-y: auto; z-index: 30001;' class='lineactions'>");
+			dd.css("width",UI.Width() - 5);			
+			$("body").append(dd);						
+			
+			if(_self.EnableEditMode()){
+				var func;
+				eval("func = function () {$('.lineactions').remove();_self.GridDoubleClick("+rowid+");}");
+				_self.AddLineAction("EditRow", "redo", "Edit", func);
+			}
+			
+			var j = 0;
+			for(var i = 0; i < m_lineActions.length; i++){
+				
+				var action = m_lineActions[i];
+				
+				if(!action.Hide){
+					
+					var func;
+					eval("func = function () {$('.lineactions,.lineactionsoverlay').remove();Application.RunNext(function () {return _self.RunAction('" + action.Name + "',true);},null,'ACTION" + action.Name + "');}");
+
+					var pos = j;
+					if(_self.EnableEditMode())
+						pos += 1;
+					j += 1;
+					
+					_self.AddLineAction(action.Name, action.Image, Application.ProcessCaption(Default(action.HTML,action.Name)), func, pos);
+					
+				}
+			}
+			
+			dd.css("top",($(window).height()/2)-(dd.height()/1.2)).css("left",5);
+			
+			var o = $('<div class="ui-widget-overlay app-overlay lineactionsoverlay" style="opacity: .8; position: fixed;"></div>');
+			$("body").append(o);		
+			o.width('100%').height('100%');
+            o.show();
+			
+			o.on("click",function(){				
+				$(".lineactions,.lineactionsoverlay").remove();
+			});
+		};
+		
+		 this.AddLineAction = function (name, image, text, func, i) {
+
+			var id = $id();
+
+			var imgcode = ""
+			if (image != "") {
+				imgcode = UI.IconImage(image) + "&nbsp;";
+			}
+			var $action = $("<div id='" + id + "' class='app-button' style='border-width: 0px; padding: 8px; width: auto; display: block; background: white; height: 25px; "+(i > 0 ? "border-top: 1px solid gainsboro;" : "")+"'>" + imgcode + text + "</div>");
+
+			$action.click(function () {
+				$action.css("background-color", "Gainsboro");
+				setTimeout(function () {
+					$action.css("background-color", "");
+				}, 50);
+				func();
+			});
+
+			$(".lineactions").append($action);
+			
+			return $action;
+		};
+	
         //#endregion       
 
         //#region Public Properties
@@ -3526,6 +3612,24 @@ Define("PageViewer",
                         return btn2
 		        }
 		    }
+			if(!btn){
+				for(var i = 0; i < m_lineActions.length; i++){				
+					var action = m_lineActions[i];
+					if(action.Name == name)
+						return {
+							hide: function(){
+								m_lineActions[i].Hide = true;
+							},
+							show: function(){
+								m_lineActions[i].Hide = false;
+							},
+							html: function(val){
+								m_lineActions[i].Image = "";
+								m_lineActions[i].HTML = val;
+							}
+						};
+				}			
+			}
 			return btn;
 		};
 
@@ -3623,6 +3727,10 @@ Define("PageViewer",
             } else {
                 m_comboSelected = value_;
             }
+        };
+		
+		this.LineActions = function () {
+            return m_lineActions;
         };
 
         //#endregion          
@@ -3754,7 +3862,7 @@ Define("PageViewer",
                 }
 
                 //F5.
-                if (ev.which == 116 && !ev.ctrlKey) {
+                if (ev.which == 116 && !ev.ctrlKey) {					
                     Application.RunNext(function () { return _self.Update(true,true,true); }); //Issue #37 - Refresh flowfields.
                     ev.preventDefault();
                     return false;
@@ -4007,16 +4115,19 @@ Define("PageViewer",
 			_self.OnShow();
 				
 			setTimeout(function(){
-								
-				_self.Resize();				
-				
-				for (var i = 0; i < m_tabs.length; i++) {
-					m_tabs[i].OnShow();								
-				}
-				
-				for (var i = 0; i < m_subPages.length; i++) {
-					m_subPages[i].OnShow();					
-				}	
+                    
+                if(_self){
+                    
+                    _self.Resize();				
+                    
+                    for (var i = 0; i < m_tabs.length; i++) {
+                        m_tabs[i].OnShow();								
+                    }
+                    
+                    for (var i = 0; i < m_subPages.length; i++) {
+                        m_subPages[i].OnShow();					
+                    }	
+                }
 				
 			},100);
 			

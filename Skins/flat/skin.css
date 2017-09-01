@@ -239,7 +239,7 @@ body .ui-tooltip { border-width: 2px; }
 .ui-widget { font-family: Lucida Grande,Lucida Sans,Arial,sans-serif; font-size: 12px; }
 .ui-widget .ui-widget { font-size: 1em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Lucida Grande,Lucida Sans,Arial,sans-serif; font-size: 1em; }
-.ui-widget-content { border: 1px solid gainsboro; background: #fcfdfd; color: #222222; }
+.ui-widget-content { border: 1px solid %INACTIVEBORDERCOLOR%; background: #fcfdfd; color: #222222; }
 .ui-widget-content a { color: #222222; }
 .ui-widget-header { border: 1px solid #4297d7; background: %HEADERCOLOR%; color: %HEADERTEXTCOLOR%; font-weight: bold; }
 .ui-widget-header a { color: #104070; }
@@ -610,7 +610,7 @@ a,visited{
 
 .app-window-titlebar{
     border-width: 0px !important; 
-    font-size: 14pt !important; 
+    font-size: 16pt !important; 
 	padding-top: 0px !important;
     padding-left: 10px !important;
     border-top-left-radius: 2px !important; 
@@ -618,7 +618,6 @@ a,visited{
 }
 
 .app-window-title{
-	margin-top: 5px !important;
     white-space: nowrap; 
     overflow-x: hidden; 
     text-overflow: ellipsis;
@@ -628,7 +627,7 @@ a,visited{
     color: black !important;    
     padding: 0px !important;
 	padding-left: 10px !important;
-	font-size: 14px !important;
+	font-size: 16px !important;
 }
 
 .app-window-main {
@@ -718,7 +717,7 @@ a,visited{
 
 .app-spinner
 {
-    padding: .10em !important;
+    padding: .38em !important;
 }
 
 .xpress-window-right
@@ -769,7 +768,7 @@ a,visited{
 .app-label
 {
     font-family: Arial;
-    font-size: 12px;
+    font-size: 14px;
     font-style: normal;
     font-variant: normal;
     font-weight: 400;
@@ -784,7 +783,7 @@ a,visited{
     font-variant: normal;
     font-weight: 400;
     line-height: normal;
-    padding: 3px;
+    padding: .55em;
     border: 1px solid #999;
     outline: 0;
     -moz-border-radius: 3.01px;
@@ -795,7 +794,7 @@ a,visited{
 }
  
 .app-button{
-	font-size: 14px !important;
+	font-size: 16px !important;
 }
  
 /*#endregion*/
@@ -818,7 +817,7 @@ a,visited{
 .footer-text { 
     font-family: Verdana;     
     font-size: 8pt; 
-    color: LightGray;
+    color: #666666;
 }
 .top-link
 {    
