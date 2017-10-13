@@ -417,10 +417,6 @@ Define("Record", null, function (name_) {
 		
 		if(m_table){
 			
-			if(Default(m_table.LinkedView,"") != ""){
-				return _self;
-			}
-			
 			var hasView = m_table.HasView();
 			for(var i = 0; i < o.Record.Fields.length; i++){
 				var col = m_table.Column(o.Record.Fields[i].Name);

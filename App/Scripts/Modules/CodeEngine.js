@@ -324,14 +324,10 @@ DefineModule("CodeEngine",
 
             $code(
 
-                Application.ThreadStart,
-
                 function () {
                     return func();
                 },
-
-                Application.ThreadEnd,
-
+                
                 function () {					
                     Application.LogDebug(Application.StrSubstitute("%LANG:S_STOPPEDTHREAD%", id));
                     _self.Stop();

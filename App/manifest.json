@@ -1,0 +1,16 @@
+{
+	"short_name": "%PARAM:INSTANCE%",
+	"name": "%PARAM:INSTANCE% - Zoom App",
+	"icons": [
+	  {
+		"src":"%SERVERADDRESS%Images/LogoSquare.png",
+		"sizes": "192x192",
+		"type": "image/png"
+	  }
+	],
+	"start_url": "%SERVERADDRESS%%PARAM:INSTANCE%",
+	"background_color": "#ECF0F1",
+	"theme_color": "#999",
+	"display": "standalone"
+}
+  

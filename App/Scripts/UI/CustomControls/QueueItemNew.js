@@ -31,63 +31,64 @@ Define("QueueItemNew",
         this.CreateDesktop = function (window_) {
 
             //Create the control.
-            //var container = $('<div id="' + _base.ID() + '" class="main-windowsbtn ui-widget ui-state-default" onmouseover="$(this).addClass(\'ui-state-hover\')" onmouseout="$(this).removeClass(\'ui-state-hover\')" style="padding: 4px; margin: 5px; text-align: center; display: none; width: 150px; height: 100px; border: 0px;" ><table id="tbl' + _base.ID() + '" style="width: 100%"><tr><td style="width: 50%;"><img id="img' + _base.ID() + '" src="' + Application.executionPath + 'Images/Icons/icon-QueueItemNew.png" /></td><td style="width: 50%;"><label id="ctl' + _base.ID() + '" class="unselectable" style="font-size: 16pt; font-weight: normal; font-family: Arial;"></label></td></tr><tr><td colspan="2" style="padding: 5px; vertical-align: top;"><label id="lbl' + _base.ID() + '" class="unselectable"></label></td></tr></table></div>');
-			var container = $('<table id="' + _base.ID() + '" style="width: 150px; max-width: 210px; display: inline-block; margin: 5px; height: 150px;"><tbody><tr><td><div id="bg'+_base.ID()+'" style="padding: 4px; text-align: center; width: 100px; height: 100px; border: 0px; border-radius: 50%; cursor: pointer; background-color: whitesmoke;"><img id="img' + _base.ID() + '" src="' + Application.executionPath + 'Images/Icons/icon-QueueItemNew.png" style="margin-top: 23px;"><div id="ctl' + _base.ID() + '" style="font-size: 20px; width: 40px; height: 40px; border-radius: 50%; color: white; background-color: transparent;text-align: center;line-height: 40px;margin-top: -12px;"></div></div></td></tr><tr><td id="lbl' + _base.ID() + '" style="font-size: 14px; text-align: center;"></td></tr></tbody></table>')
+            var container = $('<table id="' + _base.ID() + '" style="width: 120px; max-width: 210px; display: inline-block; margin: 10px; height: 120px;"><tbody>'+
+            '<tr><td><div id="bg'+_base.ID()+'" data-ripple style="padding: 4px; text-align: center; width: 100px; height: 100px; border: 0px; border-radius: 50%; cursor: pointer; background-color: whitesmoke; line-height: 100px;">'+
+            '<i id="img' + _base.ID() + '" class="mdi mdi-format-vanish" style="font-size: 50px"></i></div>'+
+            '<div id="ctl' + _base.ID() + '" style="font-size: 20px; width: 40px; height: 40px; border-radius: 50%; color: white; background-color: transparent;text-align: center;line-height: 40px;margin-top: -38px;position: relative;"></div>'+
+            '</td></tr>'+
+            '<tr><td id="lbl' + _base.ID() + '" style="font-size: 14px; text-align: center; width: 120px;"></td></tr></tbody></table>')
 			
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
-                container.width("120px");
-                container.css("min-width", "120px");
-				
 				_base.Viewer().Main().css("padding-bottom","0px").css("padding-top","20px").css("text-align","center");
 
                 cont[0].disabled = false;
+                container.width(120);
 
                 _base.Label().removeClass("app-label");
                 cont.removeClass("app-control");
+
+                $("#bg"+_base.ID()).ripple({ color: "gray"});                
 
                 container.on("click", function (e) {
 
                     //Open the page viewer.
                     if (m_page)
                         Application.App.LoadPage(m_page, Application.MergeView(m_view, m_record), { caption: _base.Field().Caption, mode: Application.OptionValue(_base.Field().Options, "mode") }, _base.Viewer().ParentWindow().ID());
-
-					var bg = $('#bg'+_base.ID());
-					bg.css("background-color","gainsboro");
-					setTimeout(function(){
-						bg.css("background-color","whitesmoke");
-					},500);
                 });
 
-				if(!Application.IsInMobile()){
-					container.qtip({
-						position: {
-							at: 'center right'
-						},
-						content: 'View ' + _base.Field().Caption,
-						style: {
-							tip: {
-								corner: false
-							}
-						}
-					});
-				}
+                if(!Application.IsInMobile()){
+                    container.qtip({
+                        position: {
+                            at: 'center right'
+                        },
+                        content: 'View ' + _base.Field().Caption,
+                        style: {
+                            tip: {
+                                corner: false
+                            }
+                        }
+                    });
+                }
 
             });
         };
 
         this.CreateMobile = function (window_) {
-            return _self.CreateDesktop(window_);
+            return this.CreateDesktop(window_);
         };
 
         this.FormatValue = function (value_, rec_) {
 
             var img = Application.OptionValue(_base.Field().Options, "queueimage");
-
+            
             if (img)
-                $('#img' + _base.ID()).attr("src", Application.executionPath + 'Images/Icons/' + img + '.png');
+                $('#img' + _base.ID()).attr("class", "mdi " + UI.MapMDIcon(UI.MapIcon(img)));
 
+            var color = Application.OptionValue(_base.Field().Options, "queueimagecolor");
+            if(color)
+                $('#img' + _base.ID()).css("color",color);
 
             m_page = Application.OptionValue(_base.Field().Options, "queuepage");
             m_view = Application.OptionValue(_base.Field().Options, "queueview");

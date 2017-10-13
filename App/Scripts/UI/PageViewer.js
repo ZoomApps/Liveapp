@@ -226,7 +226,70 @@ Define("PageViewer",
 						m_form.Fields[j].OptionString = "";
 						m_form.Fields[j].Size = 1000000;
 					}
-				}
+                }
+                
+                if(Application.IsInMobile() && !m_options.homepage)
+                    return $codeblock(
+                        function(){
+                            if(m_form.TabList.length > 0)
+                                return $loop(function(i){
+                                    return $codeblock(
+                                        function(){
+                                            var tab = m_form.TabList[i];
+                                            if (tab.ID != "" && !Application.HasOption(tab.Options, "desktoponly")) {
+                                                return $codeblock(
+                                                    function(){
+                                                        return new Page(tab.ID);
+                                                    },
+                                                    function(pge){
+                                                        var act = new Application.Objects.PageActionInfo();
+                                                        act.Name = tab.Name;
+                                                        act.Type = "Open Page";
+                                                        act.ReferencePage = tab.ID;
+                                                        act.ActionView = tab.View;
+                                                        act.Image = pge.Icon;
+                                                        act.Sort = 2;
+                                                        if(m_form.Type == "List")
+                                                            act.Options = "lineaction";
+                                                        m_form.Actions.push(act);
+                                                    }
+                                                );
+                                            }
+                                        },
+                                        function(){
+                                            if(i < m_form.TabList.length - 1)
+                                                return $next;
+                                            for(var j = 0; j < m_form.TabList.length; j++){
+                                                if(m_form.TabList[j].ID != ''){
+                                                    m_form.TabList.splice(j, 1);
+                                                    j -= 1;
+                                                }
+                                            }
+                                            for(var j = 0; j < m_form.Actions.length; j++){
+                                                if(m_form.Actions[j].Type == "New")
+                                                    m_form.Actions[j].Sort = 1;
+                                                if(m_form.Actions[j].Type == "Delete")
+                                                    m_form.Actions[j].Sort = 4;
+                                                if(!m_form.Actions[j].Sort)
+                                                    m_form.Actions[j].Sort = 3;
+                                            }
+                                            m_form.Actions.sort(function (a, b) {
+                                                if (a.Sort == b.Sort)
+                                                    return 0;
+                                                if (a.Sort > b.Sort) {
+                                                    return 1;
+                                                } else {
+                                                    return -1;
+                                                }
+                                            });
+                                        }
+                                    );
+                                });
+                        },
+                        function(){
+                            return Application.FireWait("PageFetch", m_form);
+                        }
+                    );
 
                 return Application.FireWait("PageFetch", m_form); //Issue #83 - Add event to manipulate page before load.
             },
@@ -288,7 +351,7 @@ Define("PageViewer",
                 if (m_options.closebutton == false) clsebtn = false;
 
                 var pos = Application.position.normal;
-                if (m_options.factbox)
+                if (m_options.factbox && !Application.IsInMobile())
                     pos = Application.position.right;
                 if (m_options.block == true)
 					if (!Application.IsInMobile())
@@ -351,7 +414,7 @@ Define("PageViewer",
                 } else {
 
                     var workspace = "#AppWorkspace";
-                    if (m_options && m_options.factbox == true)
+                    if (m_options && m_options.factbox == true && !Application.IsInMobile())
                         workspace = "#AppSideWorkspace";
 
                     _base.Create(UI.IconImage(m_form.Icon) + ' ' + m_form.Caption, {
@@ -369,6 +432,7 @@ Define("PageViewer",
                     });
                 }
 				
+				//Removed as jquery widgets trigger this
 				if(Application.IsInMobile() && window.history && window.history.pushState && (diag || m_parent == null))
 				    window.history.pushState({ windowid: _base.ID() }, window.title);
 				
@@ -1157,13 +1221,25 @@ Define("PageViewer",
                     $("#saveNewBtn").show();
                 $("#divMobileFooter,#okBtn,#customBtn1,#customBtn2,#closeBtn").hide();
 
-                if (m_form.Type == "Card" && !m_options.homepage && (m_parent == null || _base.Dialog()))
-                    $("#divMobileFooter").show();
-
-                if (m_form.CloseAction && !m_customControl) {
+                function ShowTick(){
+                    $("#"+_base.ID()+"containertitle").css("width","calc(100vw - 100px)");
+                    if(!$("#"+_base.ID()+"containerok").is(":visible")){
+                        $("#"+_base.ID()+"containerok").click(function () { 
+                            setTimeout(function(){
+                                Application.RunNext(function(){                    
+                                    return UI.WindowManager.OnSave(true);
+                                });
+                            },500); //Delay here to wait for field validation
+                            return false;
+                        }).show().ripple(); 
+                    }
+                }
+                if (m_form.Type == "Card" && !m_options.homepage && (m_parent == null || _base.Dialog())){
+                    ShowTick();
+                }else if (m_form.CloseAction && !m_customControl) {
                     $("#okBtn").show();
                     $("#saveBtn,#saveCloseBtn,#saveNewBtn").hide();
-                    $("#divMobileFooter").show();
+                    ShowTick();
                 }
 
             }					
@@ -2211,11 +2287,13 @@ Define("PageViewer",
 				if(!Application.HasOption(m_form.Options,"skipupdatefilters")){
 					var filters = Application.GetFilters(m_view);
 					for (var i = 0; i < filters.length; i++) {
-						var f = m_record.GetField(filters[i][0]);
-						var field = m_table.Column(f.name);
-						if (f && field && filters[i][1] != f.Value && field.PrimaryKey){
-							m_record.Filter(filters[i][0], f.Value);
-						}
+                        var f = m_record.GetField(filters[i][0]);
+                        if(f){
+                            var field = m_table.Column(f.Name);
+                            if (f && field && filters[i][1] != f.Value && field.PrimaryKey){
+                                m_record.Filter(filters[i][0], f.Value);
+                            }
+                        }
 					}
 				}
 				
@@ -2340,9 +2418,11 @@ Define("PageViewer",
             function () {
 
                 //Add padding to the top.
-                $('#' + _base.ID() + "main").css("padding-top", "10px");
-                $('#' + _base.ID() + "main").css("padding-bottom", "10px");
-
+                if(!Application.IsInMobile()){
+                    $('#' + _base.ID() + "main").css("padding-top", "10px");
+                    $('#' + _base.ID() + "main").css("padding-bottom", "10px");
+                }
+        
                 _base.AddColumns();
 
                 $('#' + _base.ID() + "LeftColumn").css("display", "none");
@@ -2415,7 +2495,7 @@ Define("PageViewer",
                                         _self.AddCustomControl(field, left);
                                     } else if (field.LookupTable != '' || field.OptionCaption != "") {
                                         _self.AddComboField(field, left);
-                                    } else if (field.IncrementDelta != 0) {
+                                    } else if (field.IncrementDelta != 0 && !Application.IsInMobile()) {
                                         _self.AddSpinnerField(field, left);
                                     } else if (field.Type == "Date") {
                                         _self.AddDateField(field, left);
@@ -2502,7 +2582,7 @@ Define("PageViewer",
                                     if (m_options.homepage == true) {
 
 										if (m_form.SubPages() == 1) {
-											pos = null;
+											pos = Application.position.rolefull;
                                         }else if (m_form.SubPages() <= 2) {
                                             pos = Application.position.rolehalf;
                                         } else if (m_form.SubPages() == 3) {
@@ -2568,7 +2648,7 @@ Define("PageViewer",
 
             var pos = Application.position.normal;
             var workspace = "#AppWorkspace";
-            if (m_form.TabOption(tab_, "factbox")) {
+            if (m_form.TabOption(tab_, "factbox") && !Application.IsInMobile()) {
                 workspace = "#AppSideWorkspace";
                 pos = Application.position.right;
             } else if (m_form.TabOption(tab_, "block")) {
@@ -2589,8 +2669,10 @@ Define("PageViewer",
             });
 
             //Add padding to the top.
-            $('#' + win.ID() + "main").css("padding-top", "10px");
-            $('#' + win.ID() + "main").css("padding-bottom", "10px");
+            if(!Application.IsInMobile()){
+                $('#' + win.ID() + "main").css("padding-top", "10px");
+                $('#' + win.ID() + "main").css("padding-bottom", "10px");
+            }
 
             win.Caption = tab_.Name;
             win.AddColumns();
@@ -2639,7 +2721,7 @@ Define("PageViewer",
 			
 			var ignore = cont_.IgnoreColumns();
 			if(!ignore && cont_.Field() && Application.HasOption(cont_.Field().Options,"ignorecolumns"))
-				ignore = true;
+                ignore = true;
 			
             if (ignore) {
                 $('#' + tab_.ID() + "LeftColumn").css("padding-bottom", "0px");
@@ -2901,6 +2983,9 @@ Define("PageViewer",
                 if (m_form.FieldOption(field, "mobileonly") && !Application.IsInMobile())
                     skip = true;
                 if (m_form.FieldOption(field, "desktoponly") && Application.IsInMobile())
+                    skip = true;
+
+                if (m_form.FieldOption(field, "cardonly") && Application.IsInMobile())
                     skip = true;
 
                 if (!skip) {
@@ -3374,13 +3459,18 @@ Define("PageViewer",
 			
 			$(".lineactions,.lineactionsoverlay").remove();	
 			
-			var dd = $("<div style='position:fixed; background-color: white; max-width: 400px; border: 1px solid gainsboro; max-height: 400px; overflow-y: auto; z-index: 30001;' class='lineactions'>");
-			dd.css("width",UI.Width() - 5);			
+			var dd = $("<div class='lineactions'>");
 			$("body").append(dd);						
-			
+            
+            var fieldname = Application.OptionValue(m_form.Options,"hyperlink");
+            var field = m_form.GetField(fieldname);
+            dd.append("<div class='lineactions-title cut-text'>" +
+            FormatData((row["FF$"+fieldname] ? row["FF$"+fieldname] : row[fieldname]),field.Type) + 
+            "</div>");
+
 			if(_self.EnableEditMode()){
 				var func;
-				eval("func = function () {$('.lineactions').remove();_self.GridDoubleClick("+rowid+");}");
+				eval("func = function () {$('.lineactions,.lineactionsoverlay').remove();_self.GridDoubleClick("+rowid+");}");
 				_self.AddLineAction("EditRow", "redo", "Edit", func);
 			}
 			
@@ -3403,16 +3493,23 @@ Define("PageViewer",
 					
 				}
 			}
+            
+            var h = (j * 50) + 50 + (_self.EnableEditMode() ? 50 : 0);
+			dd.css("left","0").css("top","100vh").animate({
+                top: $(window).height() - h
+            });
 			
-			dd.css("top",($(window).height()/2)-(dd.height()/1.2)).css("left",5);
-			
-			var o = $('<div class="ui-widget-overlay app-overlay lineactionsoverlay" style="opacity: .8; position: fixed;"></div>');
+			var o = $('<div class="ui-widget-overlay app-overlay lineactionsoverlay"></div>');
 			$("body").append(o);		
 			o.width('100%').height('100%');
             o.show();
 			
-			o.on("click",function(){				
-				$(".lineactions,.lineactionsoverlay").remove();
+			o.on("click",function(){	
+                $(".lineactions").animate({
+                    top: $(window).height()
+                },null,null,function(){
+                    $(".lineactions,.lineactionsoverlay").remove();
+                });	
 			});
 		};
 		
@@ -3422,17 +3519,11 @@ Define("PageViewer",
 
 			var imgcode = ""
 			if (image != "") {
-				imgcode = UI.IconImage(image) + "&nbsp;";
+                imgcode = "<i class='mdi "+UI.MapMDIcon(UI.MapIcon(image))+"' style='font-size: 20px'></i>&nbsp;";
 			}
-			var $action = $("<div id='" + id + "' class='app-button' style='border-width: 0px; padding: 8px; width: auto; display: block; background: white; height: 25px; "+(i > 0 ? "border-top: 1px solid gainsboro;" : "")+"'>" + imgcode + text + "</div>");
+			var $action = $("<div id='" + id + "' data-ripple class='lineactions-btn'>" + imgcode + text + "</div>");
 
-			$action.click(function () {
-				$action.css("background-color", "Gainsboro");
-				setTimeout(function () {
-					$action.css("background-color", "");
-				}, 50);
-				func();
-			});
+			$action.ripple({ color: 'gainsboro' }).click(func);
 
 			$(".lineactions").append($action);
 			
@@ -3744,6 +3835,21 @@ Define("PageViewer",
             //Partial refresh.            
             m_causedUpdate = null;
 
+            if(Application.transactionStarted > 0)
+                Application.RunNext(function () {
+                    return $codeblock(
+                        function () {
+                            if (Application.auth.SessionID != "") { 
+                                Application.supressServiceErrors = true;
+                                return Application.RollbackTransaction();
+                            }
+                        },
+                        function () {
+                            Application.supressServiceErrors = false;
+                        }
+                    );
+                });
+
             _self.LoadControls(true);
             m_okClicked = false;
             _self.HideLoad(true);
@@ -3953,7 +4059,7 @@ Define("PageViewer",
 
         this.OnClose = function (okclicked) {
 
-			if(m_options.homepage && Application.IsMobileDisplay())
+			if(m_options.homepage && Application.IsInMobile())
 				Application.Error("You cannot close the dashboard");
 		
             _self.Save();
@@ -3976,7 +4082,7 @@ Define("PageViewer",
 
                 function () {
                     if (m_closeFunc != null && !_base.CancelClose()) {
-                        return m_closeFunc();
+                        return m_closeFunc(m_okClicked);
                     }
                 },
 
@@ -4002,7 +4108,7 @@ Define("PageViewer",
                     totalheight = 0;
 
                 for (var i = 0; i < m_tabs.length; i++) {
-                    if (m_tabs[i].Position() == Application.position.normal) {
+                    if (m_tabs[i].Position() == Application.position.normal || m_tabs[i].Position() == Application.position.rolefull) {
                         j += 1;
                         totalheight += m_tabs[i].Height();
                     }
@@ -4010,7 +4116,7 @@ Define("PageViewer",
 
                 for (var i = 0; i < m_subPages.length; i++) {
                     m_subPages[i].ResizeList(10);
-                    if (m_subPages[i].Position() == Application.position.normal || m_subPages[i].Position() == Application.position.block) {
+                    if (m_subPages[i].Position() == Application.position.normal || m_subPages[i].Position() == Application.position.block || m_subPages[i].Position() == Application.position.rolefull) {
                         j += 1;
                     }
                 }
@@ -4041,7 +4147,7 @@ Define("PageViewer",
 
                     } else {
 
-                        if (m_subPages[i].Position() == Application.position.normal) {
+                        if (m_subPages[i].Position() == Application.position.normal ||m_subPages[i].Position() == Application.position.rolefull) {
                             m_subPages[i].ResizeList(10);
                             var subheight = (uiheight - totalheight) / j;
                             if (subheight < minheight)
@@ -4194,7 +4300,7 @@ Define("PageViewer",
 				
             } else {
 
-                if (m_form && (_self.Position() == Application.position.block || _self.Position() == Application.position.rolehalf || _self.Position() == Application.position.rolequarter))
+                if (m_form && (_self.Position() == Application.position.block || _self.Position() == Application.position.rolehalf || _self.Position() == Application.position.rolequarter || _self.Position() == Application.position.rolefull))
 					_base.SetHeight(height, true); //Set height and max
             }
 

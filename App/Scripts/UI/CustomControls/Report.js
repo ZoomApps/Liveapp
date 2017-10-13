@@ -72,7 +72,7 @@ Define("Report",
 			
             window_.AddControl("<br/>");
 			
-            window_.AddControl("<a id='btnPrint" + _base.ID() + "'>" + UI.IconImage("printer") + " Print</a>");
+            window_.AddControl("<a id='btnPrint" + _base.ID() + "'>" + UI.IconImage("mdi-printer") + " Print</a>");
             $("#btnPrint" + _base.ID()).button().hide().click(function () {
 				
 				var landscape = Application.HasOption("landscape",m_form.Options);
@@ -104,18 +104,18 @@ Define("Report",
             });
 			
 			if(!Application.HasOption(m_form.Options,"skipfilters")){
-				window_.AddControl("<a id='btnFilters" + _base.ID() + "'>" + UI.IconImage("row_add") + " Filters</a>");
+				window_.AddControl("<a id='btnFilters" + _base.ID() + "'>" + UI.IconImage("mdi-filter") + " Filters</a>");
 				$("#btnFilters" + _base.ID()).button().hide().click(function () {
 					_self.ShowFilters();
 				});				
 			}
 			
-			window_.AddControl("<a id='btnExportCSV" + _base.ID() + "'>" + UI.IconImage("table_sql") + " Export to CSV</a>");
+			window_.AddControl("<a id='btnExportCSV" + _base.ID() + "'>" + UI.IconImage("mdi-file-import") + " Export to CSV</a>");
             $("#btnExportCSV" + _base.ID()).button().hide().click(function () {
                 _self.ExportCSV();
             });
 
-			window_.AddControl("<a id='btnEmailPDF" + _base.ID() + "'>" + UI.IconImage("mail_attachment") + " Email PDF</a>");
+			window_.AddControl("<a id='btnEmailPDF" + _base.ID() + "'>" + UI.IconImage("mdi-email") + " Email PDF</a>");
             $("#btnEmailPDF" + _base.ID()).button().hide().click(function () {
 				var data = GenerateReportData(m_record);
                 _self.EmailPDF(data);
@@ -532,8 +532,10 @@ Define("Report",
 						o.Body = Default(o.Body,"Hi!<br/><br/>Please find the attached "+cap);
 						o.FileName = Default(o.FileName,"Report.PDF");
 						
-						if(Application.Util) //CIMS
+						if(Application.Util && Application.Util.User)
 							o.From = Application.Util.User().CompanyEmail;
+						if(Application.Util && Application.Util.sendFrom)
+							o.From = Application.Util.sendFrom;
 				
 						var options = new OptionsWindow({      
 							caption: 'Email PDF',
@@ -546,6 +548,7 @@ Define("Report",
 								Name: "From",
 								Caption: "From",
 								Type: "Text",
+								Hidden: (Application.Util && Application.Util.sendFrom),
 								Mandatory: true
 							},{
 								Name: "Subject",

@@ -102,7 +102,7 @@ DefineModule("AppUI",
 			m_hideCancel = hideCancel;
 			m_progressTitle = title;
 			
-			m_progClosed = false;			
+            m_progClosed = false;	
             if(m_timer)		
 			m_timer.Start(true);						
         };
@@ -143,7 +143,7 @@ DefineModule("AppUI",
 		this.MagicWidth = function(){
 			var multiplier = .70;
 			if(Application.IsMobileDisplay())
-				multiplier = .95;
+				multiplier = 1;
 			var w = $(window).width() * multiplier;
 			var h = $(window).height() * multiplier;
 			if(w < h)
@@ -176,38 +176,21 @@ DefineModule("AppUI",
             return '<img src="' + icon + '" style="vertical-align:middle;width:' + size + 'px;height:' + size + 'px" />';
         };
 		
-        this.IconImage = function (img, path, size) {
+        this.IconImage = function (img, path, size) {    
+            
+            img = _self.MapIcon(img);
             size = Default(size, 15);
-            if (path == null) {
-                if (Application.executionPath != null) {
-                    path = Application.executionPath;
-                } else {
-                    path = "%SERVERADDRESS%";
-                }
-            }
 
-            //Issue #70 - Offline icons
-            if (img.length > 30)
-                return '<img src="data:image/png;base64,'+img+'" style="vertical-align:middle;width:' + size + 'px;height:' + size + 'px; margin-bottom: 2px;" />';
-
-            return '<img src="' + path + 'Images/ActionIcons/' + img + '.png" style="vertical-align:middle;width:' + size + 'px;height:' + size + 'px; margin-bottom: 2px;" />';
+            if(img.indexOf("mdi-") !== 0)
+                return img + "<i/>";
+       
+            return '<i class="mdi ' + img + '" style="font-size: '+size+'px" />';
         };
 
         this.BigIconImage = function (img, path, size) {
+            
             size = Default(size, 48);
-            if (path == null) {
-                if (Application.executionPath != null) {
-                    path = Application.executionPath;
-                } else {
-                    path = "%SERVERADDRESS%";
-                }
-            }
-
-            //Issue #70 - Offline icons
-            if (img.length > 30)
-                return '<img src="data:image/png;base64,' + img + '" style="vertical-align:middle;width:' + size + 'px;height:' + size + 'px" />';
-
-            return '<img src="' + path + 'Images/Icons/' + img + '.png" style="vertical-align:middle;width:' + size + 'px;height:' + size + 'px" />';
+            return _self.IconImage(img, path, size);
         };
 
 		this.Paused = function(value_){
@@ -424,17 +407,28 @@ DefineModule("AppUI",
             $("#divWarning").html(msg).css("background-color", color);
             if (show) {
                 $("#divWarning").show();
-                if(Application.IsInMobile())
-                    $("#AppWorkspace").css("margin-top","0px");
             } else {
                 $("#divWarning").hide();
-                if (Application.IsInMobile() && !Application.IsMobileDisplay() && !Application.IsOffline())
-                    $("#AppWorkspace").css("margin-top","38px");
             }
 
             $(window).resize();
         };
 
+        this.DevBar = function (show, msg, color) {
+
+			if(!Application.developerMode)
+				return; 
+			
+            color = Default(color, "#FFFFA6");
+            msg = Default(msg, "");
+
+            if (show) {
+				$("#tdMainMenuTop").html(msg).css("background-color", color).css("color","black");
+            } else {
+                $("#tdMainMenuTop").html("").css("background-color","");
+			}
+        };
+		
         this.FindEditorInput = function (elem) {
 
             for (var i = 0; i < elem.children().length; i++) {
@@ -502,7 +496,335 @@ DefineModule("AppUI",
 		this.Blur = function(){
 			if ("activeElement" in document)
 				document.activeElement.blur();
-		};
+        };
+
+        this.Standalone = function(){
+            
+            var standalone = false;
+            if('standalone' in window.navigator){
+                standalone = window.navigator.standalone;
+            }else if('matchMedia' in window){
+                standalone = window.matchMedia('(display-mode: standalone)').matches;
+            }
+            return standalone;
+        }
+
+        this.MapMDIcon = function(oldvalue) {
+            if(oldvalue.indexOf('mdi-') == 0)
+                return oldvalue;
+            if(oldvalue == 'arrow_left_grey')
+                return 'mdi-keyboard-backspace';
+            if(oldvalue == 'navigate_left')
+                return 'mdi-keyboard-backspace';
+            if(oldvalue == 'arrow_right_grey')
+                return 'mdi-keyboard-backspace mdi-rotate-180';
+            if(oldvalue == 'navigate_right')
+                return 'mdi-keyboard-backspace mdi-rotate-180';
+            if(oldvalue == 'completesetup')
+                return 'mdi-playlist-check';
+            if(oldvalue == 'createsetup')
+                return 'mdi-format-list-checks';
+            if(oldvalue == 'currentsetup')
+                return 'mdi-playlist-play';
+            if(oldvalue == 'mailbox_empty')
+                return 'mdi-playlist-play';
+            if(oldvalue == 'document_new')
+                return 'mdi-plus-circle';
+            if(oldvalue == 'dosetup')
+                return 'mdi-checkbox-marked-outline';
+            if(oldvalue == 'instrument')
+                return 'mdi-needle';
+            if(oldvalue == 'location')
+                return 'mdi-map-marker';
+            if(oldvalue == 'package_add')
+                return 'mdi-archive';
+            if(oldvalue == 'preference_cards')
+                return 'mdi-tooltip-text';
+            if(oldvalue == 'redo')
+                return 'mdi-undo';
+            if(oldvalue == 'table_selection_column')
+                return 'mdi-format-list-bulleted';
+            if(oldvalue == 'today')
+                return 'mdi-calendar-today';
+            if(oldvalue == 'account management')
+                return 'mdi-square-inc-cash';
+            if(oldvalue == 'box_next')
+                return 'mdi-minus-circle';
+            if(oldvalue == 'delete')
+                return 'mdi-minus-circle';
+            if(oldvalue == 'bug_green')
+                return 'mdi-bug';
+            if(oldvalue == 'calculate')
+                return 'mdi-calculator';
+            if(oldvalue == 'calendar')
+                return 'mdi-calendar';
+            if(oldvalue == 'completesetup')
+                return 'mdi-playlist-check';
+            if(oldvalue == 'contact')
+                return 'mdi-account';
+            if(oldvalue == 'contacts')
+                return 'mdi-account-multiple';
+            if(oldvalue == 'copy')
+                return 'mdi-content-copy';
+            if(oldvalue == 'creditcards')
+                return 'mdi-credit-card-multiple';
+            if(oldvalue == 'data import')
+                return 'mdi-import';
+            if(oldvalue == 'document_ok')
+                return 'mdi-import';
+            if(oldvalue == 'document_out')
+                return 'mdi-export';
+            if(oldvalue == 'disk_blue')
+                return 'mdi-download';
+            if(oldvalue == 'disk_blue_ok')
+                return 'mdi-download';
+            if(oldvalue == 'doctor')
+                return 'mdi-stethoscope';
+            if(oldvalue == 'document')
+                return 'mdi-file-document';
+            if(oldvalue == 'document_certificate')
+                return 'mdi-file-document';
+            if(oldvalue == 'document_text')
+                return 'mdi-file';
+            if(oldvalue == 'elements2')
+                return 'mdi-view-sequential';
+            if(oldvalue == 'go_offline')
+                return 'mdi-sync';
+            if(oldvalue == 'history')
+                return 'mdi-history';
+            if(oldvalue == 'home')
+                return 'mdi-home-circle';
+            if(oldvalue == 'icon-queueitem')
+                return 'mdi-vanish';
+            if(oldvalue == 'id_cards')
+                return 'mdi-account-card-details';
+            if(oldvalue == 'import_preference_cards')
+                return 'mdi-account-switch';
+            if(oldvalue == 'instrumentnotready')
+                return 'mdi-pencil-off';
+            if(oldvalue == 'key1')
+                return 'mdi-key';
+            if(oldvalue == 'key3')
+                return 'mdi-key-variant';
+            if(oldvalue == 'keyboard_key')
+                return 'mdi-settings';
+            if(oldvalue == 'laptop')
+                return 'mdi-laptop';
+            if(oldvalue == 'link')
+                return 'mdi-link-variant';
+            if(oldvalue == 'lock')
+                return 'mdi-lock';
+            if(oldvalue == 'lock_information')
+                return 'mdi-folder-lock';
+            if(oldvalue == 'match')
+                return 'mdi-share-variant';
+            if(oldvalue == 'nav_down_blue')
+                return 'mdi-arrow-down-drop-circle-outline';
+            if(oldvalue == 'nav_up_blue')
+                return 'mdi-arrow-up-drop-circle-outline';
+            if(oldvalue == 'nav_left_blue')
+                return 'mdi-arrow-left-drop-circle-outline';
+            if(oldvalue == 'nav_right_blue')
+                return 'mdi-arrow-right-drop-circle-outline';
+            if(oldvalue == 'operating theatre')
+                return 'mdi-seat-flat';
+            if(oldvalue == 'package_ok')
+                return 'mdi-archive';
+            if(oldvalue == 'pda2')
+                return 'mdi-cellphone-android';
+            if(oldvalue == 'photo')
+                return 'mdi-camera';
+            if(oldvalue == 'preferences')
+                return 'mdi-information-outline';
+            if(oldvalue == 'printer')
+                return 'mdi-printer';
+            if(oldvalue == 'remove_filter')
+                return 'mdi-filter-remove-outline';
+            if(oldvalue == 'replace2')
+                return 'mdi-swap-horizontal';
+            if(oldvalue == 'row_add')
+                return 'mdi-table-row-plus-after';
+            if(oldvalue == 'row_add_after')
+                return 'mdi-table-row-plus-after';
+            if(oldvalue == 'solution')
+                return 'mdi-puzzle';
+            if(oldvalue == 'start')
+                return 'mdi-arrow-right-bold-box';
+            if(oldvalue == 'table_sql_run')
+                return 'mdi-arrow-right-bold-box';
+            if(oldvalue == 'surgery')
+                return 'mdi-pulse';
+            if(oldvalue == 'table')
+                return 'mdi-table-large';
+            if(oldvalue == 'table_sql')
+                return 'mdi-table-large';
+            if(oldvalue == 'table_selection_row')
+                return 'mdi-sunglasses';
+            if(oldvalue == 'table_sql_view')
+                return 'mdi-sunglasses';
+            if(oldvalue == 'table_sql_select')
+                return 'mdi-auto-fix';
+            if(oldvalue == 'tables')
+                return 'mdi-share-variant';
+            if(oldvalue == 'text_code_javascript')
+                return 'mdi-language-javascript';
+            if(oldvalue == 'window_application_add')
+                return 'mdi-home-circle';
+            if(oldvalue == 'window_colours')
+                return 'mdi-lead-pencil';
+            if(oldvalue == 'window_application_add')
+                return 'mdi-home-circle';
+            if(oldvalue == 'window_edit')
+                return 'mdi-codepen';
+            if(oldvalue == 'window_sidebar')
+                return 'mdi-book-open';
+            if(oldvalue == 'window_split_ver')
+                return 'mdi-folder';
+            if(oldvalue == 'windows')
+                return 'mdi-asterisk';
+            return 'mdi-checkbox-blank-circle';
+        };
+
+        this.MapIcon = function(oldvalue) {
+            
+            if(oldvalue.indexOf('mdi-') == 0)
+                return oldvalue;
+            if(oldvalue == 'document_certificate')
+                return 'mdi-certificate';
+            if(oldvalue == 'home')
+                return 'mdi-home';
+            if(oldvalue == 'window_side_bar')
+                return 'mdi-application';
+            if(oldvalue == 'disk_blue')
+                return 'mdi-content-save';
+            if(oldvalue == 'disk_blue_ok')
+                return 'mdi-content-save-all';
+            if(oldvalue == 'text_code_javascript')
+                return 'mdi-language-javascript';
+            if(oldvalue == 'keyboard_key')
+                return 'mdi-settings';
+            if(oldvalue == 'window_split_ver')
+                return 'mdi-folder-multiple';
+            if(oldvalue == 'table_sql_run')
+                return 'mdi-play';
+            if(oldvalue == 'history')
+                return 'mdi-history';
+            if(oldvalue == 'table_sql_select')
+                return 'mdi-source-pull';
+            if(oldvalue == 'document_new')
+                return 'mdi-plus-circle';
+            if(oldvalue == 'delete')
+                return 'mdi-minus-circle';
+            if(oldvalue == 'table_sql_view')
+                return 'mdi-message-settings-variant';
+            if(oldvalue == 'nav_down_blue')
+                return 'mdi-arrow-down-drop-circle-outline';
+            if(oldvalue == 'nav_up_blue')
+                return 'mdi-arrow-up-drop-circle-outline';
+            if(oldvalue == 'nav_left_blue')
+                return 'mdi-arrow-left-drop-circle-outline';
+            if(oldvalue == 'nav_right_blue')
+                return 'mdi-arrow-right-drop-circle-outline';
+            if(oldvalue == 'window_colors')
+                return 'mdi-tooltip-edit';
+            if(oldvalue == 'user1')
+                return 'mdi-account-multiple';
+            if(oldvalue == 'box_software')
+                return 'mdi-puzzle';
+            if(oldvalue == 'id_cards')
+                return 'mdi-account-card-details';
+            if(oldvalue == 'user1_lock')
+                return 'mdi-key';
+            if(oldvalue == 'user1_lock')
+                return 'mdi-key';
+            if (oldvalue == 'users3_preferences')
+                return 'mdi-account-multiple';
+            if (oldvalue == 'users1')
+                return 'mdi-account-settings-variant';
+            if (oldvalue == 'houses')
+                return 'mdi-web';
+            if (oldvalue == 'server_warning')
+                return 'mdi-cloud-download';
+            if (oldvalue == 'user1_information')
+                return 'mdi-account-alert';
+            if (oldvalue == 'window_gear')
+                return 'mdi-format-list-checks';
+            if (oldvalue == 'row')
+                return 'mdi-format-list-bulleted';
+            if (oldvalue == 'document')
+                return 'mdi-file-document';
+            if (oldvalue == 'data_find')
+                return 'mdi-search-web';
+            if (oldvalue == 'chart')
+                return 'mdi-file-chart';
+            if (oldvalue == 'mailbox_full')
+                return 'mdi-email';
+            if (oldvalue == 'document_out')
+                return 'mdi-export';
+            if (oldvalue == 'window_information')
+                return 'mdi-format-list-bulleted-type';
+            if (oldvalue == 'component_add')
+                return 'mdi-power-plug';
+            if (oldvalue == 'mailbox_empty')
+                return 'mdi-email-open';
+            if (oldvalue == 'media_play')
+                return 'mdi-play-circle';
+            if (oldvalue == 'media_stop')
+                return 'mdi-stop-circle';
+            if (oldvalue == 'window_edit')
+                return 'mdi-codepen';
+            if (oldvalue == 'help2')
+                return 'mdi-bus-side';
+            if (oldvalue == 'document_ok')
+                return 'mdi-import';
+            if (oldvalue == 'document_text')
+                return 'mdi-file';
+            if (oldvalue == 'box_next')
+                return 'mdi-minus-circle';
+            if (oldvalue == 'tables')
+                return 'mdi-share-variant';
+            if (oldvalue == 'table_sql_check')
+                return 'mdi-sync';
+            if (oldvalue == 'table')
+                return 'mdi-table-large';
+            if (oldvalue == 'window_sidebar')
+                return 'mdi-book-open';
+            if (oldvalue == 'windows')
+                return 'mdi-asterisk';
+            if (oldvalue == 'lock_add')
+                return 'mdi-account-key';
+            if (oldvalue == 'lock_view')
+                return 'mdi-security';
+            if (oldvalue == 'table_selection_column')
+                return 'mdi-menu';
+            if (oldvalue == 'undo')
+                return 'mdi-undo-variant';
+            if (oldvalue == 'table_selection_row')
+                return 'mdi-message-settings-variant';
+            if (oldvalue == 'close')
+                return 'mdi-eraser';
+            if (oldvalue == 'key1')
+                return 'mdi-account-key';
+            if (oldvalue == 'lock')
+                return 'mdi-lock';
+            if (oldvalue == 'link')
+                return 'mdi-link-variant';
+            if (oldvalue == 'lock_information')
+                return 'mdi-lock-outline';
+            if (oldvalue == 'businessman2')
+                return 'mdi-account-settings-variant';
+            if (oldvalue == 'check2')
+                return 'mdi-cloud-sync';
+            if (oldvalue == 'box_delete')
+                return 'mdi-play-pause';
+            if (oldvalue == 'arrow_down_green')
+                return 'mdi-content-copy';
+            if (oldvalue == 'arrow_down_blue')
+                return 'mdi-content-duplicate';
+            if(oldvalue == 'lock_ok')
+                return 'mdi-lock';
+            return oldvalue;
+        }
 
         //#endregion
 

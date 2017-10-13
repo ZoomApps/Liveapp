@@ -607,11 +607,20 @@ Boxy.prototype = {
         if (this.options.title) {
             var self = this;
 			
-            var tb = jQuery("<div class='title-bar ui-header ui-bar-a ui-dialog-titlebar ui-widget-header app-boxy-titlebar'></div>").html("<h2 class='app-boxy-title' style='max-width: "+(UI.MagicWidth()-20)+"px;'>" + this.options.title + "</h2>");
-            if (this.options.closeable) {
-                tb.append(jQuery("<a class='close app-boxy-closebtn' border='0'></a>").html(this.options.closeText));
+            var tb = null;
+            if(Application.IsInMobile()){
+                tb = jQuery("<div class='title-bar navbar navbar-inner'></div>").html(
+                    (this.options.closeable?"<div id='closebtn"+this.options.id+"' class='menu-icon' data-ripple>" + this.options.closeText + "</div>":"") +
+                    "<h2 class='navbar-brand' style='width: calc(100vw - 100px);margin: 0px;'>" + this.options.title + "</h2>" +
+                    "<div id='okbtn"+this.options.id+"' class='menu-icon' style='float: right' data-ripple><i class='mdi mdi-check' style='font-size: 30px'></i></div>"
+                );
+            }else{
+                tb = jQuery("<div class='title-bar ui-header ui-bar-a ui-dialog-titlebar ui-widget-header app-boxy-titlebar'></div>").html("<h2 class='app-boxy-title' style='display: inline-block; max-width: "+(UI.MagicWidth()-20)+"px;'>" + this.options.title + "</h2>");
+                if (this.options.closeable) {
+                    tb.append(jQuery('<a class="close mdi mdi-close" style="cursor: pointer;display: inline-block;float: right;font-size: 20px;line-height: 35px;margin-right: 10px;color: white;"></a>'));
+                }
             }
-
+           
             if (this.options.draggable) {
                 tb[0].onselectstart = function () { return false; };
                 tb[0].unselectable = 'on';
@@ -642,10 +651,6 @@ Boxy.prototype = {
         }
         jQuery('.close', root).click(function (e) {
 			$handleclick(e); //Liveapp v4
-            $(this).css("color", "Gray");
-            setTimeout(function () {
-                $(this).css("color", "");
-            }, 100);
             self.hide(null,true);
             return false;
         }).mousedown(function (evt) { evt.stopPropagation(); });

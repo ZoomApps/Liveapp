@@ -102,14 +102,15 @@ DefineModule("FileDownloadManager",
             boxy.tween(350, 300);
         };
 
-        this.UploadFile = function (name_, data_, finish_, cancel_, showUI_) {
+        this.UploadFile = function (name_, data_, finish_, cancel_, showUI_, mime_) {
 
             showUI_ = Default(showUI_, true);
+            mime_ = Default(mime_, 'text/plain');
 
             return $codeblock(
 
                 function () {
-                    return Application.CreateFileForUpload(name_, data_.length, 30000);
+                    return Application.CreateFileForUpload(name_, data_.length, 30000, mime_);
                 },
 
                 function (info_) {

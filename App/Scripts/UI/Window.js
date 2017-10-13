@@ -65,7 +65,7 @@ Define("Window", null, function () {
 		
                 var closebtn = "";
                 if (m_options.closebutton == true && m_options.shortcutWorkspace && m_options.shortcutWorkspace.length > 0) {
-                    closebtn = "<a href='#' class='ui-dialog-titlebar-close ui-corner-all unselectable closebutton" + m_id + "'><span class='ui-icon ui-icon-closethick ui-icon-white'>%LANG:S_CLOSE%</span></a>";
+                    closebtn = "<i class='mdi mdi-close unselectable closebutton" + m_id + "' style='cursor: pointer;float:right; margin: 3px;'></i>";
                 }
 
                 var pos = 5;
@@ -73,28 +73,27 @@ Define("Window", null, function () {
                 if (closebtn != "")
                     pos += 25;
 
-                var maxbtn = GenerateIcon("maxbutton" + m_id, "style='right: " + pos + "px;'", "ui-icon-carat-1-n");
-                pos += 25;
+                var maxbtn = "";
 
-                var editpge = GenerateIcon("editpge" + m_id, "style='right: " + pos + "px;'", "ui-icon-pencil");
+                var editpge = GenerateIcon("editpge" + m_id, "mdi-pencil");
                 if (!m_options.editpage)
                     editpge = "";
 
                 if (editpge != "")
                     pos += 25;
 
-                var refreshpge = GenerateIcon("refreshpge" + m_id, "style='right: " + pos + "px;'", " ui-icon-arrowrefresh-1-e");
+                var refreshpge = GenerateIcon("refreshpge" + m_id, "mdi-refresh");
 
                 pos += 25;
 				
-                var export_csv = GenerateIcon("exportcsv" + m_id, "style='right: " + pos + "px;'", " ui-icon-calculator");
+                var export_csv = GenerateIcon("exportcsv" + m_id, "mdi-export");
                 if (m_options.type == "List") {
                     pos += 25;
                 } else {
                     export_csv = "";
                 }
 
-                var helppge = GenerateIcon("helppge" + m_id, "style='right: " + pos + "px;'", " ui-icon-help");				
+                var helppge = GenerateIcon("helppge" + m_id, "mdi-help");				
 				
                 if (Application.restrictedMode) {
                     export_csv = "";
@@ -112,14 +111,13 @@ Define("Window", null, function () {
                 m_window = $("<div id='" + m_id + "' class='ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all app-window'>" +
                     "<div class='ui-dialog-titlebar ui-widget-header app-window-titlebar ui-helper-clearfix unselectable title" + m_id + " "+alt+"' style='"+(m_options.removetitle ? 'display: none; ' : '')+"'>" +
                     "<span class='ui-dialog-title app-window-title unselectable' id='title" + m_id + "' style='max-width: calc(98% - "+(pos+4)+"px);'>" + m_title + "</span>" +
+                    closebtn +
+                    refreshpge +
                     export_csv +
                     helppge +
-                    refreshpge +
                     editpge +
-                    maxbtn +
-                    closebtn +
                     "</div>" +
-                    "<div id='" + m_id + "actions' class='ui-widget ui-state-default unselectable' style='border-width: 0px;'>" +
+                    "<div id='" + m_id + "actions' class='ui-widget ui-state-default unselectable' style='border-width: 0px;padding-bottom: 5px;'>" +
 	                "</div>" +
                     "<div id='" + m_id + "toolbar2' style='display: none;'>" +
 	                "</div>" +
@@ -286,7 +284,9 @@ Define("Window", null, function () {
 		
 		title_ = Application.ProcessCaption(title_);
 		
-        m_title = title_.replace('ActionIcon', 'Icon').replace('width:15px;height:15px', 'width:30px;height:30px');
+        m_title = title_;
+        if(m_title.indexOf('> ') != -1)
+            m_title = m_title.substr(m_title.indexOf('> ')+2);
 
         if (m_options.dialog == true) {
             m_boxy.setTitle(m_title);
@@ -410,7 +410,6 @@ Define("Window", null, function () {
         if (m_options.workspace)
             m_options.workspace.append(loader);
 
-        loader.width(UI.Width()-20);
         loader.height(UI.Height());
         loader.slideDown(300, function () {
             Application.Loading.Show(m_id + 'loader');
@@ -643,9 +642,9 @@ Define("Window", null, function () {
         if (image != "") {
             imgcode = UI.IconImage(image) + "&nbsp;"; //Issue #70 - Offline icons
         }
-        var $action = $("<button id='" + id + "' class='unselectable app-button' style='border-width: 0px;'>" + imgcode + UI.InputManager.AddKeyBinding(text, id, m_id) + "</button>");
+        var $action = $("<div id='" + id + "' class='unselectable app-button' style='border-width: 0px;'>" + imgcode + UI.InputManager.AddKeyBinding(text, id, m_id) + "</div>");
 
-        $action.button().click(func);
+        $action.click(func);
         $("#" + m_id + "actions").append($action);
 
         return $action;
@@ -740,7 +739,7 @@ Define("Window", null, function () {
     };
 
     this.HeaderHeight = function () {
-        return $("#" + m_id + "actions").outerHeight(true) + $("#" + m_id + "toolbar2").outerHeight(true) + $("#" + m_id + "toolbar3").outerHeight(true) + $(".title" + m_id).outerHeight(true);
+        return $("#" + m_id + "actions").outerHeight(true) + $("#" + m_id + "toolbar2").outerHeight(true) + $("#" + m_id + "toolbar3").outerHeight(true) + $(".title" + m_id).outerHeight(true) + $("#" + m_id + "maxrecs").outerHeight(true);
     };
 
     this.Active = function () {
@@ -871,8 +870,8 @@ Define("Window", null, function () {
 
     //#region Private Methods
 
-    function GenerateIcon(id, style, icon) {
-        return "<a class='ui-dialog-titlebar-close ui-corner-all unselectable " + id + "'" + style + "><span class='ui-icon " + icon + " ui-icon-white'></span></a>";
+    function GenerateIcon(id, icon) {
+        return "<i class='mdi "+icon+" unselectable " + id + "' style='cursor: pointer;float: right; margin: 3px;'></i>";
     };
 
     //#endregion

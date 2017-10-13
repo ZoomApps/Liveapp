@@ -219,9 +219,9 @@ DefineModule("WindowManager",
 
             if (m_queue.length != check && $("#btnCloseAll").length == 0) {
 
-                var winbtn = $("<div id='btnCloseAll' class='main-windowsbtn ui-widget ui-state-default app-closeall-btn'><table><tr><td class='unselectable' style='font-weight: normal; font-size: 14px;'>" + UI.Icon("cross") + " Close All</td><td></td></tr></table></div>");
+                var winbtn = $("<div id='btnCloseAll' class='main-windowsbtn ui-widget ui-state-default app-closeall-btn'><table><tr><td class='unselectable' style='font-weight: normal; font-size: 14px;'>" + UI.IconImage("mdi-close-circle",null,15) + " Close All</td><td></td></tr></table></div>");
                 if (Application.IsInMobile()) {
-                    var winbtn = $("<div id='btnCloseAll' class='main-windowsbtn ui-page-theme-a ui-btn app-closeall-btn'><table><tr><td class='unselectable' style='font-weight: normal; font-size: 14px;'>" + UI.Icon("cross") + " Close All</td><td></td></tr></table></div>");
+                    var winbtn = $("<div id='btnCloseAll' class='main-windowsbtn ui-page-theme-a ui-btn app-closeall-btn'><table><tr><td class='unselectable' style='font-weight: normal; font-size: 14px;'>" + UI.IconImage("mdi-close-circle",null,15) + " Close All</td><td></td></tr></table></div>");
                 }
                 $("#AppWindows").append(winbtn);
                 winbtn.on("click", function () {
@@ -604,18 +604,15 @@ DefineModule("WindowManager",
 
         function GetHeight() {
 
-            var padding = 0;
+            var padding = 20;
 
             if ($("#divWarning").is(":visible"))
                 padding += $("#divWarning").outerHeight(true);
-			
-			if ($("#AppWindows").is(":visible"))
-                padding += $("#AppWindows").outerHeight(true);
 
 			if (Application.IsInMobile())
                 return $(window).height() - $("#divMobileHeader").outerHeight(true) - 20 - padding;
 			
-            return ($('#tdMain').innerHeight() - $(".footer-box").outerHeight(true) - padding);
+            return ($('#tdMain').innerHeight() - padding);
         };
 
         function GetWidth() {

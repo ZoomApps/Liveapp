@@ -36,7 +36,7 @@ Define("Grid",
 
         this.Create = function (window_, footer_) {
 
-            var cont = $('<div id="grid' + _base.ID() + '" class="xpress-resize" style="width: 100%; max-width: 10px; overflow: auto;"><table data-role="table" id="' + _base.ID() + '" style="-webkit-user-select: none;" data-mode="columntoggle" data-theme="b" class="ui-body-d ui-shadow table-stripe ui-responsive mobilegrid" data-column-btn-theme="b" data-column-btn-text="Columns to display..." data-column-popup-theme="a"><thead><tr id="tr' + _base.ID() + '" class="ui-bar-b" style="font-size: 12px;"></tr><thead><tfoot><tr id="trfooter' + _base.ID() + '" class="ui-bar-b" style="font-size: 12px;"></tfoot><tbody id="tbody' + _base.ID() + '"></tbody></table></div>')
+            var cont = $('<div id="grid' + _base.ID() + '" class="xpress-resize" style="width: 100%; max-width: 100vw; overflow: auto;"><table data-role="table" id="' + _base.ID() + '" style="-webkit-user-select: none;" data-mode="columntoggle" data-theme="b" class="ui-body-d ui-shadow table-stripe ui-responsive mobilegrid"><thead><tr id="tr' + _base.ID() + '" class="ui-bar-b" style="font-size: 12px;"></tr><thead><tfoot><tr id="trfooter' + _base.ID() + '" class="ui-bar-b" style="font-size: 12px;"></tfoot><tbody id="tbody' + _base.ID() + '"></tbody></table></div>')
 
             window_.AddControl(cont);
 			
@@ -176,8 +176,6 @@ Define("Grid",
                         if (val == null || val == "null") {
                             return "";
                         } else {
-							if(val.toString().length > 100)
-								val = val.toString().substr(0,100)+"...";
 							if(field.CustomControl == "NotesBox")
 								val = val.replace(/\<br\>/g, '\r\n');
                             return val;
@@ -240,7 +238,7 @@ Define("Grid",
                 //Issue #95 - Add grouping to mobile grid
                 if (m_grouping && grp != m_dataSource[i][m_grouping]) {
                     grp = m_dataSource[i][m_grouping];
-                    $('#tbody' + _base.ID()).append("<tr style='-webkit-user-select: none; font-size: 12pt;'><th style='background-color: gray; color: white;' colspan='"+(m_cols.length+1)+"'>"+grp+"</th></tr>");                    
+                    $('#tbody' + _base.ID()).append("<tr style='-webkit-user-select: none; font-size: 14px;'><th style='color: black;' colspan='"+(m_cols.length+1)+"'>"+grp+"</th></tr>");                    
                 }
 
                 this.CreateRow(m_dataSource[i], i);
@@ -260,15 +258,18 @@ Define("Grid",
             var id = $id();
             var rid = (i + 1);            
 
-            var row = "<tr class='gridrows' style='-webkit-user-select: none; font-size: 12px;' id='rid" + rid + "' rid='" + rid + "'>";
+            var row = "<tr class='gridrows' style='-webkit-user-select: none; font-size: 14px;' id='rid" + rid + "' rid='" + rid + "'>";
 
             var img = null; //Editor image.
             if (_base.Viewer().Page().DoubleClickAction())
-                img = UI.IconImage(_base.Viewer().Page().DoubleClickAction().Image);
+                img = _base.Viewer().Page().DoubleClickAction().Image;
             if (_base.Viewer().EnableEditMode())
-                img = UI.IconImage("redo");
+                img = "redo";
 			if(_base.Viewer().LineActions().length > 0)
-				img = UI.IconImage("table_selection_column");
+				img = "table_selection_column";
+
+            if(img)
+                img = "<i class='mdi "+UI.MapMDIcon(UI.MapIcon(img))+"' style='color: black; font-size: 17px'></i>";
 
             row += "<th class='rowselector' id='rs" + id + "' style='max-width: 15px; min-width: 15px; background-color: gainsboro;'></th>";
 
@@ -284,7 +285,7 @@ Define("Grid",
 					
 					var link = "";
 					if(_base.Viewer() && _base.Viewer().Page() && Application.OptionValue(_base.Viewer().Page().Options,"hyperlink") === m_cols[j].name)					
-						link = " color: blue; text-decoration: underline;";
+						link = " color: blue;";
 
                     var val = data[m_cols[j].name];
                     if (m_cols[j].onformat) {
@@ -317,7 +318,7 @@ Define("Grid",
 
 				if(lineEditMode && (isRowSelector || isHyperLink)){
 					setTimeout(function(){
-						_base.Viewer().ShowLineActions($($(this).children()[0]),rowid);						
+						_base.Viewer().ShowLineActions(m_dataSource[rowid-1],rowid);						
 					},500);
 				}
 				
@@ -404,11 +405,14 @@ Define("Grid",
 			if (!m_grid.find("#rid"+i).children()[0]) return;
 			var img = null; //Editor image.
             if (_base.Viewer().Page().DoubleClickAction())
-                img = UI.IconImage(_base.Viewer().Page().DoubleClickAction().Image);
+                img = _base.Viewer().Page().DoubleClickAction().Image;
             if (_base.Viewer().EnableEditMode())
-                img = UI.IconImage("redo");
+                img = "redo";
 			if(_base.Viewer().LineActions().length > 0)
-				img = UI.IconImage("table_selection_column");
+                img = "table_selection_column";
+            
+            if(img)
+                img = "<i class='mdi "+UI.MapMDIcon(UI.MapIcon(img))+"' style='color: black; font-size: 17px'></i>";
 			
 			m_grid.find("#rid"+i).css("background-color", "Gainsboro");	
 			if (img)
@@ -546,7 +550,7 @@ Define("Grid",
         };
 
         this.Width = function (value_) {
-			$("#grid"+_base.ID()).css("max-width", value_);
+			//$("#grid"+_base.ID()).css("max-width", value_);
         };
 
         this.Height = function (value_) {

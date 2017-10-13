@@ -20,8 +20,7 @@ function Extend(obj, objExt){
 
 //Global variables.
 Application.name = "%APPNAME%";
-Application.version = '4.2 CU7';
-//Application.version = "%VERSION%";
+Application.version = "%VERSION%";
 Application.copyright = "%COPYRIGHT%";
 Application.url = "%SERVERADDRESS%";
 
@@ -301,7 +300,8 @@ Application.position = {
     right: 1,
     block: 2,
     rolehalf: 3,    
-    rolequarter: 4
+    rolequarter: 4,
+    rolefull: 5
 };
 Application.authType = {
     Login: 1,
@@ -736,35 +736,72 @@ Application.UploadDataPack = function (name_) {
     return Application.WebServiceWait("UploadDataPack", { auth: Application.auth, name_: name_ });
 };
 
-Application.BeginTransaction = function () {    
-    Application.LogWarn("Application.BeginTransaction is deprecated");      
+Application.BeginTransaction = function () {
+    
+    if(Application.transactionStarted > 0){    
+        Application.transactionStarted += 1;    
+        Application.LogWarn("A transaction was already started. Ignored BeginTransaction");
+        return;
+    }
+
+    var w = $wait();
+
+    Application.ExecuteWebService("BeginTransaction", { auth: Application.auth }, function (r) {
+        Application.transactionStarted += 1;      
+        w.resolve(r);
+    });
+
+    return w.promise();    
 };
 
 Application.CommitTransaction = function () {   
-    Application.LogWarn("Application.CommitTransaction is deprecated");
+
+    if(Application.transactionStarted > 1){
+        Application.transactionStarted -= 1;
+        Application.LogWarn("A transaction was already started. Ignored CommitTransaction");
+		return;
+    }else if(Application.transactionStarted <= 0){
+        Application.transactionStarted = 0;
+        Application.LogWarn("A transaction has not started. Ignored CommitTransaction");
+		if(Application.developerMode){
+			Application.Message("Tried to commit too many transactions!");
+		}
+        return;
+    }
+
+    var w = $wait();
+
+    Application.ExecuteWebService("CommitTransaction", { auth: Application.auth }, function (r) {   
+        Application.transactionStarted -= 1;       		        
+		w.resolve(r);
+    });
+
+    return w.promise();         
 };
 
-Application.RollbackTransaction = function () {        
-    Application.LogWarn("Application.RollbackTransaction is deprecated");    
+Application.RollbackTransaction = function () {    
+    
+    if(Application.transactionStarted <= 0){
+        Application.transactionStarted = 0;
+        Application.LogWarn("A transaction has not started. Ignored RollbackTransaction");
+		if(Application.developerMode){
+			Application.Message("Tried to rollback too many transactions!");
+		}
+        return;
+    }
+
+    var w = $wait();
+
+    Application.ExecuteWebService("RollbackTransaction", { auth: Application.auth }, function (r) {   
+        Application.transactionStarted = 0;       		        
+		w.resolve(r);
+    });
+
+    return w.promise();    
 };
 
-Application.ThreadStart = function () {  
-    if(Application.auth.SessionID != "")
-        return Application.WebServiceWait("ThreadStart", { auth: Application.auth });   
-};
-
-Application.ThreadEnd = function () {      
-    if(Application.auth.SessionID != "")
-        return Application.WebServiceWait("ThreadEnd", { auth: Application.auth });   
-};
-
-Application.ThreadError = function () {        
-    if(Application.auth.SessionID != "")
-        return Application.WebServiceWait("ThreadError", { auth: Application.auth });   
-};
-
-Application.CreateFileForUpload = function (name_, length_, chunkSize_) {
-    return Application.WebServiceWait("CreateFileForUpload", { auth: Application.auth, name_: name_, length_: length_, chunkSize_: chunkSize_ });
+Application.CreateFileForUpload = function (name_, length_, chunkSize_, mime_) {
+    return Application.WebServiceWait("CreateFileForUpload", { auth: Application.auth, name_: name_, length_: length_, chunkSize_: chunkSize_, mime_: mime_ });
 };
 
 Application.CreateUser = function (username_, password_) {
@@ -943,23 +980,6 @@ Application.LoadModules = function (windowType_, engineonly_) {
 
         var params = [];         
         Application.LoadParams(params, PAGE_PARAMETERS);
-
-		//Set mini mode.
-        if (Application.IsInMobile()){
-			if (Application.IsMobileDisplay()) {
-				$("#divContent,label").addClass("ui-mini");
-				$("#lnkMenu,#lnkActions")
-							.buttonMarkup({ iconpos: "notext" })
-							.buttonMarkup("refresh");
-				$("#windowTitle").css("margin-left", "50px").css("margin-right", "50px");					
-			} else {
-				$("#divContent,label").removeClass("ui-mini");
-				$("#lnkMenu,#lnkActions")
-							.buttonMarkup({ iconpos: "left" })
-							.buttonMarkup("refresh");
-				$("#windowTitle").css("margin-left", "30%").css("margin-right", "30%");
-			}
-		}  
 		
         //Load Liveapp Engine Modules.	            
         Application.ModuleManager.LoadModule(new IDEngine());
@@ -1006,9 +1026,50 @@ Application.NavigateToPage = function (id_) {
     }
 };
 
-Application.HookCacheEvents = function(){
+Application.serviceWorkerReg = null;
+Application.HookCacheEvents = function(instance){
 
-    if (window.applicationCache) {
+    function ShowUpdateMsg(onupdate){
+        if(Application.connected){
+            Application.Confirm("An updated version of the website has been downloaded. Load the new version?",function(r){
+        
+                if(!r)return;					  
+                onupdate();
+
+            },"Update Available");
+        }else{
+            onupdate();
+        }
+    }
+
+    if ('serviceWorker' in navigator){
+        
+        navigator.serviceWorker.register('./service-worker'+(Application.IsInMobile()?'-mobile':'')+'.js?instance='+instance)
+            .then(function(reg) {
+                Application.serviceWorkerReg = reg;
+                reg.onupdatefound = function() {
+                    var installingWorker = reg.installing;
+                    installingWorker.onstatechange = function() {
+                        switch (installingWorker.state) {
+                            case 'installed':
+                            if (navigator.serviceWorker.controller) {
+                                Application.LogInfo('New or updated content is available.');
+                            } else {
+                                Application.LogInfo('Content is now available offline!');
+                            }
+                            break;
+                            case 'redundant':
+                                Application.LogError('The installing service worker became redundant.');
+                            break;
+                        }
+                    };
+                };
+                Application.LogInfo("Yes, it did.");
+            }).catch(function(err) {
+                Application.LogError("No it didn't. This happened: ", err)
+            });
+
+    } else if (window.applicationCache) {
 
         //Issue #41 - Application cache not working in firefox.
         function LogCacheEvent(e) {
@@ -1039,16 +1100,7 @@ Application.HookCacheEvents = function(){
 			        window.applicationCache.swapCache();                    
                     Application.LogDebug('Swap cache has been called, yo!');			        
                     
-                    if(Application.connected){
-                        Application.Confirm("An updated version of the website has been downloaded. Load the new version?",function(r){
-			          
-						    if(!r)return;					  
-						    Application.Reload();
-
-                        },"Update Available");
-                    }else{
-                        Application.Reload();
-                    }
+                    ShowUpdateMsg(Application.Reload);
 			        
 			    } catch (e) {
 			        Application.LogError(e);
@@ -1070,20 +1122,14 @@ Application.Reload = function(){
     }
 };
 
-Application.HookPageEvents = function () {
+Application.HookPageEvents = function (instance) {
 
-    Application.HookCacheEvents();
+    Application.HookCacheEvents(instance);
 
     if (!Application.IsInMobile()) {
 
         //On resize.
         $(window).resize(app_debouncer(function () {
-
-            //Resize the app.
-            $("#divTop").css("width", $(window).width());  
-
-			//Setup controls for resize.
-			$(".xpress-resize").css("max-width",10);
 
             //Resize windows.
             if ($moduleloaded("WindowManager")) {
@@ -1102,76 +1148,26 @@ Application.HookPageEvents = function () {
     } else {
 
 	
-		$(window).resize(app_debouncer(function () {
+		$(window).resize(function () {
 		
-		    $("#AppWorkspace").css("width",$(window).width());
-
 			//Resize windows.
             if ($moduleloaded("WindowManager")) {
-				$(".xpress-window-mobile").css("max-width",10);
-				$(".xpress-window-mobile").css("max-width","");
                 UI.WindowManager.OnResize();
             }
 		
-		},500));
+		});
 		
         //On resize.        
-        $(window).on("orientationchange", app_debouncer(function() {
+        $(window).on("orientationchange", function() {
 
             $.mobile.resetActivePageHeight();
 			
-            $("#AppWorkspace").css("width",$(window).width());
-
-			//Setup controls for resize.
-			$(".xpress-resize").css("max-width",10);
-
             //Resize windows.
             if ($moduleloaded("WindowManager")) {
-				$(".xpress-window-mobile").css("max-width",10);
-				$(".xpress-window-mobile").css("max-width","");
                 UI.WindowManager.OnResize();
             }
                        
-        }));
-
-		$("#okBtn").tap(function () { 
-			//$("#divMobileFooter").hide();
-             setTimeout(function(){
-                Application.RunNext(function(){                    
-                    return UI.WindowManager.OnSave(true);
-                });
-            },500); //Delay here to wait for field validation
-        });        
-        $("#saveBtn").tap(function () { 
-            //$("#divMobileFooter").hide();
-			setTimeout(function(){
-                Application.RunNext(UI.WindowManager.OnSave);
-            },500); //Delay here to wait for field validation
-        });        
-        $("#saveCloseBtn").tap(function () { 
-			//$("#divMobileFooter").hide();
-            setTimeout(function(){
-                Application.RunNext(function(){                    
-                    return UI.WindowManager.OnSave(true);
-                });
-            },500); //Delay here to wait for field validation
-        }); 
-         $("#saveNewBtn").tap(function () { 
-            //$("#divMobileFooter").hide();			
-			setTimeout(function(){
-                Application.RunNext(function(){
-                    return UI.WindowManager.OnSave(true,true);
-                });
-            },500); //Delay here to wait for field validation
-        }); 
-		$("#closeBtn").tap(function () { 
-            //$("#divMobileFooter").hide();
-			setTimeout(function(){
-                Application.RunNext(function(){
-					Application.RunNext(function () { if(ThisWindow()) return UI.WindowManager.CloseClick(ThisWindow().ID()) });
-				});
-            },500); //Delay here to wait for field validation
-        });        
+        });      
     }
 
     //OnClose.
@@ -1244,7 +1240,15 @@ Application.RunNext = function (func, skipDelay, id, trans) {
 		
     setZeroTimeout(function () {
         $thread(function () {
-			return $codeblock(func);
+			if(!trans){
+				return $codeblock(func);
+			}else{
+				return $codeblock(
+					Application.BeginTransaction,
+					func,
+					Application.CommitTransaction
+				);
+			}
         },null,null,null,id);
     });
 }
@@ -1275,11 +1279,21 @@ Application.IsAndroid = function(){
 };
 
 Application.IsMobileDisplay = function () {
-    return $(window).width() <= 650;
+    if(!Application.IsInMobile())
+        return false;
+    var w = $(window).width();
+    if(w > $(window).height())
+        w = $(window).height();
+    return w <= 650;
 };
 
 Application.IsTabletDisplay = function () {
-    return $(window).width() > 650;
+    if(!Application.IsInMobile())
+        return false;
+    var w = $(window).width();
+    if(w > $(window).height())
+        w = $(window).height();
+    return w > 650;
 };
 
 Application.MiniMode = function () {
@@ -1385,11 +1399,8 @@ Application.Error = function (msg) {
 	}
 	
     //Restart code engine.
-    if ($moduleloaded("CodeEngine")){
+    if ($moduleloaded("CodeEngine"))
         Application.CodeEngine.Restart();
-		if(!Application.HasDisconnected(msg))
-			$code(Application.ThreadError);	
-    }
 
     Application.Fire("ThreadFinished");
 
@@ -2239,6 +2250,7 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                 blankrow.BlankRow = true;
                 blankrow[field.LookupField] = '';
                 blankrow[field.LookupCategoryField] = '';
+                blankrow[field.LookupDisplayField] = '';
                 blankrow.DisplayCol = '';
 				blankrow.ValueCol = '';
                 for (var i = 0; i < cols.length; i++) {                

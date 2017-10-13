@@ -90,9 +90,6 @@ Define("Control",
 					}, 1);					
 				}                
 
-                if ($('#ctl' + m_id).val() == 0)
-                    $('#ctl' + m_id).val('');
-
             }).blur(function () {
 
 				if(placeholder){
@@ -108,12 +105,6 @@ Define("Control",
 
             m_label = $('#lbl' + m_id);
             m_label.css("text-align", "left");
-
-            if (Application.MiniMode()) {
-                m_container.addClass("ui-mini");
-                m_control.addClass("ui-mini");
-                m_label.addClass("ui-mini");
-            }
 
             //Set the tab index.
             m_control.attr("tabindex", m_field.TabIndex);
@@ -298,12 +289,16 @@ Define("Control",
         };
 
         this.Hide = function () {
-            m_container.css("display", "none");
+            m_container.hide();
+            m_label.hide();
+            m_control.hide();
             m_visible = false;
         };
 
         this.Show = function () {
-            m_container.css("display", "");
+            m_container.show();
+            m_label.show();
+            m_control.show();
             m_visible = true;
         };
 

@@ -47,7 +47,8 @@ DefineModule("App",
         var m_layout = new Object();
         var m_runningStartup = false;
         var m_maintenanceMode = false;		
-		var m_searchQueue = [];
+        var m_searchQueue = [];
+        var m_hideSearch = false;
 
         //#endregion
 
@@ -78,8 +79,7 @@ DefineModule("App",
                         //Load footer.
                         $("#tdCopyright").text(Application.copyright + '. ' + Application.name + ' v' + Application.version);
 
-                        _self.ToggleMainMenu(true);
-                        _self.ToggleSide(!Application.IsInFrame());
+                        _self.ToggleSide(false);
 
                         //Error handling.
                         Application.OnError = _self.Error;
@@ -129,8 +129,8 @@ DefineModule("App",
                         $("#windowTitle").html(m_params["title"]);
 
 						//Setup icons.
-						$("#menuToggle").attr("src",UI.Icon("leftarrow",null,true));
-						$("#sideToggle").attr("src", UI.Icon("rightarrow",null,true));
+						$("#menuToggle").attr("class","mdi mdi-arrow-left-drop-circle-outline");
+						$("#sideToggle").attr("class","mdi mdi-arrow-right-drop-circle-outline");
 						
                         if (Application.IsInMobile()) {
 
@@ -182,19 +182,17 @@ DefineModule("App",
 							app_debouncer(function () {	
 								if(arguments[0].which != 13)
 									_self.OnSearch($(this));
-							},900)
+							},1000)
                         );
 						
 						$("body").on("click",function(){
 							$(".searchdropdown").remove();
-							$(".lineactions,.lineactionsoverlay").remove();
-						});
-						
-						if(Application.IsMobileDisplay()){							
-							$("#AppWindows").remove();
-							$("#AppWorkspace").css("margin-top","0px");
-							$("#divFactbox").css("width",$(window).width()-5);							
-						}
+							$(".lineactions").animate({
+                                top: $(window).height()
+                            },null,null,function(){
+                                $(".lineactions,.lineactionsoverlay").remove();
+                            });	
+						});											
 
                         m_timer = new Timer(10000, _self.OnTimer);
 
@@ -202,7 +200,7 @@ DefineModule("App",
                             Application.debugMode = true;
 
 						if (m_params["returnurl"] != null) {
-							$("#lnkLogout").html("EXIT");							
+							$("#lnkLogout").html("<i class='mdi mdi-logout'></i> Exit");							
 						}
 								
                         //Windows auth.
@@ -480,24 +478,19 @@ DefineModule("App",
         };
 
         this.RefreshProfileImages = function () {
-            $(".circle-img-small,.square-img-large").css("background-image", 'url(' + _self.ProfileImageURL() + ')');
+            $("#imgProfile").css("background-image","url("+_self.ProfileImageURL()+"?r="+(new Date()).getTime()+")");
         };
 
-        this.LoadProfileImage = function () {
+        this.LoadProfileImage = function(){
 
             if (Application.UnsupportedIE() || Application.IsOffline() || Application.restrictedMode)
                 return;
 
-            $("#tdImg").html('<div class="circle-img-small" style="background-image: url(' + _self.ProfileImageURL() + ');"></div>');
-
-			$("#tdImg").unbind("click");
-			$("#tdImg").on("click", function () {
-				
-				
-				
-				_self.ProfileImageOnClick();
-				
-			});
+            $("#imgProfile").css("background-image","url("+_self.ProfileImageURL()+"?r="+(new Date()).getTime()+")")
+            .unbind("click")
+            .on("click", function () {
+                _self.ProfileImageOnClick();                    
+            });
 
         };
 		
@@ -568,7 +561,7 @@ DefineModule("App",
 
                 function (a) {
 
-                    // Liveapp 04/03/14 3.2.9.10 AS
+                    // Liveware 04/03/14 3.2.9.10 AS
                     if (a.SessionID == null) {
                         parent.window.location.reload();
                     }
@@ -756,44 +749,14 @@ DefineModule("App",
             if (Application.IsInMobile())
                 return;
 
-            //Set main width.            
-            if (m_sideVisible) {
-
-                if (Application.IsInFrame()) {
-                    $("#tdMain,#tdMainTop").css("max-width",$(window).width() * .65);
-                    $("#tdMain,#tdMainTop").width("65%");
-                } else {
-                    $("#tdMain,#tdMainTop").css("max-width",$(window).width() * .45);
-                    $("#tdMain,#tdMainTop").width("45%");
-                }
-
-            } else {
-                $("#tdMain,#tdMainTop").css("max-width",$(window).width() * .98);
-                $("#tdMain,#tdMainTop").width("98%");
-            }
-
-            //Set main menu width.
-            if (!Application.IsInFrame()) {
-                if (!m_menuVisible) {
-                    $("#tdMainMenu,#tdMainMenuTop").css("min-width", "").width("1%");
-                    $("#menuToggle").attr("src", UI.Icon("rightarrow",null,true));
-                    $("#divSide").hide();
-                } else {					
-                    $("#tdMainMenu,#tdMainMenuTop").css("min-width", "230px").width("14%");
-                    $("#menuToggle").attr("src", UI.Icon("leftarrow",null,true));
-                    $("#divSide").show();
-                }
-            }
-
             //Set factbox width.
             if (!m_sideVisible) {
-                $("#tdSide,#tdSideTop").css("min-width", "40px").width("1%");
-                $("#sideToggle").attr("src", UI.Icon("leftarrow",null,true));
+                $("#tdSide").css("min-width", "40px").width("1%").hide();
+                $("#tdMain").css("max-width","100vw").width("100%");
                 $("#AppSideWorkspace").hide();
             } else {
-				$("#tdSide,#tdSideTop").css("max-width",$(window).width() * .24);
-                $("#tdSide,#tdSideTop").css("min-width", "230px").width("24%");
-                $("#sideToggle").attr("src", UI.Icon("rightarrow",null,true));
+                $("#tdSide").css("max-width",$(window).width() * .24).css("min-width", "230px").width("24%").show();
+                $("#tdMain").css("max-width",$(window).width() * .70).width("70%");
             }
 
             setTimeout(UI.WindowManager.OnResize, 100);
@@ -819,6 +782,10 @@ DefineModule("App",
             if (!check)
                 Application.Message("%LANG:ERR_NOCOOKIES%");
             return check;
+        };
+
+        this.SearchHidden = function(){
+            return m_hideSearch;
         };
 
         this.Params = function () {
@@ -925,7 +892,9 @@ DefineModule("App",
                         }
                         Application.ShowError(e, function () {
                             Application.RunSilent(function () {
-                                if (window.applicationCache)
+                                if(Application.serviceWorkerReg){
+                                    Application.serviceWorkerReg.update();
+                                }else if (window.applicationCache)
                                     window.applicationCache.update();
                             });
                             if (e.indexOf("%LANG:ERR_INVREQ%") == -1) {
@@ -1014,8 +983,10 @@ DefineModule("App",
                         break;
                     }
                 }
-                if (Application.CheckOfflineObject("PAGE", m_favorites[i].formid))
-                    _self.PrintSideLink(m_mainMenu, m_favorites[i].icon, m_favorites[i].name, m_favorites[i].action, true);
+                if (Application.CheckOfflineObject("PAGE", m_favorites[i].formid)){
+                    var li = _self.PrintSideLink(m_mainMenu, m_favorites[i].icon, m_favorites[i].name, m_favorites[i].action, true);
+                    li.addClass('favoritemenu');
+                }
             }
 
             if (m_popular.length > 0) {
@@ -1033,35 +1004,25 @@ DefineModule("App",
                 var added = false;
                 for (var i = 0; (i < m_popular.length && i <= 5); i++) {
                     if (Application.CheckOfflineObject("PAGE", m_popular[i].formid)) {
-                        if (!added)
-                            _self.PrintSideText(m_mainMenu, UI.Icon('star') + ' <b>Popular</b>', true);
+                        if (!added){
+                            var st = _self.PrintSideText(m_mainMenu, UI.IconImage('mdi-star',null,14) + ' <b>Popular</b>', true);
+                            st.addClass('favoritemenu');
+                        }
                         added = true;
-                        _self.PrintSideLink(m_mainMenu, m_popular[i].icon, m_popular[i].name, m_popular[i].action, false, true);
+                        var li = _self.PrintSideLink(m_mainMenu, m_popular[i].icon, m_popular[i].name, m_popular[i].action, false, true);
+                        li.addClass('favoritemenu');
                     }
                 }
-                if (added)
-                    _self.PrintSideLink(m_mainMenu, UI.Icon('cross',15,true), '%LANG:S_CLEARPOPULAR%', "Application.App.ClearPopular();", false, true);
+                if (added){
+                    var li = _self.PrintSideLink(m_mainMenu, 'close', '%LANG:S_CLEARPOPULAR%', "Application.App.ClearPopular();", false, true);
+                    li.addClass('favoritemenu');
+                }
             }
 
             _self.RefreshMenu();
         };
 
         this.RefreshMenu = function () {
-
-            if (!Application.IsInMobile()) {
-
-                try { $("#divSide").accordion("destroy") } catch (e) { }
-                $("#divSide").accordion({
-                    collapsible: true,
-                    active: m_currentMenu
-                });
-
-            } else {
-
-                $("#divSideMenu").trigger("updatelayout");
-                $("#divSide").listview("refresh");
-            }
-
         };
 
         this.LoadMainMenu = function () {
@@ -1087,9 +1048,9 @@ DefineModule("App",
 
                     var mnu = _self.PrintSideGroup('%LANG:S_MAINMENU%');
 
-				    if (id != 0) {
-
-				        _self.PrintSideLink(mnu, Application.executionPath + 'Images/ActionIcons/home.png', "%LANG:S_HOME%", "Application.App.LoadPage('" + id + "',null,{homepage:true});");
+				    if (id != 0 && !Application.IsInMobile()) {
+                        _self.PrintSideLink(mnu, 'home', "%LANG:S_HOME%", "Application.App.LoadPage('" + id + "',null,{homepage:true});");
+                        _self.PrintSideLink(mnu, 'mdi-logout', "Logout", "Application.App.Logout();");
 				    }
 					
 					var mnu2 = Application.Fire("CreateMenu", mnu);		    
@@ -1101,6 +1062,13 @@ DefineModule("App",
                     if (!Application.IsInMobile())
                         _self.RefreshFavorites();
 
+                    if (Application.IsInMobile()) {
+
+                        m_mainMenu.children().first().html(Application.auth.Username).addClass("mnuUser");
+
+                        if(!Application.IsOffline())                        
+                            _self.PrintSideLink(mnu, 'key3', (m_params["returnurl"] != null ? 'Exit' : 'Logout'), "Application.App.Logout();");
+                    }	
 
                     //Load external page or home page.
                     if (m_params["pageid"] != null) {
@@ -1143,50 +1111,40 @@ DefineModule("App",
                                 added = true;
                                 if (item.Icon == "")
                                     item.Icon = "window";
-                                _self.PrintSideLink(mnu2, Application.executionPath + 'Images/ActionIcons/' + item.Icon + '.png', item.Name, "Application.App.LoadPage('" + item.ID + "');", false, false, item.ID);
+                                _self.PrintSideLink(mnu2, item.Icon, item.Name, "Application.App.LoadPage('" + item.ID + "');", false, false, item.ID);
                             }
                         }
 
                         if (m[i].Name == "Admin" && !Application.IsOffline() && !Application.IsInMobile()) {
                             added = true;
-                            _self.PrintSideLink(mnu2, Application.executionPath + 'Images/ActionIcons/mailbox_empty.png', 'Send Message', "Application.Notifications.ShowMessageForm();");
-                            _self.PrintSideLink(mnu2, Application.executionPath + 'Images/ActionIcons/media_play.png', 'Start Maintenance', "Application.App.StartMaintenanceMode();");
-                            _self.PrintSideLink(mnu2, Application.executionPath + 'Images/ActionIcons/media_stop.png', 'Finish Maintenance', "Application.App.EndMaintenanceMode();");
-                            _self.PrintSideLink(mnu2, Application.executionPath + 'Images/ActionIcons/box_software.png', 'Update Platform', "Application.RunNext(function(){return Application.UpdateManager.CheckForUpdates(true);});");
+                            _self.PrintSideLink(mnu2, 'mailbox_empty', 'Send Message', "Application.Notifications.ShowMessageForm();");
+                            _self.PrintSideLink(mnu2, 'media_play', 'Start Maintenance', "Application.App.StartMaintenanceMode();");
+                            _self.PrintSideLink(mnu2, 'media_stop', 'Finish Maintenance', "Application.App.EndMaintenanceMode();");
+                            _self.PrintSideLink(mnu2, 'box_software', 'Update Platform', "Application.RunNext(function(){return Application.UpdateManager.CheckForUpdates(true);});");
                         }
 
-                        if (!added && m_lastMenu)
-                            m_lastMenu.remove();
+                        if (!added && mnu2)
+                            mnu2.remove();
                     }
 
                     if (!Application.IsInMobile()) {
 
                         var mnu3 = _self.PrintSideGroup('%LANG:S_TOOLS%', 'mnuTools');
-                        _self.PrintSideLink(mnu3, Application.executionPath + 'Images/ActionIcons/document_certificate.png', '%LANG:S_LINKLICENSE%', "Application.App.LoadPage('VP$LicenseViewer');");
+                        _self.PrintSideLink(mnu3, 'document_certificate', '%LANG:S_LINKLICENSE%', "Application.App.LoadPage('VP$LicenseViewer');");
                         if (!Application.IsOffline()) {
 
-                            _self.PrintSideLink(mnu3, Application.executionPath + 'Images/ActionIcons/window_edit.png', 'Clear Layout', "UI.WindowManager.ClearLayout();");
-                            _self.PrintSideLink(mnu3, Application.executionPath + 'Images/ActionIcons/box_next.png', 'Clear Cache', "UI.WindowManager.ClearCache();");
+                            _self.PrintSideLink(mnu3, 'window_edit', 'Clear Layout', "UI.WindowManager.ClearLayout();");
+                            _self.PrintSideLink(mnu3, 'box_next', 'Clear Cache', "UI.WindowManager.ClearCache();");
+                            _self.PrintSideLink(mnu3, 'window_edit', 'Split Objects', "Application.App.SplitObjects();");
+                            _self.PrintSideLink(mnu3, 'window_edit', 'Merge Objects', "Application.App.MergeObjects();");
 
                             var mnu4 = _self.PrintSideGroup('%LANG:S_SERVERINFO%', 'mnuServerInfo');
-                            mnu4.append('<div id="divServerInfo" style="font-weight: normal; font-size: 12px; padding: 3px; height: auto; width: 200px; overflow-x: auto;"></div>');
-
+                            $("#mnuMain").append('<li><div id="divServerInfo" style="font-weight: normal; font-size: 12px; padding: 3px; height: auto; width: 200px; overflow-x: auto;"></div></li>');
                         }
-                        _self.PrintSideLink(mnu3, Application.executionPath + 'Images/ActionIcons/window_edit.png', 'Split Objects', "Application.App.SplitObjects();");
-                        _self.PrintSideLink(mnu3, Application.executionPath + 'Images/ActionIcons/window_edit.png', 'Merge Objects', "Application.App.MergeObjects();");
                     }
                     m_serverInfo = $("#divServerInfo");
 
                     Application.Loading.Hide("tdMain");
-
-                    if (Application.IsInMobile()) {
-
-                        var mnu3 = _self.PrintSideGroup(Application.auth.Username);
-
-                        //Hard coded menus (cannot pass through regular function).
-                        $("#divSide").append('<li><a onclick="Application.App.LoadPage(\'VP$LicenseViewer\');" style="font-size: 10pt; font-weight: normal;">%LANG:S_LINKLICENSE%</a></li>');
-                        $("#divSide").append('<li><a onclick="Application.App.Logout()" style="font-size: 10pt; font-weight: normal;">Logout</a></li>');
-                    }
 
                     _self.RefreshMenu();
 
@@ -1206,80 +1164,57 @@ DefineModule("App",
 
         this.PrintSideGroup = function (name_, id_) {
             Application.LogInfo("Creating menu group: " + name_);
-            var id = 'mnu' + $id();
-            id = Default(id_, id);
-            if (Application.IsInMobile()) {
-                m_lastMenu = $('<li id="' + id + '" data-role="list-divider" class="mnugrp-'+name_.replace(/ /g,"-")+'">' + Application.ProcessCaption(name_.toUpperCase()) + '</li>');
-                $('#divSide').append(m_lastMenu);
-                return $("#" + id);
-            } else {
-                m_lastMenu = $('<h3 class="unselectable">' + Application.ProcessCaption(name_.toUpperCase()) + '</h3><div id="' + id + '" class="mnugrp-'+name_.replace(/ /g,"-")+'" style="padding: 4px;"></div>');
-                $('#divSide').append(m_lastMenu);
-                return $("#" + id);
-            }
+            var li = $('<ul class="menu-items"><li class="menu-item-group">'+name_+'</li></ul>');
+            $("#mnuMain").append(li);
+            return li;
         };
 
         this.PrintSideLink = function (mnu_, img_, name_, action_, fav_, pop_, id_) {
-
+            
             Application.LogInfo("Creating menu item: " + name_);
 
             if (fav_ == null) fav_ = false;
             if (pop_ == null) pop_ = false;
 
-            var id = 'mnu' + $id();
-            var offline = "";
-            if (name_ == "%LANG:S_OFFLINE%")
-                offline = " %LANG:S_OFFLINE%";
+            var image = "";
+            if(img_){
+                var path = img_.split("/");
+                img_ = path[path.length-1];
+                img_ = img_.split(".")[0];
+                image = "<i class='mdi "+UI.MapMDIcon(UI.MapIcon(img_))+"' style='color: black; font-size: " + 
+                    (Application.IsInMobile()?'20':'14')+"px'></i>";
+            }
 
-            if (Application.IsInMobile()) {
-
-                $("#divSide").append('<li id="' + id + '" class="mnu-' + name_.replace(/ /g, "-") + '"><a onclick="' + action_ + '" style="font-size: 10pt; font-weight: normal;"><img src="' + img_ + '" alt="' + name_ + '" style="width:15px;height:15px;" class="ui-li-icon ui-corner-none" /><span class="' + offline + '">' + Application.ProcessCaption(name_) + '</span></a></li>');
-
-            } else {
-
-                var item = $('<div id="' + id + '" class="side-box unselectable mnu-' + name_.replace(/ /g, "-") + '" style="background-color: white;"><span class="side-img"><img src="' + img_ + '" alt="' + name_ + '" style="vertical-align:middle;width:15px;height:15px;" /></span> &nbsp;<span class="side-link' + offline + '">' + Application.ProcessCaption(name_) + '</span></div>');
-                eval("item.on('click',function(){" + action_ + "});");
+            var li = $('<li onclick="'+action_+'" data-ripple>'+image+
+                (Application.IsInMobile()?' ':'&nbsp;&nbsp;')+name_+'</li>');
+            if(!Application.IsInMobile()){
                 if (!name_.within(["%LANG:S_HOME%", "%LANG:S_OFFLINE%", "%LANG:S_CLEARPOPULAR%"]))
-                    item.on('click', function () {
-                        m_currentMenu = $("#divSide").accordion("option", "active");
+                    li.on('click', function () {
                         _self.AddPopular({
-                            id: id,
+                            id: 1,
                             icon: img_,
                             name: name_,
                             action: action_,
                             formid: id_
                         });
                     });
-                mnu_.append(item);
             }
-
-            var lnk = $("#" + id);
-            if (fav_ || pop_)
-                lnk.addClass("favoritemenu");
-
-            if (!Application.IsInMobile()) {
-
-                lnk.hover(function () {
-                    $(this).addClass("ui-state-highlight").addClass("main-side-hover").removeClass("main-side-exithover");
-                },
-                function () {
-                    $(this).removeClass("ui-state-highlight").addClass("main-side-exithover").removeClass("main-side-hover");
-                });
-            }
+            mnu_.append(li);
+            li.ripple({ color: "gainsboro"});
 
             var evname = 'contextmenu';
             if (Application.IsInMobile())
-                return lnk;
+                return li;
 
             if (name_ == "%LANG:S_HOME%" || pop_ || name_ == "%LANG:S_OFFLINE%" || name_ == "%LANG:S_CLEARPOPULAR%") {
-                lnk.bind(evname, function (e) {
+                li.bind(evname, function (e) {
                     return false;
                 });
-                return lnk;
+                return li;
             }
 
-            lnk[0].definition = {
-                id: id,
+            li[0].definition = {
+                id: 1,
                 icon: img_,
                 name: name_,
                 action: action_,
@@ -1287,7 +1222,7 @@ DefineModule("App",
             };
 
             if (!fav_) {
-                lnk.bind(evname, function (e) {
+                li.bind(evname, function (e) {
 
                     for (var i = 0; i < m_favorites.length; i++) {
                         if (m_favorites[i].name == this.definition.name) {
@@ -1297,7 +1232,7 @@ DefineModule("App",
 
                     Application.Confirm("%LANG:S_ADDLINK%", function (r) {
                         if (r == true) {
-                            m_favorites.push(lnk[0].definition);
+                            m_favorites.push(li[0].definition);
                             _self.RefreshFavorites();
 							_self.SaveFavorites();
                         }
@@ -1305,12 +1240,12 @@ DefineModule("App",
                     return false;
                 });
             } else {
-                lnk.bind(evname, function (e) {
+                li.bind(evname, function (e) {
 
                     Application.Confirm("%LANG:S_REMOVELINK%", function (r) {
                         if (r == true) {
                             for (var i = 0; i < m_favorites.length; i++) {
-                                if (m_favorites[i].name == lnk[0].definition.name) {
+                                if (m_favorites[i].name == li[0].definition.name) {
                                     m_favorites.splice(i, 1);
                                     break;
                                 }
@@ -1323,28 +1258,14 @@ DefineModule("App",
                 });
             }
 
-            return lnk;
+            return li;
         };
 
         this.PrintSideText = function (mnu_, name_, pop_) {
-
             if (pop_ == null) pop_ = false;
-
-            var id = 'mnu' + $id();
-
-            if (Application.IsInMobile()) {
-
-                $('#divSide').append('<li id="' + id + '">' + name_ + '</li>');
-
-            } else {
-
-                var item = $('<div id="' + id + '" class="side-box unselectable"><span class="side-link" style="color: Gray;">' + name_ + '</span></div>');
-                mnu_.append(item);
-            }
-
-            var lnk = $("#" + id);
-            if (pop_)
-                lnk.addClass("favoritemenu").css("background-color", "WhiteSmoke").css("margin-top", "10px");
+            var li = $('<li class="menu-item-group">'+name_+'</li>');
+            mnu_.append(li);
+            return li;
         };
 
         this.SaveLayout = function () {
@@ -1661,7 +1582,7 @@ DefineModule("App",
 
             //Show Elements.           
             if (!Application.restrictedMode)
-                $("#lnkMenu,#lnkLogout,#sideToggle,#menuToggle,#txtGlobalSearch").show();
+                $("#lnkMenu,#lnkLogout,#sideToggle,#menuToggle,#txtGlobalSearch,#imgProfile,.search-container,#menuMain").show();
             $("#divMobileHeader,#AppWindows").show();
 
             //Hide Elements.
@@ -1723,8 +1644,21 @@ DefineModule("App",
 					
 					if($moduleloaded("OfflineManager"))
 						return Application.Offline.LoadDatapack();
-				},
+                },
+                
+                _self.CheckChangePassword,
+
+                function(){
+                    COUNT("Xpress Global Search Setup",null,function(r){
+                        if(r.Count === 0){
+                            m_hideSearch = true;
+                            $(".search-container").hide();
+                        }
+                    });
+                },
 				
+                _self.CheckChangePassword,
+
                 function () { //Load the main menu.                      
 
                     if (Application.IsInFrame() || Application.restrictedMode) {
@@ -1768,9 +1702,20 @@ DefineModule("App",
             });
         };
 
+        this.CheckChangePassword = function(){ 
+            //Check if password needs changing.
+            FINDSET("Xpress User",{Username: Application.auth.Username},function(r){
+                if(r["Change Password On Login"]){
+                    OPENPAGE("Change User Password", null, {
+                        dialog: true
+                    });
+                }
+            });
+        };
+
         this.OnLogout = function () {
 
-            _self.ToggleSide(!Application.IsInFrame());
+            _self.ToggleSide(false);
 
             if (Application.IsInMobile())
                 $("#divSideMenu,#divFactbox").panel("close");
@@ -1800,11 +1745,9 @@ DefineModule("App",
             if ($moduleloaded("FileDownloadManager"))
                 Application.FileDownload.Finish();
 
-            $("#menuToggle,#sideToggle,#lnkActions,#lnkMenu,#lnkLogout,#divMobileFooter,#txtGlobalSearch").hide();
+            $("#menuToggle,#sideToggle,#lnkActions,#lnkMenu,#lnkLogout,#divMobileFooter,#txtGlobalSearch,#imgProfile,.search-container,#menuMain").hide();
             UI.StatusBar(false);
-            $("#divSide").html('');
-            $("#divStatus").html('');				
-            $("#tdImg").html('');
+            $("#divSide,#divStatus,#tdImg,#mnuMain").html('');
             m_maintenanceMode = false;
 
             Application.auth = Application.Objects.AuthInfo();
@@ -1835,7 +1778,9 @@ DefineModule("App",
 
                     //Check for new website version.
                     try {
-                        if (window.applicationCache && Application.connected)
+                        if(Application.serviceWorkerReg){
+                            Application.serviceWorkerReg.update();
+                        }else if (window.applicationCache && Application.connected)
                             window.applicationCache.update();
                     } catch (e) {
                         Application.LogError(e);

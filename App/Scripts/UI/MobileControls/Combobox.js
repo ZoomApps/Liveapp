@@ -102,7 +102,7 @@ Define("Combobox",
                         
                         Search(cont.val());                        
 
-                    }));
+                    },1000));
 
                 }
 
@@ -204,20 +204,7 @@ Define("Combobox",
 
             if (!newCombo) {
                 _base.Control().focus();
-            }
-
-            $("body").unbind("tap");
-            $("body").on("tap", function (ev) {
-				var target = $(ev.target);
-				if(target.text() == "Clear text"){
-					_base.Control().val("");
-					_base.Control().focus();
-					ev.preventDefault();
-					return false;
-				}					
-                HideResults(true);
-
-            });            
+            }       
 
             _self.Loaded(true);
         };
@@ -258,6 +245,11 @@ Define("Combobox",
         function HideResults(revert) {
 
             $(".mobile-combo,.mobile-combo-overlay").remove();
+
+            if (_base.Viewer().Type() == "Card") {
+                _base.Viewer().XFocusControl(_base.Control());
+                _self.OnValueChange(_base.Field().Name, _base.Control().val());
+            }
 
             if (revert)
                 ChangeDisplay(true);
@@ -329,11 +321,6 @@ Define("Combobox",
 
             }
 
-            if (viewer.Type() == "Card") {
-                viewer.XFocusControl(_base.Control());
-                _self.OnValueChange(field.Name, _base.Control().val());
-            }
-
         };
 
         function ChangeDisplay(revert) {
@@ -347,13 +334,20 @@ Define("Combobox",
                 cont.css({
                     position: 'absolute',                    
                     'z-index': 30000,
-                    width: '50%' //Issue #17 - Change width
+                    width: 'calc(100vw - 90px)' //Issue #17 - Change width
                 }).offset({
                     top: $(".mobile-combo").offset().top - 40,
-                    left: $(".mobile-combo").offset().left
+                    left: $(".mobile-combo").offset().left + 50
                 });
 				
-				cont.children().first().attr("placeholder","Type here to search");
+                cont.children().first().attr("placeholder","Type here to search");
+                
+                var backbtn = $('<i id="comboback'+_self.ID()+'" class="mdi mdi-keyboard-backspace" data-ripple style="font-size: 30px;position: absolute;left: 8px;z-index: 30001;top: 8px;"></i>');
+                cont.before(backbtn);
+                backbtn.ripple({color: 'gainsboro'}).tap(function(){
+                    HideResults(true);
+                    return false;
+                });
 
                 //_base.Control().unbind("tap");                
 
@@ -373,7 +367,9 @@ Define("Combobox",
                     'z-index': ''
                 });
 
-				cont.children().first().attr("placeholder","");
+                cont.children().first().attr("placeholder","");
+                
+                $('#comboback'+_self.ID()).remove();
 				
                 //_base.Control().tap(_self.OnClick);
 

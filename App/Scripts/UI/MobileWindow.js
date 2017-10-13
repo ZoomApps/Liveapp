@@ -25,7 +25,14 @@ Define("Window", null, function () {
     var m_dialog = false;
     var m_boxy = null;
     var m_optionalActions = [];
-	var m_tabName = "";
+    var m_tabName = "";
+    var m_container = null;
+    var m_prevContainer = null;
+    var m_actionCount = 0;
+    var m_moreID = null;
+    var m_showMore = false;
+    var m_searchShown = false;
+    var m_maxActions = 4;
 
     //#endregion
 
@@ -60,82 +67,122 @@ Define("Window", null, function () {
 
         //Create the window.
         if (m_options.workspace != null) {
+            
+            if (m_options.dialog != true) {					
 
-            if (m_options.dialog != true) {
+                m_window = $("<div id='" + m_id + "' class='window window-width-full' style='" + (m_options.type == "Card" ? "padding: 10px;" : "") + "'>" + 
+                    "<div class='title-bar-text unselectable'><span id='title" + m_id + "' class='title unselectable'></span></div>" +
+                    "<div id='" + m_id + "toolbar2' style='display: none;'>" +
+	                "</div>" +
+                    "<div id='" + m_id + "main' class='window-main'></div></div>");
 
-				var btnwidth = 84;
-                var closebtn = "";
-                if (m_options.closebutton == true && m_options.shortcutWorkspace) {
-                    closebtn = "<div class='closebutton" + m_id + " app-window-icon'>X</div>";
-					btnwidth += 42;
-                }
+                if(m_options.shortcutWorkspace){
 
-                var title = "";
-                var windowclass = "";
-				
-				var alt = ""
-				if(m_options.shortcutWorkspace == null && !m_options.homepage)
-					alt = "app-window-title-alt";
-				
-                if (m_options.editormode == null) {
-                    title = "<div class='ui-bar-a xpress-window-title app-window-titlebar title" + m_id + " "+alt+"' style='"+(m_options.removetitle ? 'display: none; ' : '')+"'>" +
-                "<div id='title" + m_id + "' class='app-window-title' style='max-width: calc(98% - "+btnwidth+"px);'>" + m_title + "</div>" +
-				closebtn + 
-				"<div class='maxbutton" + m_id + " app-window-icon'>&#x25B2;</div>" +
-				"<div class='refreshpge" + m_id + " app-window-icon'>&#8635;</div>" +
-				"<div class='helppge" + m_id + " app-window-icon'>?</div>" +				
-                "</div>";
-                    if (Application.IsMobileDisplay()) {
-                        windowclass = " class='xpress-window ui-corner-all'";
-                    } else {
-                        windowclass = " class='xpress-window ui-corner-all xpress-window-tablet'";
+                    var id = m_id+'container';
+
+                    m_options.workspace.append('<div id="'+id+'" class="app-container" style="left: 100vw"><header class="header"> '+
+                    '<nav id="'+id+'nav" class="navbar"> <div class="navbar-inner"> '+
+                    (m_options.homepage ? '<div id="'+id+'menu" class="menu-icon" data-ripple><i class="mdi mdi-menu" style="font-size: 30px"></i></div>' :
+                    '<div id="'+id+'back" class="menu-icon" data-ripple><i class="mdi mdi-keyboard-backspace" style="font-size: 30px"></i></div> ')+
+                    '<div id="'+id+'title" class="navbar-brand" style="'+(m_options.homepage ? "text-align: center; width: calc(100vw - 100px);" : "")+''+(Application.IsMobileDisplay() ? "font-size: 14px;" : "")+'"> </div> '+
+                    (m_options.homepage && !Application.App.SearchHidden() ? '<div id="'+id+'search" class="menu-icon" style="float: right;" data-ripple><i class="mdi mdi-magnify" style="font-size: 30px"></i></div>' : 
+                    '<div id="'+id+'ok" class="menu-icon" style="float: right; display:none;" data-ripple><i class="mdi mdi-check" style="font-size: 30px"></i></div> ')+
+                    '</div> </nav> </header> <div id="'+id+'workspace" class="app-main"> </div>'+
+                    '<div id="' + m_id + 'actions" class="actions-bar-bottom hidden"></div></div>');
+                    
+                    var o = $('<div id="'+id+'overlay" class="ui-widget-overlay app-overlay container-overlay"><svg class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg"><circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle></svg></div>');
+                    $("#AppWorkspace").append(o);		
+                    o.show();
+                    
+                    if(m_options.homepage){                        
+                        $('#'+id+'search').ripple().on('click', function(){
+                            if(!m_searchShown){
+                                var search = $("<input class='navbar-search' style='color: white !important;' placeholder='Search' data-clear-btn='true'></input>");
+                                $('#'+id+'title').html("").append(search);
+                                search.textinput().on('keyup tap',app_debouncer(function(){
+                                    Application.App.OnSearch($(this));
+                                },1000)).focus().parent().css({
+                                    'background-color': 'transparent',
+                                    margin: '0px'
+                                }).children().next().addClass("navbar-search");
+                            }else{
+                                _self.SetTitle(m_title);
+                            }
+                            m_searchShown = !m_searchShown;
+                        });
+                        var menushown = false;
+                        $('#'+id+'menu').ripple().on('click', function() {
+                            menushown = true;
+                            $('.menu').show().animate({
+                                left: '0px'
+                            }, null);
+                        });
+                        $(window).on('click', function(event) {
+                            if(menushown){
+                                if (!$(event.target).closest('.menu-icon').length) {
+                                    $('.menu').animate({
+                                        left: '-300px'
+                                    }, null, function() {
+                                        $('.menu').hide();
+                                        menushown = false;
+                                    });
+                                    event.preventDefault();
+                                    return false;
+                                }
+                            }
+                        });
+                    }else{
+                        $("#"+id+"back").ripple().click(function(){
+                            Application.RunNext(function () { return UI.WindowManager.CloseClick(m_id) });
+                        });
                     }
-                }							
 
-                m_window = $("<div id='" + m_id + "'" + windowclass + ">" + title +
-                    "<div id='" + m_id + "actions' class='ui-bar ui-bar-b' style='border-width: 0px; padding: 0px; overflow: visible;'>" +
-	                "</div>" +
-					"<div id='" + m_id + "toolbar2' style='display: none;'>" +
-	                "</div>" +
-                    "<div id='" + m_id + "main' class='app-window-main'"+(Application.IsMobileDisplay() ? "style='padding-bottom: 600px;' ": "")+"></div></div>");
-                m_options.workspace.append(m_window);
-				
-				//Window style.
-				if (m_options.position == Application.position.right && !Application.IsMobileDisplay()) {
-                    m_window.addClass("xpress-window-right");
-                } else if (m_options.position == Application.position.block && !Application.IsMobileDisplay()) {
-                    m_window.addClass("xpress-window-block");
-                } else if (m_options.position == Application.position.rolehalf && !Application.IsMobileDisplay()) {
-                    m_window.addClass("xpress-window-rolehalf");
-                } else if (m_options.position == Application.position.rolequarter && !Application.IsMobileDisplay()) {
-                    m_window.addClass("xpress-window-rolequarter");
-                } else {
-					m_window.addClass("xpress-window-default");
-				}
+                    m_prevContainer = Default(Application.App.currentContainer,null);
+                    Application.App.currentContainer = id;
+                    m_container = id;
 
-                if (Application.IsMobileDisplay() && m_options.editormode == null) {
-                    m_window.addClass("xpress-window-mobile");										
-					m_window.css("max-width",UI.Width()-5);
-                    $("#" + m_id + "main").css("padding", "5px").css("text-align", "center");                    
+                    if(Default(m_prevContainer,null) !== null){
+                        $("#"+m_prevContainer+"nav,#"+m_prevContainer+"workspace").removeClass("fixed");
+                        $("#"+m_prevContainer).animate({
+                            left: "-100vw"
+                        });
+                    }
+
+                    if(m_options.homepage){
+                            $("#"+id+"nav,#"+id+"workspace").addClass("fixed");
+                            $("#"+id).css({
+                                "left": "0px"
+                            });
+                    }else{
+                        $("#"+id).animate({
+                            left: "0px"
+                        },null,null,function(){
+                            $("#"+id+"nav,#"+id+"workspace").addClass("fixed");
+                        });
+                    }                    
                 }
+
+                if(m_options.workspace.attr("id") == "AppWorkspace"){
+                    m_options.workspace = $("#"+Application.App.currentContainer+"workspace");
+                }
+                
+                m_options.workspace.append(m_window);	
+                _self.SetTitle(m_title);
 
             } else {
 
-				var w = UI.MagicWidth();
-				var h = w-50;
-				if(Application.IsMobileDisplay())
-					h = UI.MagicHeight()-60;
+                var w = UI.MagicWidth()+4;
+				var h = UI.MagicHeight()-50;
 				
                 var win = "<div id='" + m_id + "' class='app-dialog' style='" +
 					"max-width: "+w+"px;  min-width: "+w+"px; height: " + h + "px; max-height: " + h + "px'>" +
-                    "<div id='" + m_id + "actions' class='ui-bar ui-bar-b' style='border-width: 0px; padding: 0px; overflow: visible;'>" +
-	                "</div>" +
                     "<div id='" + m_id + "main' style='padding: 10px; "+(Application.IsMobileDisplay() ? "padding-bottom: 600px; ": "")+"'></div><div class='dialog-placeholder' style='height: 1px;'></div> " +
                     "</div>";
 
                 m_boxy = new Boxy(win, {
+                    id: m_id,
                     title: "Loading...",
-                    closeText: "X",
+                    closeText: "<i class='mdi mdi-keyboard-backspace' style='font-size: 30px;'></i>",
                     modal: true,
                     unloadOnHide: true,
                     show: false,
@@ -152,57 +199,25 @@ Define("Window", null, function () {
                             return UI.WindowManager.Close(m_id);
                         });
                         return false;
-                    }
+                    },
+                    toolbar: "<div id='" + m_id + "actions' class='actions-bar-bottom' style='top: "+(UI.Standalone() ? "calc(100vh - 60px)" : ""+($(window).height() - 60)+"px" )+"'></div>"
                 });
 
                 m_window = $("#" + m_id);
-                $("#okbtn" + m_id).buttonMarkup().click(function () {
+                $("#okbtn" + m_id).ripple().click(function () {
                     m_okClicked = true;
+                    m_boxy.hide();
+                });
+                $("#closebtn" + m_id).ripple().click(function () {
+                    m_okClicked = false;
                     m_boxy.hide();
                 });
                 m_dialog = true;
 
                 return this;
             }
-
-            //Create the window shortcut.
-            if (m_options.shortcutWorkspace != null) {
-                var closebtn2 = "";
-                if (m_options.closebutton == true) {
-                    //closebtn2 = '<a class="closebutton' + m_id + '" style="color: gray; font-size: 11pt;">x</a>';
-                }
-                var winbtn = $("<div id='btn" + m_id + "' class='main-windowsbtn ui-page-theme-a ui-btn openbutton" + m_id + " app-window-button' style='display: none;'><table><tr><td id='titleShortcut" + m_id + "' class='unselectable' style='font-weight: normal; font-size: 14px;'>" + m_title + "</td>" +
-                    "<td>" + closebtn2 + "</td>" +
-                    "</tr></table></div>");
-                m_options.shortcutWorkspace.append(winbtn);
-                winbtn.slideDown(UI.WindowManager.Count() == 0 ? 0 : 300);
-
-
-            }
-
-            $('.closebutton' + m_id).on("click", function () {
-                $(this).css("color", "Gray");
-                setTimeout(function () {
-                    $(this).css("color", "");
-                }, 100);
-                Application.RunNext(function () { return UI.WindowManager.CloseClick(m_id) });
-            });
-
-            $('.openbutton' + m_id).on("click", function () {
-                UI.WindowManager.OpenClick(m_id);
-            });
         }
 
-		$('.refreshpge' + m_id).on("click", function () {
-            UI.WindowManager.UpdateWindow(m_id);
-        });
-		
-		$('.maxbutton' + m_id).on("click", function () {
-            _self.ToggleState();
-        });
-		
-		_self.HideHelp();
-		
         if (m_window) {
             m_window.height('auto');
         } else {
@@ -218,28 +233,37 @@ Define("Window", null, function () {
 		
 		title_ = Application.ProcessCaption(title_);
 		
-        m_title = title_.replace('ActionIcon', 'Icon').replace('width:15px;height:15px', 'width:20px;height:20px');
+        m_title = title_;
+        if(m_title.indexOf('> ') != -1)
+            m_title = m_title.substr(m_title.indexOf('> ')+2);
 
         if (m_options.dialog == true) {
             m_boxy.setTitle(m_title);
             return;
         }
 
-        $("#title" + m_id).html(m_title);
-        $("#titleShortcut" + m_id).html(title_);
+        $("#"+m_id+"containertitle").html(m_options.homepage ? '<img class="navbar-logo" src="'+Application.App.Params()["img"]+'" />'
+             : m_title);
+
+        if(m_options.shortcutWorkspace || m_options.homepage){
+            $("#title" + m_id).parent().hide();
+        }else{
+            $("#title" + m_id).html(m_title);
+        }
     };
 
     this.Hide = function () {
 
         if (m_options.dialog == true)
             return;
-
+        
         m_visible = false;
 
-        $('#' + m_id).css("display", "none");
-
-        $('#btn' + m_id).addClass("app-window-button-inactive").removeClass("app-window-button-active");
-        
+        if(m_options.homepage && m_searchShown){
+            m_searchShown = false;
+            _self.SetTitle(m_title);
+        }
+        $("#"+m_id+",#" + m_id + "actions").hide();
 
         for (var i = 0; i < m_subWindows.length; i++) {
             m_subWindows[i].Hide();
@@ -267,8 +291,21 @@ Define("Window", null, function () {
             return;
         }
 
+        if(m_actionCount == (m_maxActions+1) && m_moreID)
+            $("#"+m_moreID).remove();
+
+        if(m_actionCount > 0)
+            $("#" + m_id + "actions").show().animate({
+                top: $(window).height() - 60
+            },null,null,function(){
+                if(UI.Standalone())
+                    $("#" + m_id + "actions").css("top","calc(100vh - 60px)")
+            });
+
 		$("#" + m_id + "loader").remove();
         m_preLoading = false;
+
+        $("#" + m_id + "containeroverlay").hide();
 		
         m_visible = true;
 
@@ -290,9 +327,6 @@ Define("Window", null, function () {
         $('#btn' + m_id).scrollintoview();
         $('#btn' + m_id).css("border-color", $("#title" + m_id).parent().css("background-color")).addClass("app-window-button-active").removeClass("app-window-button-inactive");
 
-        if (Application.IsMobileDisplay())
-            return;
-
         this.OnShow();
     };
 
@@ -301,33 +335,59 @@ Define("Window", null, function () {
         if (m_options.dialog == true) {
             m_boxy.unload();
             Application.Loading.Hide(m_id);
-			 m_parentWindow = null;
-			_base = null;
-			_self = null;
+            m_parentWindow = null;
+            _base = null;
+            _self = null;
             return;
         }
 
-        $('#' + m_id).remove();
-        $('#btn' + m_id).remove();
-		$("#" + m_id + "loader").remove();
+        var DestroyWindow = function(){
 
-        $("#divFooter,divMobileFooter").hide();
-        Application.Loading.Hide(m_id);
+            $('#' + m_id).remove();
+            $('#btn' + m_id).remove();
+            $("#" + m_id + "loader").remove();
+            $('#' + m_id + "container").remove();
+            $("#" + m_id + "containeroverlay").remove();
 
-        for (var i = 0; i < m_subWindows.length; i++) {
-            m_subWindows[i].Remove();						
+            $("#divFooter,divMobileFooter").hide();
+            Application.Loading.Hide(m_id);
+
+            for (var i = 0; i < m_subWindows.length; i++) {
+                m_subWindows[i].Remove();						
+            }
+            m_subWindows = [];
+            
+            for (var i = 0; i < m_childWindows.length; i++) {
+                UI.WindowManager.Remove(m_childWindows[i].ID());
+                m_childWindows[i].Remove();					
+            }
+            m_childWindows = [];
+            
+            m_parentWindow = null;
+            _base = null;
+            _self = null;
         }
-		m_subWindows = [];
-		
-        for (var i = 0; i < m_childWindows.length; i++) {
-            UI.WindowManager.Remove(m_childWindows[i].ID());
-            m_childWindows[i].Remove();					
+
+        if(!m_container){
+            DestroyWindow();
+        }else{
+            if(m_prevContainer){
+                $("#"+m_prevContainer+"nav,#"+m_prevContainer+"workspace").removeClass("fixed");
+                $("#"+m_prevContainer).animate({
+                    left: "0px"
+                },null,null,function(){
+                    $("#"+m_prevContainer+"nav,#"+m_prevContainer+"workspace").addClass("fixed");
+                });  
+            }
+            _self.HideActions();
+            $("#"+m_container+"nav,#"+m_container+"workspace").removeClass("fixed");
+            $("#"+m_container).animate({
+                left: "100vw"
+            },null,null,function(){
+                Application.App.currentContainer = m_prevContainer;
+                DestroyWindow();
+            });
         }
-		m_childWindows = [];
-		
-		m_parentWindow = null;
-		_base = null;
-		_self = null;
     };
 
     this.Progress = function () {
@@ -336,27 +396,7 @@ Define("Window", null, function () {
     this.PreLoad = function () {
 		
 		if (m_options.dialog == true)
-            return;
-		
-		if(Application.IsMobileDisplay()){			
-			var loader = $("<div id='" + m_id + "loader' style='text-align: center;padding-top: 50%;font-size: 20px;'><img src='%SERVERADDRESS%Images/loader.gif' /> Loading</div>");
-			if (m_options.workspace)
-				m_options.workspace.append(loader);
-			loader.width(UI.Width()-20);
-			loader.height(UI.Height());
-			return;
-		}
-
-        $('#btn' + m_id).addClass("ui-state-hover");
-        var loader = $("<div id='" + m_id + "loader' class='xpress-window ui-corner-all xpress-window-tablet' style='max-width: 2000px; width: 10; height: auto; margin-bottom: 5px; margin-right: 5px; background: white; border-width: 4px; font-weight: Normal; display:none;'></div>");
-        if (m_options.workspace)
-            m_options.workspace.append(loader);
-
-        loader.width(UI.Width()-20);
-        loader.height(UI.Height());
-        loader.slideDown(300, function () {
-            Application.Loading.Show(m_id + 'loader');
-        });
+            return;				
     };
 
     this.AddControl = function (cont) {
@@ -392,12 +432,11 @@ Define("Window", null, function () {
     };
 
     this.ShowLoad = function () {        
-        Application.Loading.Show(m_id);
+        $("#"+m_id+"containeroverlay").show();
     };
 
     this.HideLoad = function () {        
-        Application.Loading.Hide(m_id);
-        Application.Loading.Hide("tdMain");
+        $("#"+m_id+"containeroverlay").hide();
     };
 
     this.ShowOverlay = function () {
@@ -415,7 +454,7 @@ Define("Window", null, function () {
 
     this.Resize = function (w) {
 
-        if (m_options.dialog == true)
+        if (m_options.dialog == true && Application.IsTabletDisplay())
             m_boxy.center();
 
 		//Only resize the sub windows if the main window is visible.
@@ -548,7 +587,7 @@ Define("Window", null, function () {
     //#region Dialog Methods
 
     this.CenterDialog = function () {
-		if(m_boxy)
+		if(m_boxy && Application.IsTabletDisplay())
 			m_boxy.center();
     };
 
@@ -569,32 +608,64 @@ Define("Window", null, function () {
 
     this.AddButton = function (name, image, text, func) {
 
+        m_actionCount += 1;
+
+        if(m_actionCount == m_maxActions)
+            _self.AddButton("More","mdi-chevron-right","More");
+
         var id = m_id + "action" + $id();
 
-        var imgcode = ""
-        if (image != "") {
-            imgcode = UI.IconImage(image) + "&nbsp;"; //Issue #70 - Offline icons
-        }
-        var $action = $("<div id='" + id + "' class='app-button' style='border-width: 0px; padding: 8px; width: auto; display: inline-block; background: "+$("#" + m_id + "actions").css("background-color")+"'>" + imgcode + text + "</div>");
+        image = "<i class='mdi "+UI.MapMDIcon(UI.MapIcon(image))+"' style='color: white; font-size: 25px'></i>";
 
-        $action.click(function () {
-            $action.css("background-color", "Gainsboro");
-            setTimeout(function () {
-                $action.css("background-color", "");
-            }, 50);
-            func();
-        });
+        var $action = $("<div id='" + id + "' class='action-button-bottom cut-text' data-ripple>" + image + "<br/>" + text + "</div>");
+
+        if(name == "More" && !func){
+            m_moreID = id;
+            func = _self.ShowMore;
+            $action.ripple({ color: "gainsboro"}).click(func);
+        }else{
+            $action.ripple({ color: "gainsboro"}).click(function(){
+                if(m_showMore)
+                    _self.ShowMore();
+                func();
+            });
+        }
+
+        $("#" + m_id + "containerworkspace").css("height","calc(100vh - 110px)");
 
         $("#" + m_id + "actions").append($action);
-        
+
         return $action;
     };
 
+    this.ShowMore = function(){
+        m_showMore = !m_showMore;
+        if(m_showMore){
+            $("#" + m_id + "actions").animate({
+                top: $(window).height() - $("#" + m_id + "actions").height()
+            },null,null,function(){
+                if(UI.Standalone())
+                    $("#" + m_id + "actions").css("top","calc(100vh - "+$("#" + m_id + "actions").height()+"px)")
+            });
+            $("#"+m_moreID).html("<i class='mdi mdi-chevron-left' style='color: white; font-size: 25px'></i><br/>Less");
+        }else{
+            $("#" + m_id + "actions").animate({
+                top: $(window).height() - 60
+            },null,null,function(){
+                if(UI.Standalone())
+                    $("#" + m_id + "actions").css("top","calc(100vh - 60px)")
+            });
+            $("#"+m_moreID).html("<i class='mdi mdi-chevron-right' style='color: white; font-size: 25px'></i><br/>More");
+        }
+    }
+
     this.ShowActions = function () {
+        $("#" + m_id + "containerworkspace").css("height","calc(100vh - 110px)");
         $("#" + m_id + "actions").show();
     };
 
     this.HideActions = function () {
+        $("#" + m_id + "containerworkspace").css("height","calc(100vh - 50px)");
         $("#" + m_id + "actions").hide();
     };
 
@@ -671,7 +742,10 @@ Define("Window", null, function () {
     };
 
     this.HeaderHeight = function () {
-        return $("#" + m_id + "actions").outerHeight(true) + $("#" + m_id + "toolbar2").outerHeight(true) + $("#" + m_id + "toolbar3").outerHeight(true) + $(".title" + m_id).outerHeight(true);
+        var actionheight = $("#" + m_id + "actions").outerHeight(true);
+        if(actionheight > 60)
+            actionheight = 60;
+        return actionheight + $("#" + m_id + "toolbar2").outerHeight(true) + $("#" + m_id + "toolbar3").outerHeight(true) + $(".title" + m_id).outerHeight(true);
     };
 
     this.Active = function () {

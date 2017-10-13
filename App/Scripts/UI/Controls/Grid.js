@@ -50,7 +50,7 @@ Define("Grid",
         this.Create = function (window_, footer_) {
 
             var gridid = "#" + _base.ID() + "table";
-            var grid = $('<div id="' + _base.ID() + '"><table id="' + _base.ID() + 'table"></table></div>');
+            var grid = $('<div id="' + _base.ID() + '"><table id="' + _base.ID() + 'table" style="border: none"></table></div>');
 
             window_.AddControl(grid);
 
@@ -993,7 +993,7 @@ Define("Grid",
             for (var i = offset; i < m_dataSource.length; i++) {
                 if (i > offset + load)
                     return;
-                _self.OnBindRow(i, m_dataSource[i], m_grid.getInd(i + 1, true));
+                _self.OnBindRow((i+1), m_dataSource[i], m_grid.getInd(i + 1, true));
             }
         };		
 		

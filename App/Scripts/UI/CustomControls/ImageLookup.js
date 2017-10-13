@@ -265,13 +265,16 @@ Define("ImageLookup",
             try {
                 if (value_ == null) {
                     _base.Control().attr("src", m_baseImage);
+                    $("#wrapper"+_base.ID()).attr("data-src",m_baseImage);
                     m_value = m_baseImage;
                 } else {
                     _base.Control().attr("src", "data:image/png;base64," + value_);
+                    $("#wrapper"+_base.ID()).attr("data-src","data:image/png;base64,"+value_);
                     m_value = value_;
                 }
             } catch (e) {
                 _base.Control().attr("src", m_baseImage);
+                $("#wrapper"+_base.ID()).attr("data-src",m_baseImage);
                 m_value = m_baseImage;
             }
 

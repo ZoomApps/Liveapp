@@ -5,10 +5,8 @@
 
 CACHE:
 %SERVERADDRESS%%PARAM:INSTANCE%
-%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%
-%SERVERADDRESS%f/?t=css&custom=true&ver=%VERSION%
-%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%
-%SERVERADDRESS%f/?t=js&custom=true&ver=%VERSION%&min=%PARAM:MINIFY%
+%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true
+%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true
 
 NETWORK:
 *

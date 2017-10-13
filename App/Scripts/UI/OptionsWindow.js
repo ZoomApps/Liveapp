@@ -166,24 +166,27 @@ Define("OptionsWindow", null, function (options_) {
 						
                         var field = Extend(f2, Application.Objects.PageFieldInfo());
 
-                        if (field.CustomControl && field.CustomControl != "") {
-                            _self.AddCustomControl(field);
-                        } else if (field.LookupTable != '' || field.OptionCaption != "") {
-                            _self.AddComboField(field);
-                        } else if (field.IncrementDelta != 0) {
-                            _self.AddSpinnerField(field);
-                        } else if (field.Type == "Date") {
-                            _self.AddDateField(field);
-                        } else if (field.Type == "DateTime" && !Application.IsInMobile()) {
-                            _self.AddDateTimeField(field);
-                        } else if (field.Type == "Boolean") {
-                            _self.AddCheckboxField(field);
-                        } else if (field.Type == "Time") {
-                            _self.AddTimeField(field);
-                        } else {
-                            _self.AddTextField(field);
+                        if (field.Hidden == false) {
+
+                            if (field.CustomControl && field.CustomControl != "") {
+                                _self.AddCustomControl(field);
+                            } else if (field.LookupTable != '' || field.OptionCaption != "") {
+                                _self.AddComboField(field);
+                            } else if (field.IncrementDelta != 0 && !Application.IsInMobile()) {
+                                _self.AddSpinnerField(field);
+                            } else if (field.Type == "Date") {
+                                _self.AddDateField(field);
+                            } else if (field.Type == "DateTime" && !Application.IsInMobile()) {
+                                _self.AddDateTimeField(field);
+                            } else if (field.Type == "Boolean") {
+                                _self.AddCheckboxField(field);
+                            } else if (field.Type == "Time") {
+                                _self.AddTimeField(field);
+                            } else {
+                                _self.AddTextField(field);
+                            }
+                            m_fields.push(field);
                         }
-						m_fields.push(field);
                     }
                 }
 
@@ -929,6 +932,21 @@ Define("OptionsWindow", null, function (options_) {
 
     this.OnError = function (e) {        
 
+        if (Application.transactionStarted > 0)
+            Application.RunNext(function () {
+                return $codeblock(
+				    function () {
+				        if (Application.auth.SessionID != "") {
+				            Application.supressServiceErrors = true;
+				            return Application.RollbackTransaction();
+				        }
+				    },
+				    function () {
+				        Application.supressServiceErrors = false;
+				    }
+			    );
+            });
+            
 		_self.HideLoad(true);
 		m_okClicked = false;
 
