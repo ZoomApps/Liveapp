@@ -522,7 +522,7 @@ DefineModule("WebsiteManager",
 			var edit = $("#divEditor");
 			edit.html(html);
 			edit.css({
-				height: $(window).height() - 35,
+				'max-height': 'calc(100vh - 50px)',
 				overflow: 'auto'
 			});	
 			edit.trumbowyg({
@@ -543,7 +543,8 @@ DefineModule("WebsiteManager",
 			$('body').addClass('trumbowyg-body-fullscreen');																			
 			$(edit.parent().children()[0]).css('width', '100%');									
 			$(window).trigger('scroll');			
-			$(".trumbowyg-fullscreen-button").hide();		
+			$(".trumbowyg-fullscreen-button").hide();
+			$(".trumbowyg-textarea").css('max-height','calc(100vh - 50px)');		
 
 			edit.unbind("tbwclose");
 			edit.on("tbwclose",function(){	
@@ -710,12 +711,13 @@ DefineModule("WebsiteManager",
 			edit.parent().toggleClass(cssClass);
 			$('body').addClass('trumbowyg-body-fullscreen');									
 			edit.css({
-				height: 'calc(100% - 35px)',
+				'max-height': 'calc(100vh - 50px)',
 				overflow: 'auto'
 			});									
 			$(edit.parent().children()[0]).css('width', '100%');									
 			$(window).trigger('scroll');			
-			$(".trumbowyg-fullscreen-button").hide();		
+			$(".trumbowyg-fullscreen-button").hide();
+			$(".trumbowyg-textarea").css('max-height','calc(100vh - 50px)');		
 
 			edit.unbind("tbwclose");
 			edit.on("tbwclose",function(){	

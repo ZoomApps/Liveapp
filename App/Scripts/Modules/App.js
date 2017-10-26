@@ -1657,8 +1657,6 @@ DefineModule("App",
                     });
                 },
 				
-                _self.CheckChangePassword,
-
                 function () { //Load the main menu.                      
 
                     if (Application.IsInFrame() || Application.restrictedMode) {

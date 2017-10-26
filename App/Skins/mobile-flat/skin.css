@@ -4098,7 +4098,8 @@ body {
     background: %HEADERCOLOR%;
     height: 50px;
     padding-left: 0px;
-    padding-right: 0px;
+	padding-right: 0px;
+	box-shadow: 0 2px 5px rgba(0,0,0,.26);
 }
 .navbar-brand {
     display: inline-block;

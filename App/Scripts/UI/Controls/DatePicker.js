@@ -33,12 +33,17 @@ Define("DatePicker",
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
+                var yearrange = Application.OptionValue(_base.Field().Options,'yearrange');
+                if(yearrange)
+                    yearrange = yearrange.replace('|',':');
+                
                 //Setup datepicker.
                 cont.datepicker({
                     showOn: "none",
                     showButtonPanel: true, //Issue #12 
                     changeMonth: true, //Issue #12 
-                    changeYear: true //Issue #12 
+                    changeYear: true, //Issue #12 
+                    yearRange: Default(yearrange,'c-10:c+10')
                 }); //Don't show on focus.
                 cont.click(function () {
                     cont.datepicker('show');

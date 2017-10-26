@@ -327,14 +327,6 @@ Define("Combobox",
             if (typeof value == 'undefined') //Issue #47 - Combo box does not display null value
                 return;
 
-            if (_base.Field().Mandatory) {
-                if (value == null) {
-                    _base.Valid(false);
-                } else {
-                    _base.Valid();
-                }
-            }
-
             //Options combo.
             if (m_values != null) {
                 var vals = _base.Field().OptionString.split(",");
