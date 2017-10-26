@@ -34,7 +34,7 @@ $.widget('custom.mcautocomplete', $.ui.autocomplete, {
                 if (this.options.drilldown == "") {
                     table.append('<span style="padding:0 4px;float:left;width:15px;max-width:15px;"></span>');
                 } else {
-                    var dd = $('<span class="ui-state-default" style="padding:0 4px;float:left;width:15px;background-color:transparent;border:0px;"><small>edit</small></span>');
+                    var dd = $('<span class="ui-state-default" style="padding:0 4px;float:left;width:15px;background-color:transparent;border:0px;color:white;cursor:pointer;"><small>edit</small></span>');
                     dd.on('click', function () {
                         Application.App.LoadPage(self.options.drilldown, self.options.drilldownview); //#44 - Apply lookup view
                     })

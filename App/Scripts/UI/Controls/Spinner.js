@@ -65,14 +65,6 @@ Define("Spinner",
             .addClass("ui-widget ui-widget-content ui-corner-left")
 	        .css("width", "80%")
 	        .css("width", "calc(100% - 2px)");
-
-            cont.on("blur", function () {
-                if (value_ && $(this).val() == value_.toString())
-                    return;
-                var grd = _base.Viewer().GetPageGrid();
-				if(grd)
-					grd.Save();
-            });
 			
             //Call base method.
             return _base.CreateList(container, cont, value_);

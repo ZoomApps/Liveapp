@@ -20,8 +20,7 @@ function Extend(obj, objExt){
 
 //Global variables.
 Application.name = "%APPNAME%";
-Application.version = '4.2 CU7';
-//Application.version = "%VERSION%";
+Application.version = "%VERSION%";
 Application.copyright = "%COPYRIGHT%";
 Application.url = "%SERVERADDRESS%";
 
@@ -763,8 +762,8 @@ Application.ThreadError = function () {
         return Application.WebServiceWait("ThreadError", { auth: Application.auth });   
 };
 
-Application.CreateFileForUpload = function (name_, length_, chunkSize_) {
-    return Application.WebServiceWait("CreateFileForUpload", { auth: Application.auth, name_: name_, length_: length_, chunkSize_: chunkSize_ });
+Application.CreateFileForUpload = function (name_, length_, chunkSize_, mime_) {
+    return Application.WebServiceWait("CreateFileForUpload", { auth: Application.auth, name_: name_, length_: length_, chunkSize_: chunkSize_, mime_: mime_ });
 };
 
 Application.CreateUser = function (username_, password_) {
@@ -2239,6 +2238,7 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                 blankrow.BlankRow = true;
                 blankrow[field.LookupField] = '';
                 blankrow[field.LookupCategoryField] = '';
+                blankrow[field.LookupDisplayField] = '';
                 blankrow.DisplayCol = '';
 				blankrow.ValueCol = '';
                 for (var i = 0; i < cols.length; i++) {                

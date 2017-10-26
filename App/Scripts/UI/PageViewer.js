@@ -2903,6 +2903,9 @@ Define("PageViewer",
                 if (m_form.FieldOption(field, "desktoponly") && Application.IsInMobile())
                     skip = true;
 
+                if (m_form.FieldOption(field, "cardonly") && Application.IsInMobile())
+                    skip = true;
+
                 if (!skip) {
 
                     //Check totals.

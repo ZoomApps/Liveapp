@@ -1725,6 +1725,8 @@ DefineModule("App",
 						return Application.Offline.LoadDatapack();
 				},
 				
+                _self.CheckChangePassword,
+
                 function () { //Load the main menu.                      
 
                     if (Application.IsInFrame() || Application.restrictedMode) {
@@ -1765,6 +1767,17 @@ DefineModule("App",
                     }
                 }, "We'll miss you..");
 
+            });
+        };
+
+        this.CheckChangePassword = function(){ 
+            //Check if password needs changing.
+            FINDSET("Xpress User",{Username: Application.auth.Username},function(r){
+                if(r["Change Password On Login"]){
+                    OPENPAGE("Change User Password", null, {
+                        dialog: true
+                    });
+                }
             });
         };
 

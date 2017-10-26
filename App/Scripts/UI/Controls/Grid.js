@@ -993,7 +993,7 @@ Define("Grid",
             for (var i = offset; i < m_dataSource.length; i++) {
                 if (i > offset + load)
                     return;
-                _self.OnBindRow(i, m_dataSource[i], m_grid.getInd(i + 1, true));
+                _self.OnBindRow((i+1), m_dataSource[i], m_grid.getInd(i + 1, true));
             }
         };		
 		
