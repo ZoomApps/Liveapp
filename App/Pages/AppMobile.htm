@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;" manifest="%SERVERADDRESS%Pages/3?instance=%PARAM:INSTANCE%">
+<head>
+    <title></title>
+    <meta charset="utf-8">
+
+	<link rel="icon" sizes="192x192" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon">
+    <link rel="icon" sizes="128x128" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon">
+    <link rel="shortcut icon" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon" />
+	<link rel="apple-touch-icon" sizes="128x128" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon">
+	<link rel="apple-touch-icon-precomposed" sizes="128x128" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon">
+    <link rel="shortcut icon" href="%SERVERADDRESS%/favicon.png" type="image/x-icon" />
+
+    <link rel="manifest" href="%SERVERADDRESS%manifest.json?instance=%PARAM:INSTANCE%" type="application/manifest">
+    <meta name="theme-color" content="#999" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=no, minimal-ui">
+	
+	<meta name="apple-mobile-web-app-capable" content="yes">	
+	<meta name="mobile-web-app-capable" content="yes">	
+
+    <script type="text/javascript">
+
+        var PAGE_PARAMETERS = "%PARAM:PAGEPARAMS%";
+
+    </script>
+
+    <link href="%SERVERADDRESS%f/?t=css&mobile=true&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/css" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,500' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+    
+    <script src="%SERVERADDRESS%f/?t=js&mobile=true&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+
+        //Check if the scripts loaded.
+        if (typeof Application == 'undefined') {
+            alert("%LANG:ERR_LOADFAILED%");
+            throw "";
+        }
+
+        Application.developerMode = !%PARAM:MINIFY%;
+
+        //Page Loader
+        $(document).ready(function () {
+
+            $.event.special.tap.tapholdThreshold = 1000;
+            $.event.special.tap.emitTapOnTaphold = true;
+            $.event.special.swipe.durationThreshold = 1999;
+            
+            $("#divMobileFooter").hide();
+
+            Application.LoadModules(Application.windowType.Mobile);
+            Application.HookPageEvents("%PARAM:INSTANCE%");
+
+			if(Application.IsPrivate())
+                Application.Message('You are currently in private mode. Some features will be unavailable.');
+               
+            $("#txtUsername,#txtPassword").textinput();
+
+            addToHomescreen();
+
+            //Overwrite Liveapp functions.
+            
+            var m_searchQueue = [];
+            Application.App.OnSearch = function(search){
+                m_searchQueue = [];			
+                m_searchQueue.push(search.val());
+                Application.RunNext(function () {
+                    if(m_searchQueue.length == 0)
+                        return;
+                    return $codeblock(
+                        function () {													
+                            $("#imgGlobalSearch").show(); //REDO
+                            var s = m_searchQueue[0];
+                            m_searchQueue.splice(0,1);
+                            return Application.Search(s);
+                        },
+                        function (ret) {										
+                            $(".searchdropdown").remove(); 													
+                            if(ret.length != 0){											
+                                var dd = $("<div class='navbar-search-dropdown searchdropdown'>");
+                                $("body").append(dd);
+                                for(var i = 0; i < ret.length; i++){
+                                    var image = "";
+                                    if(ret[i][2]){
+                                        image = "<i class='mdi "+UI.MapMDIcon(UI.MapIcon(ret[i][2]))+"' style='color: black; font-size: 20px'></i>";
+                                    }
+                                    var item = $("<div class='navbar-search-item'>"+image+" "+ret[i][0]+"</div>");
+                                    dd.append(item);
+                                    var view = ret[i][1];
+                                    if(view)
+                                        view = view.replace(/\"/g,'\\"');
+                                    var code = 'Application.App.LoadPage("'+ret[i][3]+'","'+view+'",{searchmode:true});';
+                                    if(Default(ret[i][4],"") != "")
+                                        code = ret[i][4].replace(/\&quot\;/g,'"');
+                                    eval('item.on("click",function(){'+code+'m_searchQueue=[];$(".searchdropdown").remove();});');
+                                }											
+                            }										
+                            $("#imgGlobalSearch").hide(); //REDO
+                        }
+                    );
+                });
+		    };
+
+        });
+
+    </script>
+	
+</head>
+<body>    
+    
+    <div id="AppWorkspace" data-role="page">
+    
+        <div class="menu">
+            <div class="menu-brand">
+                <div id="imgProfile" class="circle-img profile-img" style="display: inline-block;"></div>
+            </div>
+            <div id="mnuMain" class="menu-items-container"></div>
+        </div>
+
+        <center>
+        <div id="divLogin" style="max-width: 400px; margin-top: 0px; padding: 10px; border: 0px; display: none; padding-top: 100px;">
+
+            <span id="fieldsLogin">
+            <div class="login-header">
+                <img id="imgHeader" src="" alt="Logo" style="max-height:30px;margin-top:8px;">
+            </div>
+
+            <input type="text" id="txtUsername" autocorrect="off" value="" tabindex="1" placeholder="Username" />
+            <input type="password" id="txtPassword" autocorrect="off" value="" tabindex="2" placeholder="Password" />
+            <span id="spanRemember">
+                <label>
+                    <input type="checkbox" id="chkRemember" onclick="Application.App.RememberOnClick();" /> %LANG:S_REMEMBER%
+                </label>
+            </span>
+            <input id="btnLogin" type="button" value="Login" tabindex="4" onclick="Application.RunNext(Application.App.Login);" />           
+
+            </span>
+
+        </div>    
+        </center>
+
+    </div>
+
+</body>
+</html>

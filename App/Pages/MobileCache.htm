@@ -1,0 +1,19 @@
+﻿CACHE MANIFEST
+      
+# Manifest Version %VERSION%.0
+# Instance Version %PARAM:INSTANCEVERSION%
+
+CACHE:
+%SERVERADDRESS%%PARAM:INSTANCE%?mobile=true
+%SERVERADDRESS%f/?t=css&mobile=true&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true
+%SERVERADDRESS%f/?t=js&mobile=true&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true
+
+%SERVERADDRESS%Images/icon.png
+%SERVERADDRESS%Images/icon-highres.png
+
+https://fonts.googleapis.com/css?family=Roboto:400,500
+
+NETWORK:
+*
+http://*
+https://*

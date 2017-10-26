@@ -1,0 +1,14 @@
+﻿CACHE MANIFEST
+      
+# Manifest Version %VERSION%.0 
+# Instance Version %PARAM:INSTANCEVERSION%
+
+CACHE:
+%SERVERADDRESS%%PARAM:INSTANCE%
+%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true
+%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true
+
+NETWORK:
+*
+http://*
+https://*
