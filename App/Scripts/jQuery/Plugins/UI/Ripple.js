@@ -27,7 +27,7 @@
         opts.event = (hasTouch && 'touchstart.ripple') || 'mousedown.ripple';
         opts.end_event = (hasTouch && 'touchend.ripple touchcancel.ripple') || 'mouseup.ripple mouseleave.ripple';
         
-        if(isFirefox){
+        if(isFirefox && !hasTouch){
             opts.event = 'click.ripple';
         }
 

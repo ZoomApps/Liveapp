@@ -54,7 +54,7 @@ Define("Report",
             m_design += "<tr><td colspan='2'>%filters</td></tr>";
 			m_design += "<tr><td colspan='2'><br/>%description</td></tr>";
             m_design += "<tr><td colspan='2'><table cellspacing='0' cellpadding='5'>";
-            m_design += "<thead><tr style='background-color: "+$('.main-title').css('background-color')+"; color: "+$('.main-title').css('color')+"; -webkit-print-color-adjust: exact;'>%columns</tr></thead>";
+            m_design += "<thead><tr style='background-color: "+$('.navbar-inner').css('background-color')+"; color: "+$('.navbar').css('color')+"; -webkit-print-color-adjust: exact;'>%columns</tr></thead>";
             m_design += "%rows";
             m_design += "</table></td></tr>";
             m_design += "</table></div>";

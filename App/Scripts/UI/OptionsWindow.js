@@ -467,7 +467,7 @@ Define("OptionsWindow", null, function (options_) {
 	this.FixValue = function (field, value_) {
 
 		//Check for nulls
-		if (value_ == "" || value_ == "null")
+		if (value_ == "" || value_ == "null" || (value_ && value_.trim && value_.trim() == ""))
 			value_ = null;
 
 		if (value_ != null && field.OptionCaption == "") {

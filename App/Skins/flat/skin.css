@@ -843,31 +843,31 @@ a,visited{
 .xpress-window-right
 {
 	width: 100%;
-	max-width: 100%;		
+	max-width: calc(100% - 5px);		
 }
 
 .xpress-window-block
 {
 	width: 100%;
-    max-width: 50%;
+    max-width: calc(50% - 5px);
 }
 
 .xpress-window-rolehalf
 {
 	width: 100%;
-    max-width: 100%; 
+    max-width: calc(100% - 5px); 
 }
 
 .xpress-window-rolequarter
 {
 	width: 100%;
-    max-width: 50%;
+    max-width: calc(50% - 5px);
 }
 
 .xpress-window-default
 {
 	width: 100%;
-	max-width: 100%;   
+	max-width: calc(100% - 5px);   
 }
 
 .app-label
@@ -1239,6 +1239,10 @@ th.ui-th-column div{
 		
 .sweet-alert .icon.question .qm {		
 	color: %HEADERCOLOR% !important;
+}
+
+.ui-widget-header a { 
+    color: %HEADERTEXTCOLOR% !important; 
 }
 
 /*#endregion*/
