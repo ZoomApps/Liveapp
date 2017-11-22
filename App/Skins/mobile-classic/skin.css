@@ -4399,4 +4399,6 @@ z-index: 499;
 
 .ui-selectmenu { z-index: 30050 !important; }
 
+.ui-widget-header { border: 1px solid #4297d7; background: %HEADERCOLOR%; color: %HEADERTEXTCOLOR%; font-weight: bold; }
+
 /*#endregion*/

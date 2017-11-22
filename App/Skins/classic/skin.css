@@ -1044,6 +1044,10 @@ th.ui-th-column div{
 	color: %HEADERCOLOR% !important;
 }
 
+.ui-widget-header a { 
+    color: %HEADERTEXTCOLOR% !important; 
+}
+
 /*#endregion*/
 
 /*#region Z-Index*/

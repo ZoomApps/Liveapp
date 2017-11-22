@@ -1919,7 +1919,7 @@ Define("PageViewer",
         this.FixValue = function (field, value_) {
 
             //Check for nulls
-            if (value_ == "" || value_ == "null")
+            if (value_ == "" || value_ == "null" || (value_ && value_.trim && value_.trim() == ""))
                 value_ = null;
 
             if (value_ != null && field.OptionCaption == "") {
@@ -2211,11 +2211,13 @@ Define("PageViewer",
 				if(!Application.HasOption(m_form.Options,"skipupdatefilters")){
 					var filters = Application.GetFilters(m_view);
 					for (var i = 0; i < filters.length; i++) {
-						var f = m_record.GetField(filters[i][0]);
-						var field = m_table.Column(f.name);
-						if (f && field && filters[i][1] != f.Value && field.PrimaryKey){
-							m_record.Filter(filters[i][0], f.Value);
-						}
+                        var f = m_record.GetField(filters[i][0]);
+                        if(f){
+                            var field = m_table.Column(f.Name);                        
+                            if (f && field && filters[i][1] != f.Value && field.PrimaryKey){
+                                m_record.Filter(filters[i][0], f.Value);
+                            }
+                        }
 					}
 				}
 				

@@ -1,0 +1,66 @@
+﻿/*!
+ * qTip2 - Pretty powerful tooltips - v2.0.1-11-
+ * http://qtip2.com
+ *
+ * Copyright (c) 2013 Craig Michael Thompson
+ * Released under the MIT, GPL licenses
+ * http://jquery.org/license
+ *
+ * Date: Sat Feb 9 2013 08:05 GMT+0000
+ * Plugins: svg ajax tips modal viewport imagemap ie6
+ * Styles: basic css3
+ */
+
+/* Core qTip styles */
+.qtip, .qtip{
+	position: absolute;
+	left: -28000px;
+	top: -28000px;
+	display: none;
+
+	max-width: 800px;
+	min-width: 50px;
+	
+	font-size: 10.5px;
+	line-height: 12px;
+
+	direction: ltr;
+}
+
+.qtip-content{
+	position: relative;
+	padding: 5px 9px;
+	overflow: hidden;
+
+	text-align: left;
+	word-wrap: break-word;
+}
+
+/* Applied to 'focused' tooltips e.g. most recently displayed/interacted with */
+.qtip-focus{}
+
+/* Applied on hover of tooltips i.e. added/removed on mouseenter/mouseleave respectively */
+.qtip-hover{}
+
+/* Default tooltip style */
+.qtip-default{
+    
+    padding: 5px 5px;    
+    
+    color: #000;
+    
+    background-color: #FFF;
+    
+    border: solid 5px Gainsboro;  
+    
+    font-family: Arial;
+    
+    font-size: 14px;
+    
+    font-weight: normal;
+    
+    text-align: center;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;	    
+}

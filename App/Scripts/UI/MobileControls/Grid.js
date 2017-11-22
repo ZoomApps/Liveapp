@@ -53,6 +53,9 @@ Define("Grid",
 
         this.CreateColumns = function(){
 
+            if(Application.HasOption(_base.Viewer().Page().Options,"rowtemplate"))
+                return;
+
             //Issue #95 - Add grouping to mobile grid
             //Get grouping details.
             var options = _base.Viewer().Page().Options;
@@ -176,8 +179,6 @@ Define("Grid",
                         if (val == null || val == "null") {
                             return "";
                         } else {
-							if(val.toString().length > 100)
-								val = val.toString().substr(0,100)+"...";
 							if(field.CustomControl == "NotesBox")
 								val = val.replace(/\<br\>/g, '\r\n');
                             return val;
@@ -270,34 +271,46 @@ Define("Grid",
 			if(_base.Viewer().LineActions().length > 0)
 				img = UI.IconImage("table_selection_column");
 
-            row += "<th class='rowselector' id='rs" + id + "' style='max-width: 15px; min-width: 15px; background-color: gainsboro;'></th>";
+            var rowtemplatemode = Application.HasOption(_base.Viewer().Page().Options,"rowtemplate");
+            if(rowtemplatemode){
 
-            for (var j = 0; j < m_cols.length; j++) {
+                row += "<th rid='" + data.RowId + "'>" + _self.RowTemplate(data) + "</th>";
 
-                if (m_cols[j].name != m_grouping) { //Issue #95 - Add grouping to mobile grid
+            }else{
+                
+                row += "<th class='rowselector' id='rs" + id + "' style='max-width: 15px; min-width: 15px; background-color: gainsboro;'></th>";
 
-                    var align = "";
-                    if (m_cols[j].align != null)
-                        align = "text-align: " + m_cols[j].align + ";";
-                    if (m_cols[j].hidden)
-                        align += " display: none;";
-					
-					var link = "";
-					if(_base.Viewer() && _base.Viewer().Page() && Application.OptionValue(_base.Viewer().Page().Options,"hyperlink") === m_cols[j].name)					
-						link = " color: blue; text-decoration: underline;";
+                for (var j = 0; j < m_cols.length; j++) {
 
-                    var val = data[m_cols[j].name];
-                    if (m_cols[j].onformat) {
-                        row += "<th rid='" + data.RowId + "'  style='" + align + link + "' class='" + m_cols[j].name + _base.ID() + "'>" + m_cols[j].onformat(val, data) + "</th>";
-                    } else {
-                        row += "<th rid='" + data.RowId + "'  style='" + align + link + "' class='" + m_cols[j].name + _base.ID() + "'>" + val + "</th>";
+                    if (m_cols[j].name != m_grouping) { //Issue #95 - Add grouping to mobile grid
+
+                        var align = "";
+                        if (m_cols[j].align != null)
+                            align = "text-align: " + m_cols[j].align + ";";
+                        if (m_cols[j].hidden)
+                            align += " display: none;";
+                        
+                        var link = "";
+                        if(_base.Viewer() && _base.Viewer().Page() && Application.OptionValue(_base.Viewer().Page().Options,"hyperlink") === m_cols[j].name)					
+                            link = " color: blue;";
+
+                        var val = data[m_cols[j].name];
+                        if (m_cols[j].onformat) {
+                            row += "<th rid='" + data.RowId + "'  style='" + align + link + "' class='" + m_cols[j].name + _base.ID() + "'>" + m_cols[j].onformat(val, data) + "</th>";
+                        } else {
+                            row += "<th rid='" + data.RowId + "'  style='" + align + link + "' class='" + m_cols[j].name + _base.ID() + "'>" + val + "</th>";
+                        }
+
                     }
-
                 }
+
             }
+            
             row += "</tr>";
 
             var r = $(row);
+            r.css(_self.RowTemplateStyle());
+
             r.bind("tap", function (ev) {
                 if (ev.originalEvent.isDefaultPrevented()) return;
 
@@ -315,7 +328,7 @@ Define("Grid",
 				
                 var rowid = parseInt($(this).attr("rid"));
 
-				if(lineEditMode && (isRowSelector || isHyperLink)){
+				if(lineEditMode && (isRowSelector || isHyperLink || rowtemplatemode)){
 					setTimeout(function(){
 						_base.Viewer().ShowLineActions($($(this).children()[0]),rowid);						
 					},500);
@@ -336,18 +349,21 @@ Define("Grid",
 				_self.OnRowClick(rowid,_self.DataSourceById(rowid),r)				
 
                 //Clear old selected rows.
-                $(".gridrows").css("background-color", "");
-                $(".rowselector").html("");
+                if(!rowtemplatemode){
+                    $(".gridrows").css("background-color", "");
+                    $(".rowselector").html("");
+                }
 
                 for (var i = 0; i < m_dataSource.length; i++) {
                     _self.OnBindRow(m_dataSource[i].RowId, m_dataSource[i], $('#tbody' + _base.ID()+' > #rid' + m_dataSource[i].RowId));
                 }
 
                 //Select this row.
-                $(this).css("background-color", "Gainsboro");
-                if (img)
-                    $(this).children()[0].innerHTML = img;
-
+                if(!rowtemplatemode){
+                    $(this).css("background-color", "Gainsboro");
+                    if (img)
+                        $(this).children()[0].innerHTML = img;
+                }
 
                 setTimeout(function () {
                     m_tapped = 0;
@@ -400,7 +416,10 @@ Define("Grid",
 
         this.SelectRow = function (i) {
             m_selectedRow = i;
-			
+            
+            if(Application.HasOption(_base.Viewer().Page().Options,"rowtemplate"))
+                return;
+
 			if (!m_grid.find("#rid"+i).children()[0]) return;
 			var img = null; //Editor image.
             if (_base.Viewer().Page().DoubleClickAction())
@@ -599,6 +618,13 @@ Define("Grid",
         };
 		
 		this.OnRowClick = function () {
+        };
+
+        this.RowTemplate = function(data){
+        };
+
+        this.RowTemplateStyle = function(){
+            return {};
         };
 
         //#endregion                           

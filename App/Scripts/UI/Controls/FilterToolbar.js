@@ -95,7 +95,7 @@ Define("FilterToolbar",
                         Application.RunNext(function () {
                             return $codeblock(
                                 function () {
-                                    return _base.Viewer().Filter(pagefield.Name, null, true);
+                                    return _base.Viewer().Filter(filter.Name, null, true);
                                 },
                                 function () {
                                     m_filterFields.val(pagefield.Name);
