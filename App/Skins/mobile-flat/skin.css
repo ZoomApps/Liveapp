@@ -3952,10 +3952,6 @@ button[disabled],
 	margin: 0px !important;
 }
 
-.ui-input-clear-hidden{
-	display: block !important;
-}
-
 .ui-state-disabled {
 	opacity: 1 !important;
 }
@@ -4049,6 +4045,22 @@ textarea.ui-input-text:focus {
 
 .ui-icon-edit:after {
 	content: "\f64f"
+}
+
+.ui-icon-minus:after {
+	content: "\f376"
+}
+
+.ui-icon-plus:after {
+	content: "\f417"
+}
+
+.ui-icon-navigation:after {
+	content: "\f390"
+}
+
+.ui-icon-check:after {
+	content: "\f12c"
 }
 
 /*#endregion*/
@@ -4274,7 +4286,7 @@ body {
 }
 .actions-bar-bottom {
 	position: fixed;
-	top: 100vh;
+	bottom: -999px;
 	background-color: #2c3e50;
 	left: 0px;
 	width: 100vw;

@@ -88,7 +88,7 @@ Define("FilterToolbar",
                     m_filterText.append(filterbox);
                     filterbox.on("click", function () {
                         _self.GetFilter(pagefield.Name);
-                        m_filterFields.val(pagefield.Name);
+                        m_filterFields.val(filter.Name);
                     });
                     var delbox = $(UI.IconImage('delete'));
                     delbox.on("click", function () {
@@ -98,7 +98,7 @@ Define("FilterToolbar",
                                     return _base.Viewer().Filter(filter.Name, null, true);
                                 },
                                 function () {
-                                    m_filterFields.val(pagefield.Name);
+                                    m_filterFields.val(filter.Name);
                                     m_filterInput.val('');
                                 }
                             );

@@ -4675,7 +4675,8 @@
                                             selector.html(vl)
                                                 .attr(title);
                                         } else {
-                                        if (vl == "&#160;" || (vl && vl.indexOf("Mandatory</span>") != -1)) vl = "";
+                                            if (vl == "&#160;" || (vl && vl.indexOf && vl.indexOf("Mandatory</span>") != -1)) 
+                                                vl = "";
                                             editor.val(vl);
                                             editor.change();
                                             if (editor.attr("skipSelect") != "true")

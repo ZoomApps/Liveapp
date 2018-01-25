@@ -34,7 +34,7 @@ Define("Article",
 
             m_form = form_;
 			m_options = Default(options_,{
-				bodyFont: "22px"
+				bodyFont: "15px"
 			});
 
             //Create the control.
@@ -63,7 +63,7 @@ Define("Article",
             m_record = rec_;
 			
 			//Add title.
-			m_container.append("<h1 style='font-weight: 200; font-size: 46px'>"+rec_.Title+"</h1>");
+			//m_container.append("<h1 style='font-weight: 200; font-size: 46px'>"+rec_.Title+"</h1>");
 			
 			//Add body.
 			if(rec_.Body)

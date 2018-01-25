@@ -894,8 +894,7 @@ DefineModule("App",
                             Application.RunSilent(function () {
                                 if(Application.serviceWorkerReg){
                                     Application.serviceWorkerReg.update();
-                                }else if (window.applicationCache)
-                                    window.applicationCache.update();
+                                }
                             });
                             if (e.indexOf("%LANG:ERR_INVREQ%") == -1) {
                                 //Auto log in.
@@ -1778,8 +1777,7 @@ DefineModule("App",
                     try {
                         if(Application.serviceWorkerReg){
                             Application.serviceWorkerReg.update();
-                        }else if (window.applicationCache && Application.connected)
-                            window.applicationCache.update();
+                        }
                     } catch (e) {
                         Application.LogError(e);
                     }

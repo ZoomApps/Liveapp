@@ -246,7 +246,7 @@ body .ui-tooltip { border-width: 2px; }
 
 /* Interaction states
 ----------------------------------*/
-.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid %INACTIVEBORDERCOLOR%; background: %FORMCOLOR%; font-weight: bold; color: %FORMTEXTCOLOR%; }
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid %INACTIVEBORDERCOLOR%; font-weight: bold; color: %FORMTEXTCOLOR%; }
 .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #2e6e9e; text-decoration: none; }
 .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid %ACTIVEBORDERCOLOR%; background: %HOVERCOLOR%; font-weight: bold; color: %FORMTEXTCOLOR%; }
 .ui-state-hover a, .ui-state-hover a:hover, .ui-state-hover a:link, .ui-state-hover a:visited { color: #1d5987; text-decoration: none; }
@@ -1243,6 +1243,14 @@ th.ui-th-column div{
 
 .ui-widget-header a { 
     color: %HEADERTEXTCOLOR% !important; 
+}
+
+.ui-state-disabled, .ui-widget-content .ui-state-disabled, .ui-widget-header .ui-state-disabled { 
+    opacity: 1 !important; 
+    filter: Alpha(Opacity=100) !important;
+}
+.ui-state-disabled .ui-icon { 
+    filter: Alpha(Opacity=100) !important; 
 }
 
 /*#endregion*/

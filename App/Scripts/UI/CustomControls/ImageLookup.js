@@ -66,6 +66,8 @@ Define("ImageLookup",
                         });
 
                         $('#ctl' + _base.ID()).click(function () {
+                            if(!_base.Field().Editable)
+                                return;
 							if (!Application.HasOption(_base.Field().Options, "zoom")) {
 								$('#file' + _base.ID()).click();
 							}
@@ -222,6 +224,8 @@ Define("ImageLookup",
                             $('#file' + _base.ID()).click();
                         });
                         $('#ctl' + _base.ID()).click(function () {
+                            if(!_base.Field().Editable)
+                                return;
 							if (!Application.HasOption(_base.Field().Options, "zoom")) {
 								$('#file' + _base.ID()).click();
 							}
@@ -312,7 +316,22 @@ Define("ImageLookup",
 			});
 		};
 
-        //#endregion
+        this.Enabled = function (value_, update_) {
+            
+            _base.Enabled(value_, update_);
+
+            if(_base.Field().Editable){
+                $('#edit' + _base.ID()).show();
+                $('#clear' + _base.ID()).show();
+            }else{
+                $('#edit' + _base.ID()).hide();
+                $('#clear' + _base.ID()).hide();
+            }       
+            
+            return _base.Enabled();
+        };
+
+        //#endregion        
 
         //#region Overrideable Methods
 

@@ -806,7 +806,7 @@ l  .                _.^   ___     _>-y~
 
             if (enabled) {
                 html = '<td class="ui-timepicker-hour-cell" data-timepicker-instance-id="#' + inst.id.replace(/\\\\/g, "\\") + '" data-hour="' + hour.toString() + '">' +
-                   '<a class="ui-state-default ' +
+                   '<a class="'+(hour<12?'ui-timepicker-am':'ui-timepicker-pm')+' ui-state-default '+
                    (hour == inst.hours ? 'ui-state-active' : '') +
                    '">' +
                    displayHour.toString() +

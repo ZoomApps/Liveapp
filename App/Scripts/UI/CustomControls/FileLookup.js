@@ -29,104 +29,148 @@ Define("FileLookup",
             _base = Base("FileLookup");
         };
 
-        this.CreateDesktop = function (window_) {
+        this.CreateDesktop = function (window_) {            
 
-            if (Application.HasOption(_base.Field().Options, "pathonly")) {
+            //Create the control.
+            var pathonly = Application.HasOption(_base.Field().Options, "pathonly");
+            var container = (pathonly ?
+                (Application.IsInMobile() ? 
+                $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label>'+
+                '<div id="ctl' + _base.ID() + '" style="min-width:100%;text-overflow: ellipsis;overflow-y: hidden;white-space: nowrap;margin-right: 3px; box-sizing: border-box; border: 3px dashed gainsboro; padding: 5px;">Loading...</div>'+
+                '<p><a id="clear' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("delete") + ' Delete</a> '+
+                '<a id="open' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("document_out") + ' Open</a></p>'+
+                '<input id="file' + _base.ID() + '" type="file" style="display:none;" />'
+                )
+                :
+                $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr>'+
+                    '<td style="width: 50%"><label id="lbl' + _base.ID() + '" id= for="ctl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td>'+
+                    '<td style="width: 50%; padding-right: 10px; vertical-align: top;">'+
+                    '<div id="ctl' + _base.ID() + '" style="text-overflow: ellipsis;overflow-y: hidden;overflow-x: hidden;white-space: nowrap;margin-right: 3px; box-sizing: border-box; display: inline-block; border: 3px dashed gainsboro; padding: 2px; cursor: pointer;">Loading...</div>'+
+                    '<a id="clear' + _base.ID() + '" style="display: inline-block;overflow-y: hidden;">Delete</a> '+
+                    '<a id="open' + _base.ID() + '" style="display: inline-block;overflow-y: hidden;">Open</a>'+
+                    '<input id="file' + _base.ID() + '" type="file" style="display:none;" />'+
+                    '</td>'+
+                    '</tr></table></div>')
+                )
+                :
+                $('<div id="' + _base.ID() + '" style="padding: 10px; '+(Application.IsInMobile() ? '' : 'text-align: center;')+'">'+
+                '<img id="ctl' + _base.ID() + '" src="" style="border: 3px dashed gainsboro; width: '+(Application.IsInMobile()?'80px':'150px')+';" />'+
+                '<p><label id="filelbl' + _base.ID() + '">Loading...</label></p>'+
+                '<p><a id="clear' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("delete") + ' Delete</a> '+
+                '<a id="open' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("document_out") + ' Open</a></p>'+
+                '<br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /></div>')
+            );
 
-                //Create the control.
-                var container = $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr><td style="width: 50%"><label id="lbl' + _base.ID() + '" id= for="ctl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td><td style="width: 50%; padding-right: 10px;"><input type="file" id="ctl' + _base.ID() + '" style="width: 100%;"></input></td></tr></table></div>');
+            if (!window.FileReader) {
+                container = _base.CreateUnsupported();
+            }
 
-                //Call base method.
-                _base.Create(window_, container, _self.OnValueChange, function (cont) {
-
-                    //Setup the FileLookup.
-                    cont.attr("maxlength", _base.Field().Size);
-
-                });
-
-            } else {
-
-                //Create the control.
-                var container = $('<div id="' + _base.ID() + '" style="padding: 10px; text-align: center;"><img id="ctl' + _base.ID() + '" src="" style="border: 5px dashed gainsboro; width: 150px;" /><p><label id="filelbl' + _base.ID() + '">Click to upload a ' + _base.Field().Caption + ' or drag and drop<br/>your ' + _base.Field().Caption + ' into this box.</label></p><p><a id="clear' + _base.ID() + '" style="display: inline-block;">' + UI.IconImage("delete") + ' Delete</a> <a id="open' + _base.ID() + '" style="display: inline-block;">' + UI.IconImage("document_out") + ' Open</a></p><br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /></div>');
+            //Call base method.
+            _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
                 if (!window.FileReader) {
-                    container = _base.CreateUnsupported();
+                    container.width("95%");
+                    return;
                 }
 
-                //Call base method.
-                _base.Create(window_, container, _self.OnValueChange, function (cont) {
+                if (_base.Field().Editable) {
 
-                    if (!window.FileReader) {
-                        container.width("95%");
-                        return;
-                    }
+                    function deleteFn() {
+                        Application.Confirm("Are you sure you wish to delete this file?", function (r) {
+                            if (r) {
 
-                    if (_base.Field().Editable) {
+                                m_loaded = false;
 
-                        $('#clear' + _base.ID()).button().click(function () {
-                            Application.Confirm("Are you sure you wish to delete this file?", function (r) {
-                                if (r) {
-
-                                    m_loaded = false;
-
-                                    _self.OnValueChange(_base.Field().Name, null);
-                                    m_cleared = true;
-                                    $('#file' + _base.ID()).val("");
-                                }
-                            });
-                        });
-
-                        $('#ctl' + _base.ID()).click(function () {
-                            $('#file' + _base.ID()).click();
-                        });
-                        $('#file' + _base.ID() + ',#' + _base.ID()).fileReaderJS({
-                            on: {
-                                load: function (url, e, file) {
-
-                                    m_loaded = false;
-                                    $('#file' + _base.ID()).val("");
-
-                                    url = file.extra.nameNoExtension + "." + file.extra.extension + "|" + url;
-
-                                    val = btoa(url);
-
-                                    _self.OnValueChange(_base.Field().Name, val);
-                                }
+                                _self.OnValueChange(_base.Field().Name, null);
+                                m_cleared = true;
+                                $('#file' + _base.ID()).val("");
                             }
                         });
-
                     }
 
-                    $('#open' + _base.ID()).button().click(function () {
-                        if (m_value) {
+                    if(Application.IsInMobile()){
+                        $('#clear' + _base.ID()).buttonMarkup().click(deleteFn);
+                    }else{
+                        $('#clear' + _base.ID()).button().click(deleteFn);
+                    }                        
 
-                            var val = atob(m_value);
-                            var v = val.split("|");
+                    $('#ctl' + _base.ID()).click(function () {
+                        if(!_base.Field().Editable)
+                            return;
+                        $('#file' + _base.ID()).click();
+                    });
+                    $('#file' + _base.ID() + ',#' + _base.ID()).fileReaderJS({
+                        on: {
+                            load: function (url, e, file) {
 
-                            var url = v[1].split(";");
-                            var byteString = atob(url[1].substr(7));
+                                m_loaded = false;
+                                $('#file' + _base.ID()).val("");
 
-                            var ab = new ArrayBuffer(byteString.length);
-                            var ia = new Uint8Array(ab);
-                            for (var i = 0; i < byteString.length; i++) {
-                                ia[i] = byteString.charCodeAt(i);
+                                url = file.extra.nameNoExtension + "." + file.extra.extension + "|" + url;
+
+                                val = btoa(url);
+
+                                _self.OnValueChange(_base.Field().Name, val);
                             }
-                            
-                            var blob = new Blob([ia], { type: url[0] });
-                            saveAs(blob, v[0]);
                         }
                     });
 
-                    _base.Control().attr("src", m_baseImage);
-                    _base.Control().css("border-style", "dashed");
+                }
 
-                    $('#clear' + _base.ID()).hide();
-                    $('#open' + _base.ID()).hide();
+                function openFn() {
+                    if (m_value) {
 
-                });
+                        var val = atob(m_value);
+                        var v = val.split("|");
 
-            }
+                        var url = v[1].split(";");
+                        var byteString = atob(url[1].substr(7));
+
+                        var ab = new ArrayBuffer(byteString.length);
+                        var ia = new Uint8Array(ab);
+                        for (var i = 0; i < byteString.length; i++) {
+                            ia[i] = byteString.charCodeAt(i);
+                        }
+                        
+                        var blob = new Blob([ia], { type: url[0] });
+
+                        var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+                        if(iOS){
+                            var downloadlink = $('<div style="position: fixed; z-index: 50000; top: 0px; left: 0px; font-size: 30px; background-color: white; width: 100vw; height: 100vh; text-align: center; padding-top: 30vh;"></div>');
+                            $('body').append(downloadlink);
+                            var $link = $('<a>Open Document</a>').on('click',function(){
+                                saveAs(blob, v[0]);    
+                            });
+                            downloadlink.append($link);
+                            downloadlink.on('click',function(){
+                                downloadlink.remove();
+                            });
+                        }else{
+                            saveAs(blob, v[0]);
+                        }                              
+                    }
+                }
+
+                if(Application.IsInMobile()){
+                    $('#open' + _base.ID()).buttonMarkup().click(openFn);
+                }else{
+                    $('#open' + _base.ID()).button().click(openFn);
+                }                    
+
+                if(!pathonly){
+                    _base.Control().attr("src", m_baseImage);                    
+                }
+                
+                $('#clear' + _base.ID()).hide();
+                $('#open' + _base.ID()).hide();
+
+            });            
         };
+
+        this.CreateMobile = function (window_, form_) {
+            return _self.CreateDesktop(window_, form_);
+		};
 
         this.CreateList = function (value_) {
 
@@ -149,7 +193,14 @@ Define("FileLookup",
 
         this.FormatValue = function (value_) {
 
-            $('#filelbl' + _base.ID()).html("Click to upload a " + _base.Field().Caption + " or drag and drop<br/>your " + _base.Field().Caption + " into this box.");
+            var pathonly = Application.HasOption(_base.Field().Options, "pathonly");
+
+            if (pathonly){
+                _base.Control().html("Click to upload a " + _base.Field().Caption);
+            }else{            
+                $('#filelbl' + _base.ID()).html("Click to upload a " + _base.Field().Caption + 
+                    (!Application.IsInMobile()?" or drag and drop<br/>your " + _base.Field().Caption + " into this box.":""));
+            }
 
             try {
 
@@ -158,9 +209,14 @@ Define("FileLookup",
                     var val = atob(value_);
                     var v = val.split("|");
 
-                    $('#filelbl' + _base.ID()).text(v[0]);
-                    _base.Control().attr("src", m_fileImage);
-                    _base.Control().css("border", "5px solid #82AE82");
+                    if(pathonly){
+                        _base.Control().html(v[0]);
+                    }else{
+                        $('#filelbl' + _base.ID()).text(v[0]);
+                        _base.Control().attr("src", m_fileImage);                        
+                    }
+                    _base.Control().css("border", "3px solid #82AE82");
+
                     if (_base.Field().Editable)
                         $('#clear' + _base.ID()).show();
                     $('#open' + _base.ID()).show();
@@ -171,17 +227,17 @@ Define("FileLookup",
             } catch (e) {
             }
 
-            _base.Control().attr("src", m_baseImage);
-            _base.Control().css("border", "5px dashed gainsboro");
+            if(!pathonly){
+                _base.Control().attr("src", m_baseImage);                
+            }
+            _base.Control().css("border", "3px dashed gainsboro");
+
             $('#clear' + _base.ID()).hide();
             $('#open' + _base.ID()).hide();
         };
 
         this.Update = function (rec_) {
-
-            if (Application.HasOption(_base.Field().Options, "pathonly"))
-                return _base.Update(rec_);
-
+            
             Application.LogInfo("Updating control: " + _base.ID() + ", Caption: " + _base.Field().Caption);
 
             if (m_loaded && rec_.Record.RecID == m_lastID) {
@@ -216,16 +272,31 @@ Define("FileLookup",
 
         //#region Overrideable Methods
 
-        this.SetSize = function (width, height) {
-            if (Application.HasOption(_base.Field().Options, "pathonly"))
-                return;
-            _base.Container().css("width", width);
-        };
+        this.Enabled = function (value_, update_) {
+            
+            _base.Enabled(value_, update_);
 
-        this.IgnoreColumns = function () {
-            if (Application.HasOption(_base.Field().Options, "pathonly"))
-                return false;
-            return true;
+            if(_base.Field().Editable){
+                if(m_value)
+                    $('#clear' + _base.ID()).show();                
+            }else{                
+                $('#clear' + _base.ID()).hide();                
+            }
+        
+            return _base.Enabled();
+        }
+        
+        this.SetSize = function (width, height) {
+            if (Application.HasOption(_base.Field().Options, "pathonly")){
+                _base.Container().width(width);
+                if(m_value){
+                    _base.Control().width((width / 2) - 160);
+                }else{
+                    _base.Control().width((width / 2) - 20);
+                }
+                return;
+            }                
+            _base.Container().css("width", width);
         };
 
         this.OnValueChange = function (name, value) {

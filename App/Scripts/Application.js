@@ -1,8 +1,20 @@
 
+/**
+ * Application module.
+ * @module Application
+ */
+
 //Application Namespace.
 if (typeof Application == 'undefined')
     var Application = new Object();
 
+/**
+ * Default a value if `null` or `undefined`.
+ * @global
+ * @param {*} value_ Value to check.
+ * @param {*} default_ Value to return if `value_` is `null` or `undefined`.
+ * @returns {*} Value returned.
+ */
 function Default(value_, default_) {
     if (value_ == null)
         return default_;
@@ -328,7 +340,7 @@ Application.maxRecords = 10000;
 Application.connected = false;
 Application.debugMode = false;
 Application.developerMode = false;
-Application.timezone = %TZOFFSET%;  
+Application.timezone = parseInt("%TZOFFSET%");  
 Application.testMode = false;
 Application.transactionStarted = 0;
 Application.restrictedMode = false;
@@ -1044,7 +1056,7 @@ Application.HookCacheEvents = function(instance){
 
     if ('serviceWorker' in navigator){
         
-        navigator.serviceWorker.register('./service-worker'+(Application.IsInMobile()?'-mobile':'')+'.js?instance='+instance)
+        navigator.serviceWorker.register('%SERVERADDRESS%service-worker'+(Application.IsInMobile()?'-mobile':'')+'.js?instance='+instance)
             .then(function(reg) {
                 Application.serviceWorkerReg = reg;
                 reg.onupdatefound = function() {
@@ -1069,48 +1081,8 @@ Application.HookCacheEvents = function(instance){
                 Application.LogError("No it didn't. This happened: ", err)
             });
 
-    } else if (window.applicationCache) {
-
-        //Issue #41 - Application cache not working in firefox.
-        function LogCacheEvent(e) {
-            var online, status, type, message;
-            online = (navigator.onLine) ? 'yes' : 'no';
-            status = Application.cacheValues[cache.status];
-            type = e.type;            
-            message = 'online: ' + online;
-            message += ', event: ' + type;
-            message += ', status: ' + status;
-            Application.LogDebug(message);
-        }
-
-        var cache = window.applicationCache;
-        cache.addEventListener('cached', LogCacheEvent, false);
-        cache.addEventListener('checking', LogCacheEvent, false);
-        cache.addEventListener('downloading', LogCacheEvent, false);
-        cache.addEventListener('error', LogCacheEvent, false);
-        cache.addEventListener('noupdate', LogCacheEvent, false);
-        cache.addEventListener('obsolete', LogCacheEvent, false);
-        cache.addEventListener('progress', LogCacheEvent, false);
-        cache.addEventListener('updateready', LogCacheEvent, false);        
-
-        window.applicationCache.addEventListener('updateready',
-			function () {
-			    try {			        
-					
-			        window.applicationCache.swapCache();                    
-                    Application.LogDebug('Swap cache has been called, yo!');			        
-                    
-                    ShowUpdateMsg(Application.Reload);
-			        
-			    } catch (e) {
-			        Application.LogError(e);
-			    }
-			},
-			false
-		);
-
-    } else {
-        Application.LogDebug('App cache not supported.');
+    }else{
+        Application.LogDebug('Service worker not supported.');
     }
 };
 
@@ -2218,6 +2190,26 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                                 add = true;
                                                         
                             item[r.Record.Fields[i].Name] = r.Record.Fields[i].Value;
+
+                            //Option values.
+                            if(r.DatabaseTable()){
+                                var df = r.DatabaseTable().Column(r.Record.Fields[i].Name);
+                                if(df){
+                                    if (df.OptionString != "") {
+                                        var vals = df.OptionString.split(",");
+                                        var captions = df.OptionCaption.split(",");
+                                        for (var j = 0; j < vals.length; j++) {
+                                            if (df.Type == "Integer") {
+                                                if (parseInt(vals[j]) == r.Record.Fields[i].Value)
+                                                    item[r.Record.Fields[i].Name] = captions[j];
+                                            } else {
+                                                if (vals[j] == r.Record.Fields[i].Value)
+                                                    item[r.Record.Fields[i].Name] = captions[j];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 							
 							//Display and value cols.
 							if(r.Record.Fields[i].Name == field.LookupField){ 
@@ -2245,7 +2237,8 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                 });
 
             //Add blank row.            
-            if(term == "" && !field.Mandatory){
+            var insblank = (term == "" && !field.Mandatory);
+            if(insblank){
                 var blankrow = new Object();
                 blankrow.BlankRow = true;
                 blankrow[field.LookupField] = '';
@@ -2257,6 +2250,25 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                     blankrow[cols[i]] = '';
                 }
                 result.splice(0,0,blankrow);            
+            }
+
+            var newpage = Application.OptionValue(field.Options,"addnewpage");
+            if(newpage !== null){
+                var newpagerow = new Object();
+                newpagerow.NewRecordRow = true;
+                newpagerow[field.LookupField] = '';
+                newpagerow[field.LookupCategoryField] = '';
+                newpagerow[field.LookupDisplayField] = '';
+                newpagerow.DisplayCol = '';
+                newpagerow.ValueCol = '';
+                for (var i = 0; i < cols.length; i++) {     
+                    if(i===0){
+                        newpagerow[cols[i]] = '<span style="color: blue">&lt;Add New&gt;</span>';
+                    }else{        
+                        newpagerow[cols[i]] = '';
+                    }
+                }                
+                result.splice((insblank ? 1 : 0),0,newpagerow);
             }
 
 			if(viewer.AddFilterData){

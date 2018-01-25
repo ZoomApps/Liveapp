@@ -34,13 +34,19 @@ Define("InteractiveMap",
 
 
         this.CreateDesktop = function(window_, form_) {
+            
             m_form = form_;
+            
             var tx = Application.OptionValue(m_form.Options, "transx");
             var ty = Application.OptionValue(m_form.Options, "transy");
+            
+            var vb = Default(Application.OptionValue(m_form.Options, "viewbox"),"150,460");
+            vb = vb.split(',');
+
             //Create the control.
             m_container = $('<div id="map-container' + _base.ID() + '" style="margin:30px 25px;">' +
                 '<svg id="svg' + _base.ID() + '" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="460px"' +
-                'viewBox="0 0 150 460" width="150" height="460" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">' +
+                'viewBox="0 0 '+vb[0]+' '+vb[1]+'" width="'+vb[0]+'" height="'+vb[1]+'" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/">' +
                 '<g id="map-group' + _base.ID() + '" transform="translate(' + (tx ? tx : 0) + ' ' + (ty ? ty : 0) + ')" fill-rule="evenodd" cursor="crosshair">' +
                 '</g>' +
                 '</svg>' +

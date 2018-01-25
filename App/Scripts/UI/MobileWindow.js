@@ -200,7 +200,7 @@ Define("Window", null, function () {
                         });
                         return false;
                     },
-                    toolbar: "<div id='" + m_id + "actions' class='actions-bar-bottom' style='top: "+(UI.Standalone() ? "calc(100vh - 60px)" : ""+($(window).height() - 60)+"px" )+"'></div>"
+                    toolbar: "<div id='" + m_id + "actions' class='actions-bar-bottom' style='bottom: -999px'></div>"
                 });
 
                 m_window = $("#" + m_id);
@@ -252,6 +252,9 @@ Define("Window", null, function () {
         }
     };
 
+    this.SetStatus = function (status_) {
+    };
+
     this.Hide = function () {
 
         if (m_options.dialog == true)
@@ -296,10 +299,7 @@ Define("Window", null, function () {
 
         if(m_actionCount > 0)
             $("#" + m_id + "actions").show().animate({
-                top: $(window).height() - 60
-            },null,null,function(){
-                if(UI.Standalone())
-                    $("#" + m_id + "actions").css("top","calc(100vh - 60px)")
+                bottom: 60 - $("#" + m_id + "actions").height()
             });
 
 		$("#" + m_id + "loader").remove();
@@ -642,18 +642,12 @@ Define("Window", null, function () {
         m_showMore = !m_showMore;
         if(m_showMore){
             $("#" + m_id + "actions").animate({
-                top: $(window).height() - $("#" + m_id + "actions").height()
-            },null,null,function(){
-                if(UI.Standalone())
-                    $("#" + m_id + "actions").css("top","calc(100vh - "+$("#" + m_id + "actions").height()+"px)")
+                bottom: 0
             });
             $("#"+m_moreID).html("<i class='mdi mdi-chevron-left' style='color: white; font-size: 25px'></i><br/>Less");
         }else{
             $("#" + m_id + "actions").animate({
-                top: $(window).height() - 60
-            },null,null,function(){
-                if(UI.Standalone())
-                    $("#" + m_id + "actions").css("top","calc(100vh - 60px)")
+                bottom: 60 - $("#" + m_id + "actions").height()
             });
             $("#"+m_moreID).html("<i class='mdi mdi-chevron-right' style='color: white; font-size: 25px'></i><br/>More");
         }

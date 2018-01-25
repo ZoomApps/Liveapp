@@ -361,6 +361,8 @@ Define("PageViewer",
                 }
 
                 var diag = false;
+                if(m_form.Option("dialog"))
+                    m_options.dialog = true;
                 //if (Application.IsInMobile())
                 //    m_options.dialog = false;
                 if (m_options.dialog == true)
@@ -811,7 +813,11 @@ Define("PageViewer",
 					skipupdate = false;
 				
 				if(field && Application.HasOption(field.Options,"skiprefresh"))				
-					return true;
+                    return true;
+                    
+                //Check lookup display.
+                if(field && field.LookupDisplayField !== '')
+                    skipupdate = false;
 				
 				//Check the view.
 				if(m_record.View && (m_record.View.indexOf(m_causedUpdate+'=')!=-1 || m_record.View.indexOf('('+m_causedUpdate+')') != -1))
@@ -852,6 +858,8 @@ Define("PageViewer",
 		};		
 		
         this.Update = function (first_, showProgress_, skipOpenFunc_) {
+
+            _base.SetStatus("");
 
 			if(m_form && Application.HasOption(m_form.Options,"norefresh") && first_ && skipOpenFunc_){
 				return;
@@ -1227,7 +1235,7 @@ Define("PageViewer",
                         $("#"+_base.ID()+"containerok").click(function () { 
                             setTimeout(function(){
                                 Application.RunNext(function(){                    
-                                    return UI.WindowManager.OnSave(true);
+                                    return UI.WindowManager.OnSave(!Application.HasOption(m_form.Options,"saveonly"));
                                 });
                             },500); //Delay here to wait for field validation
                             return false;
@@ -1688,8 +1696,18 @@ Define("PageViewer",
                         var filters = Application.GetFilters(m_view);
                         for (var i = 0; i < filters.length; i++) {
                             var f = m_record.GetField(filters[i][0]);
-                            if (f && filters[i][1] != f.Value) {
-                                m_record.Filter(filters[i][0], f.Value);
+                            if (f){
+
+                                //Date filter fix.
+                                if(f.Type=="Date" && f.Value){
+                                    if(Object.prototype.toString.call(f.Value) === "[object Date]"){
+                                        f.Value = Application.FormatDate(f.Value);
+                                    }
+                                }
+
+                                if(filters[i][1] != f.Value) {
+                                    m_record.Filter(filters[i][0], f.Value);
+                                }
                             }
                         }
 
@@ -1995,7 +2013,7 @@ Define("PageViewer",
         this.FixValue = function (field, value_) {
 
             //Check for nulls
-            if (value_ == "" || value_ == "null" || (value_ && value_.trim && value_.trim() == ""))
+            if (value_ == "" || value_ == "null" || (value_ && value_.trim && value_.trim() == "" && field.OptionCaption == ""))
                 value_ = null;
 
             if (value_ != null && field.OptionCaption == "") {
@@ -2023,14 +2041,14 @@ Define("PageViewer",
                     var i = parseInt(value_);
                     if (isNaN(i))
                         Application.Error("Invalid integer: " + value_);
-                    value_ = i;
+                    value_ = (i === 0 ? null : i);                    
 
                 } else if (field.Type == "Decimal") {
 
                     var i = parseFloat(value_);
                     if (isNaN(i))
                         Application.Error("Invalid decimal: " + value_);
-                    value_ = i;
+                    value_ = (i === 0 ? null : i);
 
                 } else if (field.Type == "Code") {
 
@@ -2082,6 +2100,8 @@ Define("PageViewer",
         };
 
         this.RecordValidate = function (name_, value_, rowid_, showLoad_) {
+            
+            _base.SetStatus("Saving changes...");
 
 			//Partial refresh.
 			m_causedUpdate = null;			
@@ -2223,7 +2243,8 @@ Define("PageViewer",
 				function(){
 					
 					//Partial refresh.
-					m_causedUpdate = null;	
+                    m_causedUpdate = null;	
+                    _base.SetStatus("Changes have been saved");
 				}
 
 			);
@@ -2289,8 +2310,16 @@ Define("PageViewer",
 					for (var i = 0; i < filters.length; i++) {
                         var f = m_record.GetField(filters[i][0]);
                         if(f){
+
+                            //Date filter fix.
+                            if(f.Type=="Date" && f.Value){
+                                if(Object.prototype.toString.call(f.Value) === "[object Date]"){
+                                    f.Value = Application.FormatDate(f.Value);
+                                }
+                            }
+
                             var field = m_table.Column(f.Name);
-                            if (f && field && filters[i][1] != f.Value && field.PrimaryKey){
+                            if (field && filters[i][1] != f.Value && field.PrimaryKey){
                                 m_record.Filter(filters[i][0], f.Value);
                             }
                         }
@@ -2667,6 +2696,10 @@ Define("PageViewer",
                 removetitle: m_form.TabOption(tab_,"removetitle"),
                 type: "Card"
             });
+
+            var h = Application.OptionValue(tab_.Options, "height");
+            if(!Application.IsInMobile() && h)
+                $('#' + win.ID()).height(h+"px");
 
             //Add padding to the top.
             if(!Application.IsInMobile()){
@@ -3865,6 +3898,8 @@ Define("PageViewer",
                     UI.WindowManager.Open(_base.ID());
 
                 Application.ShowError(e, function () {
+
+                    _base.SetStatus("An Error Occurred");
 					
 					//Update filters.
 					m_view = m_lastView;
@@ -4174,7 +4209,7 @@ Define("PageViewer",
                     var height = totalheight;
                     if (height < minheight)
                         height = minheight;
-                    if (m_options.dialog)
+                    if (m_options.dialog && !Application.IsInMobile())
                         height = (UI.Height() / 2) - _base.HeaderHeight();
                     this.ResizeList(height);
                 }
