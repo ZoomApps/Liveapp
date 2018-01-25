@@ -116,8 +116,9 @@ Define("Window", null, function () {
                     helppge +
                     refreshpge +
                     editpge +
-                    maxbtn +
+                    maxbtn +                    
                     closebtn +
+                    "<div id='status" + m_id + "' style='color:gray;font-size:10px;float:right;line-height:25px;padding:5px'></div>"+
                     "</div>" +
                     "<div id='" + m_id + "actions' class='ui-widget ui-state-default unselectable' style='border-width: 0px;'>" +
 	                "</div>" +
@@ -295,6 +296,13 @@ Define("Window", null, function () {
 
         $("#title" + m_id).html(m_title);
         $("#titleShortcut" + m_id).html(title_);
+    };
+
+    this.SetStatus = function (status_) {
+
+        status_ = Default(status_, "");		
+		status_ = Application.ProcessCaption(status_);		        
+        $("#status" + m_id).html(status_);
     };
 
     this.Hide = function () {

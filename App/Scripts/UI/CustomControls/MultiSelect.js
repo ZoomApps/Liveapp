@@ -190,7 +190,7 @@ Define("MultiSelect",
 			
             for (var i = 0; i < result.length; i++) {
 
-                if (allowblank || result[i].BlankRow == false) {
+                if ((allowblank || result[i].BlankRow == false) && result[i].NewRecordRow !== true) {
 
                     var sel = ""
 

@@ -2206,6 +2206,26 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                                 add = true;
                                                         
                             item[r.Record.Fields[i].Name] = r.Record.Fields[i].Value;
+
+                            //Option values.
+                            if(r.DatabaseTable()){
+                                var df = r.DatabaseTable().Column(r.Record.Fields[i].Name);
+                                if(df){
+                                    if (df.OptionString != "") {
+                                        var vals = df.OptionString.split(",");
+                                        var captions = df.OptionCaption.split(",");
+                                        for (var j = 0; j < vals.length; j++) {
+                                            if (df.Type == "Integer") {
+                                                if (parseInt(vals[j]) == r.Record.Fields[i].Value)
+                                                    item[r.Record.Fields[i].Name] = captions[j];
+                                            } else {
+                                                if (vals[j] == r.Record.Fields[i].Value)
+                                                    item[r.Record.Fields[i].Name] = captions[j];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 							
 							//Display and value cols.
 							if(r.Record.Fields[i].Name == field.LookupField){ 
@@ -2233,7 +2253,8 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                 });
 
             //Add blank row.            
-            if(term == "" && !field.Mandatory){
+            var insblank = (term == "" && !field.Mandatory);
+            if(insblank){
                 var blankrow = new Object();
                 blankrow.BlankRow = true;
                 blankrow[field.LookupField] = '';
@@ -2245,6 +2266,25 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                     blankrow[cols[i]] = '';
                 }
                 result.splice(0,0,blankrow);            
+            }
+
+            var newpage = Application.OptionValue(field.Options,"addnewpage");
+            if(newpage !== null){
+                var newpagerow = new Object();
+                newpagerow.NewRecordRow = true;
+                newpagerow[field.LookupField] = '';
+                newpagerow[field.LookupCategoryField] = '';
+                newpagerow[field.LookupDisplayField] = '';
+                newpagerow.DisplayCol = '';
+                newpagerow.ValueCol = '';
+                for (var i = 0; i < cols.length; i++) {     
+                    if(i===0){
+                        newpagerow[cols[i]] = '<span style="color: blue">&lt;Add New&gt;</span>';
+                    }else{        
+                        newpagerow[cols[i]] = '';
+                    }
+                }                
+                result.splice((insblank ? 1 : 0),0,newpagerow);
             }
 
 			if(viewer.AddFilterData){

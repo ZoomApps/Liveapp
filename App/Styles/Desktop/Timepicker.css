@@ -53,3 +53,11 @@
 
 /* the deselect button */
 .ui-timepicker .ui-timepicker-deselect { float: left; }
+
+.ui-timepicker-am {
+    background-color: #FFF9C4;
+}
+
+.ui-timepicker-pm {
+    background-color: #B3E5FC;
+}

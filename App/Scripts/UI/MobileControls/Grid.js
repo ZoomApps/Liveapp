@@ -179,6 +179,8 @@ Define("Grid",
                         if (val == null || val == "null") {
                             return "";
                         } else {
+                            if(Application.HasOption(field.Options,"ellipsis") && val.toString().length > 100)
+								val = val.toString().substr(0,100)+"...";
 							if(field.CustomControl == "NotesBox")
 								val = val.replace(/\<br\>/g, '\r\n');
                             return val;

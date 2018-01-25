@@ -229,6 +229,9 @@ Define("Window", null, function () {
         $("#titleShortcut" + m_id).html(title_);
     };
 
+    this.SetStatus = function (status_) {
+    };
+
     this.Hide = function () {
 
         if (m_options.dialog == true)

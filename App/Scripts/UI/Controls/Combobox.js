@@ -36,19 +36,20 @@ Define("Combobox",
                 m_values = new Array();
                 var vals = field_.OptionString.split(",");
                 var captions = field_.OptionCaption.split(",");
+                var colname = field_.Caption;
 
                 for (var i = 0; i < vals.length; i++) {
                     var item = new Object();
                     item.Display = captions[i];
                     if (field_.Type == "Integer") {
-                        item.Value = parseInt(vals[i]);
+                        item[colname] = parseInt(vals[i]);
                     } else {
-                        item.Value = vals[i];
+                        item[colname] = vals[i];
                     }
                     m_values.push(item);
                 }
 
-                m_cols.push({ name: "Value", width: '230px', valueField: "Display" });
+                m_cols.push({ name: colname, width: '230px', valueField: "Display" });
                 return;
             }
 
@@ -175,6 +176,35 @@ Define("Combobox",
                     this.value = (ui.item ? ui.item.Display : '');
 
                 } else {
+
+                    if(ui.item.NewRecordRow === true){
+                        var newpage = Application.OptionValue(field.Options,"addnewpage");
+                        if(newpage)
+                            Application.RunNext(function () {
+                                return $codeblock(
+                                    function () {                                                
+                                        var form = new PageViewer({
+                                            id: newpage,
+                                            view: Application.MergeView(field.LookupFilters,_base.Viewer().Record()),
+                                            mode: "New",
+                                            dialog: true
+                                        });                            
+                                        form.CloseFunction(function () {                                            
+                                            var rec = form.Record();
+                                            if(rec.Record.NewRecord === false){    
+                                                if (field.LookupDisplayField != ""){
+                                                    _base.Viewer().RecordValidate(field.Name,rec[field.LookupDisplayField]);
+                                                }else{
+                                                    _base.Viewer().RecordValidate(field.Name,rec[field.LookupField]);
+                                                }
+                                            }
+                                        });                                    
+                                        return form.Open();
+                                    }			
+                                );
+                            });
+                        return false;
+                    }
 
                     if (typeof ui.item.DisplayCol == 'undefined') { //Made a selection
 

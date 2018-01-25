@@ -286,6 +286,35 @@ Define("Combobox",
 
             } else {
 
+                if(item.NewRecordRow === true){
+                    var newpage = Application.OptionValue(field.Options,"addnewpage");
+                    if(newpage)
+                        Application.RunNext(function () {
+                            return $codeblock(
+                                function () {                                            
+                                    var form = new PageViewer({
+                                        id: newpage,
+                                        view: Application.MergeView(field.LookupFilters,_base.Viewer().Record()),
+                                        mode: "New",
+                                        dialog: true
+                                    });                            
+                                    form.CloseFunction(function () {                                            
+                                        var rec = form.Record();
+                                        if(rec.Record.NewRecord === false){    
+                                            if (field.LookupDisplayField != ""){
+                                                _base.Viewer().RecordValidate(field.Name,rec[field.LookupDisplayField]);
+                                            }else{
+                                                _base.Viewer().RecordValidate(field.Name,rec[field.LookupField]);
+                                            }
+                                        }
+                                    });                                    
+                                    return form.Open();
+                                }			
+                            );
+                        });
+                    return false;
+                }
+
                 if (typeof item.DisplayCol == 'undefined') { //Made a selection
 
                     if (m_data) {

@@ -67,31 +67,35 @@ DefineModule("WebsiteManager",
 				return;
 			});
 			
-			$code(
-				function(){
-					return ExecuteQuery(m_setup.query);
-				},
-				function(recs){
-											
-					if(recs[0].length == 0)
-						Application.Error("Domain not found");	
-					
-					var domain = recs[0][0];
-					
-					eval("var func = function(){" + domain.OnLoad + "};");
-					eval("var func2 = function(){" + domain.OnError + "};");
-					
-					m_setup.onload = func;
-					m_setup.onerror = func2;
-					m_setup.homepage = domain["Home Page"];					
-					m_setup.webpagequery = domain["Web Page Query"];
-					m_setup.domain = domain.Code;
-					if(m_setup.onload)
-						m_setup.onload();
-					_self.Process();		
-					
-				}
-			);
+			Application.RunNext(function(){
+
+				return $codeblock(
+					function(){
+						return ExecuteQuery(m_setup.query);
+					},
+					function(recs){
+												
+						if(recs[0].length == 0)
+							Application.Error("Domain not found");	
+						
+						var domain = recs[0][0];
+						
+						eval("var func = function(){" + domain.OnLoad + "};");
+						eval("var func2 = function(){" + domain.OnError + "};");
+						
+						m_setup.onload = func;
+						m_setup.onerror = func2;
+						m_setup.homepage = domain["Home Page"];					
+						m_setup.webpagequery = domain["Web Page Query"];
+						m_setup.domain = domain.Code;
+						if(m_setup.onload)
+							m_setup.onload();
+						_self.Process();		
+						
+					}
+				);
+
+			});
         };        
 		
 		this.AddPage = function(page){
@@ -162,7 +166,7 @@ DefineModule("WebsiteManager",
 		
 		this.LoadPage = function(code,params,skiphistory){							
 			
-			$("body").scrollTop(0);
+			$(window).scrollTop(0);
 			if(m_devMode && m_record && m_record.Code != code){
 					Application.RunNext(function(){
 						FINDSET("Web Page",{Code:(code), Domain: m_setup.domain},function(wp){									
@@ -330,7 +334,7 @@ DefineModule("WebsiteManager",
 			
 		this.OnSearch = function(query, search, onclick, rowdef){	
 		
-		$("body").scrollTop(search.offset().top-60);
+		$(window).scrollTop(search.offset().top-60);
 		
 		 if(search.val() == "")
 			 return;
@@ -343,8 +347,8 @@ DefineModule("WebsiteManager",
 				$(".searchdropdown").remove();			
 				ret = ret[0];
 				if(ret.length !== 0){											
-				  var dd = $("<div style='position:absolute; background-color: white; max-width: 400px; max-height: 400px; overflow-y: auto; z-index: 1001;' class='searchdropdown'>");
-				  dd.css("width",400);
+				  var dd = $("<div style='position:absolute; background-color: white; max-width: "+search.width()+"px; max-height: 400px; overflow-y: auto; z-index: 1001;' class='searchdropdown'>");
+				  dd.css("width",search.width());
 				  $("body").append(dd);
 				  dd.css("top",search.offset().top+45).css("left",search.offset().left);
 				  for(var i = 0; i < ret.length; i++){

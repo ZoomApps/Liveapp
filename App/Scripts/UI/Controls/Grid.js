@@ -146,7 +146,9 @@ Define("Grid",
                     _self.OnColumnChooserDone();
                 },
 				onSortCol: function(){
-					_self.OnSortCol();
+                    _self.OnSortCol();
+                    if(m_dataSource)
+                        OnBind(0,m_dataSource.length);
 				},
                 beforeSelectRow: function (rowid, e) {
 
@@ -528,6 +530,21 @@ Define("Grid",
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null")
                             return "";
+                        if(field.Mask){
+                            var opts = null;
+                            var mask = field.Mask;
+                            if(mask.indexOf(":") !== -1){
+                                opts = {
+                                    colModel: {
+                                        formatoptions: {
+                                           decimalPlaces: parseInt(mask.split(':')[1])
+                                        }
+                                    }
+                                }
+                                mask = mask.split(':')[0];
+                            }
+                            return $.fn.fmatter(mask, cellvalue, opts); 
+                        }
                         return cellvalue;
                     },
                     editoptions: {

@@ -191,7 +191,7 @@ Define("MultiCombobox",
 			
             for (var i = 0; i < result.length; i++) {
 
-                if (allowblank || result[i].BlankRow == false) {
+                if ((allowblank || result[i].BlankRow == false) && result[i].NewRecordRow !== true) {
 
                     var sel = ""
 
@@ -290,6 +290,50 @@ Define("MultiCombobox",
 				_base.Control().width((width / 2) - 18);
 				_base.Control().multiselectcombo("refresh");
 			}
+        };
+
+        this.Enabled = function (value_, update_) {
+
+            _base.Enabled(value_, update_);
+
+            if (!Application.IsInMobile()) {
+                if(_base.Field().Editable){
+                    _base.Control().multiselectcombo('enable');
+                    _base.Control().next().css('background','');
+                }else{
+                    _base.Control().multiselectcombo('disable');
+                    _base.Control().next().css('background','rgb(235, 235, 228)');
+                }
+            }else{
+                _base.Control().selectmenu();
+                if(_base.Field().Editable){
+                    _base.Control().selectmenu('enable');
+                }else{
+                    _base.Control().selectmenu('disable');
+                }
+            }
+
+            return _base.Enabled();
+        };
+
+        this.Show = function () {
+
+            _base.Show();
+
+            if (Application.IsInMobile()) {
+                _base.Control().selectmenu();                
+                _base.Control().parent().show();
+            }
+        };
+
+        this.Hide = function () {
+
+            _base.Hide();
+
+            if (Application.IsInMobile()) {
+                _base.Control().selectmenu();                
+                _base.Control().parent().hide();
+            }
         };
 
         //#endregion

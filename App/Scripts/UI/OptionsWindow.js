@@ -492,14 +492,14 @@ Define("OptionsWindow", null, function (options_) {
 				var i = parseInt(value_);
 				if (isNaN(i))
 					Application.Error("Invalid integer: " + value_);
-				value_ = i;
+				value_ = (i === 0 ? null : i);
 
 			} else if (field.Type == "Decimal") {
 
 				var i = parseFloat(value_);
 				if (isNaN(i))
 					Application.Error("Invalid decimal: " + value_);
-				value_ = i;
+				value_ = (i === 0 ? null : i);
 
 			} else if (field.Type == "Code") {
 
