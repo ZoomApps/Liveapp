@@ -115,6 +115,7 @@ Define("Grid",
                 multiselect: false,
                 cellsubmit: 'clientArray',
                 sortable: true,
+                multiSort: true,
                 scrollrows: true,
                 footerrow: footer_,
                 autoencode: true, //#85 - Sanitize String				

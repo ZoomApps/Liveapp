@@ -81,7 +81,7 @@ DefineModule("ModuleManager",
      {
          singleInstance: true,
          requiresVersion: '3.0',
-         created: new Date(2013, 09, 03),
+         created: new Date(2013, 9, 3),
          version: '1.1',
          author: 'Liveapp Soultions',
          copyright: 'Copyright 2013, Liveapp Soultions',

@@ -79,9 +79,9 @@ Define("TimePicker",
                 return;
 
             if (value != null) {
-                _base.Control().timepicker("setTime", value, true);
+                _base.Control().val(Application.FormatDate(value,'hh:mm a'));
             } else {
-                _base.Control().timepicker("setTime", '', true);
+                _base.Control().val(null);
             }
 
         };

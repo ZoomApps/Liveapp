@@ -1,3 +1,92 @@
+<a name="5.3"></a>
+# Liveapp v5.3 (February 2018)
+
+## Bug Fixes
+
+  - **chart**
+    - chart drilldown not working ([#58](https://github.com/LiveappSolutions/Liveapp/issues/58))
+
+  - **combobox**
+    - keyboard not showing when trying to search ([#64](https://github.com/LiveappSolutions/Liveapp/issues/64))
+
+  - **control**
+    - keyboard covering fields ([#50](https://github.com/LiveappSolutions/Liveapp/issues/50))
+
+  - **grid**
+    - datetime field in mobile - no formatting ([#65](https://github.com/LiveappSolutions/Liveapp/issues/65))
+
+  - **optionswindow**
+    - error on open of options window ([#71](https://github.com/LiveappSolutions/Liveapp/issues/71))
+
+  - **pageviewer**
+    - non-editable fields missing from grid editor ([#55](https://github.com/LiveappSolutions/Liveapp/issues/55))
+
+  - **report**
+    - icons not showing on printed report ([#51](https://github.com/LiveappSolutions/Liveapp/issues/51))
+
+  - **sweetalert**
+    - success icon not working in mobile mode
+
+  - **timepicker**
+    - multiple timepicker issue ([#43](https://github.com/LiveappSolutions/Liveapp/issues/43))
+
+  - **webservice**
+    - changelog not recording fields changing to 'null' ([#72](https://github.com/LiveappSolutions/Liveapp/issues/72))
+    - error when using an OR filter with a flowfield column
+    - foreign key rename not working when data has brackets
+
+## Features
+
+  - **grid**
+    - allow multiple columns to be sorted
+
+  - **queryhandler**
+    - allow endpoint to be executed with GET http method
+
+  - **system**
+    - "sorting" on table keys ([#69](https://github.com/LiveappSolutions/Liveapp/issues/69))
+
+  - **webservice**
+    - add ampersand escape sequence for filtering
+    - new overrideable function - AfterGetServerInfo ([#57](https://github.com/LiveappSolutions/Liveapp/issues/57))
+
+## Documentation
+
+  - **application**
+    - add application module documentation
+
+  - **appobject**
+    - add appobject class documentation
+
+  - **global**
+    - add global functions documentation
+
+## Refactor
+
+  - **application**
+    - set Application.AuthCode function as deprecated since v5.0.0
+    - set Application.ClearRecordCache function as deprecated since v5.0.0
+    - set Application.ExecutePlugin function as deprecated since v5.0.0
+    - set Application.FriendifyDates function as deprecated since v5.0.0
+    - set Application.GenerateWebService function as deprecated since v5.0.0
+    - set Application.MiniMode function as deprecated since v5.0.0
+    - set Application.OffsetDate function as deprecated since v5.0.0
+    - set Application.SyncSecurity function as deprecated since v5.0.0
+    - set Application.UpdateProfileImage function as deprecated since v5.0.0
+
+  - **global**
+    - set memoize function as deprecated since v5.0.0
+
+## Test
+
+  - **application**
+    - fixed some bugs in application test cases
+    - add application test cases
+
+  - **global**
+    - add global test cases
+
+
 <a name="5.2.0"></a>
 # Liveapp v5.2 (Dec 2017/Jan 2018)
 

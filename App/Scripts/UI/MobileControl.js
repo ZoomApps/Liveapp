@@ -63,11 +63,13 @@ Define("Control",
             //Add the control to the window.
             window_.append(m_container);
 
-            var placeholder = null;
-            var scrollarea = null;
-            if (m_viewer && m_viewer.Dialog && m_viewer.Dialog()) {
-                //placeholder = $(".dialog-placeholder");
-                scrollarea = $(".boxy-content");
+            var scrollarea = $('html, body');
+            if (m_viewer && m_viewer.ID) {
+                if( m_viewer.Dialog && m_viewer.Dialog()){
+                    scrollarea = $("#"+m_viewer.ID());
+                }else{
+                    scrollarea = $("#"+m_viewer.ID()+"containerworkspace");
+                }
             }
 
             m_control = $('#ctl' + m_id).focus(function (ev, forced) {				
@@ -75,26 +77,17 @@ Define("Control",
                 m_footerVisible = $("#divMobileFooter").is(":visible");               			
 
 				//Scroll the dialog.
-				if(placeholder && !forced){
+				if(!forced){
 					
-					placeholder.css("height", '0px').hide();	
-					
-					var pos = m_control.position();
+					var pos = m_control.offset();
 					if (m_control.attr("data-clear-btn") == "true") {
-						pos = m_control.parent().position();
+						pos = m_control.parent().offset();
 					}                
 					
-					placeholder.css("height", '800px').show();
 					scrollarea.animate({
-						scrollTop: pos.top - 96
-					}, 1);					
+						scrollTop: pos.top - scrollarea.offset().top + scrollarea.scrollTop() - 60
+					}, 50);					
 				}                
-
-            }).blur(function () {
-
-				if(placeholder){
-					placeholder.css("height", '0px').hide();					
-				}
 
             }).keypress(function (event) {
                 if (event.keyCode == '13' && m_field.CustomControl != "NotesBox") {

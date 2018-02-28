@@ -3414,7 +3414,8 @@
                     pathData.push({
                         value: value,
                         valueIndex: valueIndex,
-                        meta: Chartist.getMetaData(series, valueIndex)
+                        meta: Chartist.getMetaData(series, valueIndex),
+                        link: data.raw.links[seriesIndex][valueIndex] //Liveapp v5
                     });
                 }.bind(this));
 
@@ -3445,7 +3446,8 @@
                             y2: pathElement.y
                         }, options.classNames.point).attr({
                             'ct:value': [pathElement.data.value.x, pathElement.data.value.y].filter(Chartist.isNumeric).join(','),
-                            'ct:meta': Chartist.serialize(pathElement.data.meta)
+                            'ct:meta': Chartist.serialize(pathElement.data.meta),
+                            'ct:link': pathElement.data.link //Liveapp v5
                         });
 
                         this.eventEmitter.emit('draw', {
@@ -4009,7 +4011,8 @@
                     // Create bar element
                     bar = seriesElement.elem('line', positions, options.classNames.bar).attr({
                         'ct:value': [value.x, value.y].filter(Chartist.isNumeric).join(','),
-                        'ct:meta': Chartist.serialize(metaData)
+                        'ct:meta': Chartist.serialize(metaData),
+                        'ct:link': data.raw.links[seriesIndex][valueIndex] //Liveapp v5
                     });
 
                     this.eventEmitter.emit('draw', Chartist.extend({

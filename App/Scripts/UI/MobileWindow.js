@@ -74,7 +74,7 @@ Define("Window", null, function () {
                     "<div class='title-bar-text unselectable'><span id='title" + m_id + "' class='title unselectable'></span></div>" +
                     "<div id='" + m_id + "toolbar2' style='display: none;'>" +
 	                "</div>" +
-                    "<div id='" + m_id + "main' class='window-main'></div></div>");
+                    "<div id='" + m_id + "main' class='window-main' style='padding-bottom: 600px;'></div></div>");
 
                 if(m_options.shortcutWorkspace){
 
@@ -176,7 +176,7 @@ Define("Window", null, function () {
 				
                 var win = "<div id='" + m_id + "' class='app-dialog' style='" +
 					"max-width: "+w+"px;  min-width: "+w+"px; height: " + h + "px; max-height: " + h + "px'>" +
-                    "<div id='" + m_id + "main' style='padding: 10px; "+(Application.IsMobileDisplay() ? "padding-bottom: 600px; ": "")+"'></div><div class='dialog-placeholder' style='height: 1px;'></div> " +
+                    "<div id='" + m_id + "main' style='padding: 10px; padding-bottom: 600px;'></div>" +
                     "</div>";
 
                 m_boxy = new Boxy(win, {
