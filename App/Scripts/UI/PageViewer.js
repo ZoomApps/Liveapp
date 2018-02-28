@@ -687,9 +687,6 @@ Define("PageViewer",
                     //Resize window (mobile only)
                     if (Application.IsInMobile()) {
 
-                        $(".placeholder").css("height", '800px');
-                        $.mobile.resetActivePageHeight();
-                        $(".placeholder").css("height", '1px');
                         $.mobile.resetActivePageHeight();
 
                         //Hide child tabs.
@@ -2416,7 +2413,7 @@ Define("PageViewer",
                             if (add == 1 && Application.IsInMobile())
                                 break;
 
-                            var fields = m_form.GetFieldsByTab(tabs[j].Name, add, (Application.IsInMobile() && m_options.mobilegrideditor));
+                            var fields = m_form.GetFieldsByTab(tabs[j].Name, add);
 
                             //Used for tab index calclulation.
                             var half = Math.round(fields.length / 2);

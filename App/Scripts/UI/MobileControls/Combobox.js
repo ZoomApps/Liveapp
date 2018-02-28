@@ -16,6 +16,7 @@ Define("Combobox",
         var m_cols = [];
         var m_values = null;
         var m_data = null;
+        var m_searchMode = false;
 
         //#endregion
 
@@ -115,7 +116,7 @@ Define("Combobox",
 
         this.OnClick = function (ev) {
 
-            if (_base.Field().Editable == false)
+            if (_base.Field().Editable == false || m_searchMode)
                 return;
 			
 			UI.Blur();
@@ -366,6 +367,8 @@ Define("Combobox",
         };
 
         function ChangeDisplay(revert) {
+
+            m_searchMode = !revert;
 
             if (!revert) {
 

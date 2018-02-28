@@ -1537,7 +1537,7 @@ Application.LoadParams = function (arr, paramstr) {
 
 Application.LoadScript = function (id_, code_) {
 
-    $('body').remove("#" + id_);
+    $("#" + id_).remove();
 
     if(code_.indexOf("http") == 0){
 
@@ -1942,7 +1942,7 @@ Application.ViewSubstitute = function (view) {
         view = view.replace(/%1/g, Application.auth.Username);
 
     if (view.indexOf("%TODAY") != -1)
-        view = view.replace(/%TODAY/g, $.format.date(new Date(), '%LANG:FORMAT_SHORTDATE%'));
+        view = view.replace(/%TODAY/g, $.format.date(new Date(), '%LANG:FORMAT_LONGDATE%'));
 
     if (Application.auth.UserData != "" && view.indexOf("%") != -1) {
         try {
@@ -2310,7 +2310,7 @@ Application.HasFilterChar = function(filter){
 
 Application.GetOptionFilter = function(filter, captions){
 	var ret = "";
-	if(filter.indexOf("|")){
+	if(filter.indexOf("|") !== -1){
 		var filters = filter.split("|");
 		for(var i = 0; i < filters.length; i++){
 			if(ret==""){
@@ -2319,8 +2319,8 @@ Application.GetOptionFilter = function(filter, captions){
 				ret += "|"+captions.split(",")[filters[i]];
 			}
 		}
-	}else if(filter.indexOf("&")){
-		var filters = filter.split("|");
+	}else if(filter.indexOf("&") !== -1){
+		var filters = filter.split("&");
 		for(var i = 0; i < filters.length; i++){
 			if(ret==""){
 				ret = captions.split(",")[filters[i]];
@@ -2336,26 +2336,26 @@ Application.GetOptionFilter = function(filter, captions){
 
 Application.SetOptionFilter = function(filter, captions){
 	var ret = "";
-	if(filter.indexOf("|")){
+	if(filter.indexOf("|") !== -1){
 		var filters = filter.split("|");
 		for(var i = 0; i < filters.length; i++){
 			if(ret==""){
-				ret = captions.split(",").indexOf(filters[i]);
+				ret = captions.split(",").indexOf(filters[i]).toString();
 			}else{
 				ret += "|"+captions.split(",").indexOf(filters[i]);
 			}
 		}
-	}else if(filter.indexOf("&")){
-		var filters = filter.split("|");
+	}else if(filter.indexOf("&") !== -1){
+		var filters = filter.split("&");
 		for(var i = 0; i < filters.length; i++){
 			if(ret==""){
-				ret = captions.split(",").indexOf(filters[i]);
+				ret = captions.split(",").indexOf(filters[i]).toString();
 			}else{
 				ret += "&"+captions.split(",").indexOf(filters[i]);
 			}
 		}
 	}else{
-		ret = captions.split(",").indexOf(filter);
+		ret = captions.split(",").indexOf(filter).toString();
 	}	
 	return ret;
 };
@@ -2364,13 +2364,13 @@ Application.GenerateView = function(filters){
 	var f = "";
     for (var i in filters) {
         if(f.length == 0){
-            f += i + "=CONST("+filters[i]+")";
+            f += i + "=FILTER("+filters[i]+")";
         }else{
-            f += ", "+ i + "=CONST("+filters[i]+")";
+            f += ","+ i + "=FILTER("+filters[i]+")";
         }
     }
     if(f.length > 0)
-        f = "WHERE ("+f+")";
+        f = "WHERE("+f+")";
 	return f;
 };
 

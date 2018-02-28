@@ -67,12 +67,10 @@ Define("Searchbox",
 
                     }, 2000);
                 }).focus(function () {
-                    $(".placeholder").css("height", '800px');
                     $('html, body').animate({
                         scrollTop: cont.offset().top - 100
                     }, 1000);
                 }).blur(function () {
-                    $(".placeholder").css("height", '1px');
                     $.mobile.resetActivePageHeight();
                 });
 

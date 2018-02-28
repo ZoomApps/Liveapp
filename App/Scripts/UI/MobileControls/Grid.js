@@ -159,6 +159,20 @@ Define("Grid",
                         return val;
                     }
                 });
+            } else if (field.Type == "DateTime") {
+                m_cols.push({
+                    name: field.Name,
+                    align: "center",
+                    onformat: function (val) {
+                        if (val == null)
+                            return "";
+                        try {
+                            return $.format.date(val, "dd/MM/yyyy hh:mm a");
+                        } catch (e) {
+                        }
+                        return val;
+                    }
+                });                
             } else if (field.Type == "Boolean") {
                 m_cols.push({
                     name: field.Name,
