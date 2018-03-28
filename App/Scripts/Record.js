@@ -428,7 +428,11 @@ Define("Record", null, function (name_) {
 					o.Record.Fields[i].Value = null;
 					o.xRecord.Fields[i].Value = null;
 					o[col.Name] = null;
-				}		
+                }
+                if (func_ == "RecordDelete" && col && col.PrimaryKey == false){
+					o.Record.Fields[i].Value = null;
+					o.xRecord.Fields[i].Value = null;
+				}			
 				if(hasView && col && col.PrimaryKey == false && (col.Type == "Image" || col.Type == "Blob" || col.Type == "BigBlob") && !Application.IsOffline()){
 					if(o.Record.Fields[i].Value == o.xRecord.Fields[i].Value){					
 						o[col.Name] = null;
@@ -437,11 +441,7 @@ Define("Record", null, function (name_) {
 						o.xRecord.Fields.splice(i,1);
 						i -= 1;
 					}						
-				}
-				if (func_ == "RecordDelete" && col && col.PrimaryKey == false){
-					o.Record.Fields[i].Value = null;
-					o.xRecord.Fields[i].Value = null;
-				}					
+				}								
 			}
 			o.Functions = [];			
 		}
@@ -1258,11 +1258,15 @@ Define("Record", null, function (name_) {
     function DeFriendifyValues(rec) {
 
         for (var i = 0; i < rec.Record.Fields.length; i++) {
-            if (typeof rec.Record.Fields[i].Value == "string") {
-
-                //Fix dates.
+            
+            //Fix dates.
+            if (typeof rec.Record.Fields[i].Value == "string") {                
                 if (rec.Record.Fields[i].Type == "Date" || rec.Record.Fields[i].Type == "Time" || rec.Record.Fields[i].Type == "DateTime") {
-                    rec.Record.Fields[i].Value = Application.ConvertDate(rec.Record.Fields[i].Value);
+                    rec.Record.Fields[i].Value = Application.ConvertDate(rec.Record.Fields[i].Value);                
+                }     
+            }
+            if (typeof rec.xRecord.Fields[i].Value == "string") {                          
+                if (rec.xRecord.Fields[i].Type == "Date" || rec.xRecord.Fields[i].Type == "Time" || rec.xRecord.Fields[i].Type == "DateTime") {                    
                     rec.xRecord.Fields[i].Value = Application.ConvertDate(rec.xRecord.Fields[i].Value);
                 }
             }

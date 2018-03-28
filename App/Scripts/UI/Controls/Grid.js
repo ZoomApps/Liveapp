@@ -153,7 +153,11 @@ Define("Grid",
 				},
                 beforeSelectRow: function (rowid, e) {
 
-                    if (!e.ctrlKey) {
+                    var multiselect = true;
+                    if (_base.Viewer() && Application.HasOption(_base.Viewer().Page().Options, "nomultiselect"))
+                        multiselect = false;
+
+                    if (!e.ctrlKey || !multiselect) {
 
                         for (var i = 0; i < m_selected.length; i++) {
                             var rowid = _self.GetRowID(m_selected[i]);
@@ -302,6 +306,8 @@ Define("Grid",
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
                             return "";
+                        if(typeof cellvalue === "string" && cellvalue.indexOf("Mandatory") != -1)
+							return cellvalue;
 						if(typeof cellvalue === "string")
 							cellvalue = Application.ParseDate(cellvalue);
                         return $.format.date(cellvalue, "dd/MM/yyyy");
@@ -378,7 +384,9 @@ Define("Grid",
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
                             return "";
-						if(typeof cellvalue === "string" && cellvalue.indexOf("Mandatory") == -1)
+                        if(typeof cellvalue === "string" && cellvalue.indexOf("Mandatory") != -1)
+							return cellvalue;
+						if(typeof cellvalue === "string")
 							cellvalue = Application.ParseTime(cellvalue);
                         return $.format.date(cellvalue, "hh:mm a");
                     },
@@ -617,11 +625,12 @@ Define("Grid",
         };
 
         this.SetSort = function (sort) {
-            try {
-                m_grid.setGridParam({
-                    sortname: sort.split(";")[0],
-                    sortorder: sort.split(";")[1]
-                });
+            try {   
+                var columns = sort.split(";")[0].split(','); 
+                var order = sort.split(";")[1].split(',');
+                for(var i = 0; i < columns.length; i++){     
+                    m_grid.jqGrid('sortGrid', columns[i], true, Default(order[i],'asc'));
+                }
             } catch (e) {
             }
         };

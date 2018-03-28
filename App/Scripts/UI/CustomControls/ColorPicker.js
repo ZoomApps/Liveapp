@@ -36,13 +36,48 @@ Define("ColorPicker",
             }
 
             //Call base method.
-            _base.Create(window_, container, _self.OnValueChange, function (cont) {
+            _base.Create(window_, container, function(col,value){
+                _base.Control().setColor(value);            
+                _self.OnValueChange(col,value);
+            }, function (cont) {
                 cont.simpleColor({
                     colors: colours,
-                    columns: colcount
+                    columns: colcount,
+                    chooserCSS: {
+                        'z-index': 30005
+                    }
                 });
             });
         };
+
+        this.CreateMobile = function (window_, form_) {
+            
+            //Create the control.
+            var container = $('<label id="lbl' + _base.ID() + '" id= for="ctl' + _base.ID() + '" style="font-weight: bold"></label><input id="ctl' + _base.ID() + '" class="simple_color" style="width: 100px; display: inline-block;">');
+
+            var colours;
+            var colcount;
+            if (Application.HasOption("ColorPicker_Dark", _base.Field().Options)) {
+                colours = darkcolours();
+                colcount = 8;
+            }
+
+            //Call base method.
+            _base.Create(window_, container, function(col,value){
+                _base.Control().setColor(value);            
+                _self.OnValueChange(col,value);
+            }, function (cont) {
+                cont.textinput();
+                cont.simpleColor({
+                    colors: colours,
+                    columns: colcount,
+                    chooserCSS: {
+                        'z-index': 30005
+                    }
+                });
+            });
+
+		};
 
         this.CreateList = function (value_) {
 
@@ -60,7 +95,11 @@ Define("ColorPicker",
             };
             setTimeout(function () {
                 cont.simpleColor({
-                    colors: colours, columns: colcount,
+                    colors: colours, 
+                    columns: colcount,                    
+                    chooserCSS: {
+                        'z-index': 30005
+                    },
                     onSelect: function (hex, element) {
                         _base.Viewer().Save();
                     }
@@ -93,12 +132,15 @@ Define("ColorPicker",
 
         this.Update = function (rec_) {
 
-            var value = rec_[_base.Field().Name];
-            if (typeof value == 'undefined')
+            var value = rec_[_base.Field().Name];            
+            if (typeof value == 'undefined'){
+                _base.Loaded(true);
                 return;
+            }
 
             _base.Control().val(value);
-            _base.Control().setColor(value);            
+            _base.Control().setColor(value); 
+            _base.Loaded(true);           
         };
 
         //#endregion

@@ -1597,6 +1597,9 @@ Application.OptionValue = function(opts,key){
 Application.dateCache = {};
 Application.ConvertDate = function(str,skipTZ) {
     
+    if(str.indexOf && str.indexOf('T') === -1)
+        return str;
+        
 	if(Application.dateCache[str])
         return new Date(Application.dateCache[str]);
 	

@@ -783,7 +783,7 @@
 
 .chartist-tooltip {
     position: absolute;
-    display: inline-block;
+    display: none;
     opacity: 0;
     min-width: 5em;
     padding: .5em;
@@ -814,6 +814,7 @@
 
     .chartist-tooltip.tooltip-show {
         opacity: 1;
+        display: inline-block;
     }
 
 .ct-area, .ct-line {

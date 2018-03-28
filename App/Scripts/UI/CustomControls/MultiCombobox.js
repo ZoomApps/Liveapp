@@ -141,6 +141,7 @@ Define("MultiCombobox",
                     cont.multiselectcombo('refresh');
                 } else {
                     cont.selectmenu();
+                    cont.selectmenu("refresh");
                 }
 
                 if (typeof value != 'undefined')
