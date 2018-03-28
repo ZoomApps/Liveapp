@@ -1,3 +1,77 @@
+<a name="5.4"></a>
+# Liveapp v5.4 (March 2018)
+
+## Bug Fixes
+
+  - **application**
+    - only convert iso date strings with  Application.ConvertDate
+
+  - **chart**
+    - excess white space ([#38](https://github.com/ZoomApps/Liveapp/issues/38))
+
+  - **datalayer**
+    - issue when doing a MODIFYALL or DELETEALL when Record Security
+
+  - **grid**
+    - SetSort function not working on multisort grid
+    - mandatory date fields NaN fix ([#56](https://github.com/ZoomApps/Liveapp/issues/56))
+
+  - **multicombo**
+    - data not refreshing if source is an Option string
+
+  - **record**
+    - delete record not working if a PK field is before an Image,BLOB or Big BLOB field in the table columns list
+
+  - **webservice**
+    - published solutions are not transferring record security
+
+  - **window**
+    - dialog window in tablet mode does not fill the screen ([#62](https://github.com/ZoomApps/Liveapp/issues/62))
+    - fix placeholder on mobile window duplicating
+
+## Features
+
+  - **colorpicker**
+    - add mobile version of color picker
+
+  - **grid**
+    - new page option "nomultiselect". If added to a list page, it will disable row multiselect ([#34](https://github.com/ZoomApps/Liveapp/issues/34))
+
+  - **report**
+    - grand totals - report grouping ([#70](https://github.com/ZoomApps/Liveapp/issues/70))
+
+  - **webservice**
+    - dashboard custom caption ([#75](https://github.com/ZoomApps/Liveapp/issues/75))
+
+  - **window**
+    - display a progress loader in mobile mode (similar to desktop) ([#52](https://github.com/ZoomApps/Liveapp/issues/52))
+
+## Documentation  
+
+  - **application**
+    - update version number and formatting
+
+  - **codeengine**
+    - document the CodeEngine module ([#73](https://github.com/ZoomApps/Liveapp/issues/73))
+
+  - **record**
+    - document the Record class ([#73](https://github.com/ZoomApps/Liveapp/issues/73))
+
+## Refactor
+
+  - **codeengine**
+    - set Locked function as deprecated since v5.4.0
+    - set IsNested function as deprecated since v5.4.0
+
+## Test
+
+  - **codeengine**
+    - add CodeEngine test cases ([#73](https://github.com/ZoomApps/Liveapp/issues/73))
+
+  - **record**
+    - add Record test cases ([#73](https://github.com/ZoomApps/Liveapp/issues/73))
+
+
 <a name="5.3"></a>
 # Liveapp v5.3 (February 2018)
 

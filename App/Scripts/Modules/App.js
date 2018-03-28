@@ -823,11 +823,11 @@ DefineModule("App",
         };
 
         this.ShowLoad = function () {
-            Application.Loading.Show("tdMain");
+            Application.Loading.Show(Application.IsInMobile() ? "AppWorkspace" : "tdMain");
         };
 
         this.HideLoad = function () {
-            Application.Loading.Hide("tdMain");
+            Application.Loading.Hide(Application.IsInMobile() ? "AppWorkspace" : "tdMain");
         };
 
         this.Loaded = function () {

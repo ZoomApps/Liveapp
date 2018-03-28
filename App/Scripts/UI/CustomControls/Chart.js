@@ -32,7 +32,7 @@ Define("Chart",
             m_form = form_;
 
             //Create the control.
-            m_container = $('<div id="' + _base.ID() + '" class="ct-chart ct-perfect-fourth xpress-resize" style="max-width: 800px; max-height: 400px;"></div>');
+            m_container = $('<div id="' + _base.ID() + '" class="ct-chart ct-perfect-fourth xpress-resize" style="max-width: 800px;"></div>');
 
             if (Application.UnsupportedIE()) {
                 m_container = _base.CreateUnsupported();

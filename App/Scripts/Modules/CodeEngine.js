@@ -1,5 +1,40 @@
-﻿/// <reference path="../Application.js" />
-
+﻿
+/**
+ * Code engine module.
+ * @module CodeEngine 
+ * @description
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * **CONTENTS**
+ * - [Description](#description)
+ * - [Accessing this module](#accessing-this-module)
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Description
+ * 
+ * The Code Engine module is loaded by default when an application is started. 
+ * 
+ * This module allows execution of async functions in a certain order.
+ * 
+ * <div style='background: #f9f2f4; padding: 5px'>**NOTE: Methods that return a `JQueryPromise` should be returned into a {@link $codeblock}**</div>
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Accessing this module
+ * 
+ * The module is assigned to {@link module:Application.Application.CodeEngine Application.CodeEngine} for access. 
+ * 
+ * Eg: {@link module:CodeEngine.this.Wait this.Wait} is accessed via `Application.CodeEngine.Wait`.
+ * 
+ * The following global shortcuts are created:
+ * - {@link $wait}                  
+ * - {@link $code} 
+ * - {@link $codeblock}
+ * - {@link $codeinsert}
+ * - {@link $loop}
+ * - {@link $thread}
+ */
 DefineModule("CodeEngine",
 
      {
@@ -34,8 +69,18 @@ DefineModule("CodeEngine",
 
         //#region Public Methods
 
+        /**
+         * Runs automatically when the module is loaded. Assigns module functions to globals.                  
+         * @memberof module:CodeEngine
+         * @returns {void}
+         */
         this.OnLoad = function () {
 
+            /** 
+             * Code engine module access.
+             * @see {@link module:CodeEngine CodeEngine}  
+             * @memberof module:Application             
+             */
             //Assign Module
             Application.CodeEngine = this;
 
@@ -45,10 +90,22 @@ DefineModule("CodeEngine",
             $codeblock = Application.CodeEngine.CodeBlock;
             $codeinsert = Application.CodeEngine.CodeInsert;
             $loop = Application.CodeEngine.Loop;
+
+            /**
+             * Return into a {@link $loop} to goto the next iteration.
+             * @global
+             * @type {string}
+             */
             $next = "<NEXTLOOP>"; 
             $stopallthreads = Application.CodeEngine.StopAllThreads;
             $thread = Application.CodeEngine.CreateThread;
             $locked = Application.CodeEngine.Locked;
+
+            /**
+             * Use as the first line of a function when using {@link $codeinsert}.
+             * @global
+             * @type {string}
+             */
             $flag = "<FLAG>";
 
             Application.On("Login", function () {
@@ -56,10 +113,58 @@ DefineModule("CodeEngine",
             });
         };
 
+        /**
+         * Create a new promise.
+         * @name $wait
+         * @method
+         * @global
+         * @returns {JQueryPromise} Returns a new promise.
+         * @example
+         * var w = $wait();
+         * return w.promise();
+         */
+
+        /**
+         * Create a new promise. See the shortcut method {@link $wait} for examples.
+         * @memberof module:CodeEngine
+         * @returns {JQueryPromise} Returns a new promise.
+         */
         this.Wait = function () {
             return new $.Deferred();
         };
 
+        /**
+         * Define a group of functions to execute.
+         * @name $code
+         * @method
+         * @global
+         * @param {...Function} args One or more functions to execute.
+         * @returns {void}
+         * @example
+         * var w = $wait();
+         * $code(
+         *  function(){
+         *      // This will execute first.
+         *      return 1;
+         *  },
+         *  function(ret){
+         *      // This will execute second.
+         *      // The return value from the previous function is passed into this function.
+         *      // ret = 1
+         * 
+         *      // Resolve the wait.
+         *      w.resolve();
+         *  }
+         * );
+         * return w.promise();
+         */
+
+        /**
+         * Define a group of functions to execute. See the shortcut method {@link $code} for examples.         
+         * @memberof module:CodeEngine
+         * @param {...Function} args One or more functions to execute.
+         * @returns {void}
+         */
         this.Code = function () {
 
             //Create a new queue.
@@ -88,6 +193,33 @@ DefineModule("CodeEngine",
 
         };
 
+        /**
+         * Define a group of functions to execute. Automatically wraps the code with a wait.
+         * @name $codeblock
+         * @method
+         * @global
+         * @param {...Function} args One or more functions to execute.
+         * @returns {JQueryPromise} Promises to return after executing all of the functions.
+         * @example
+         * return $codeblock(
+         *  function(){
+         *      // This will execute first.
+         *      return 1;
+         *  },
+         *  function(ret){
+         *      // This will execute second.
+         *      // The return value from the previous function is passed into this function.
+         *      // ret = 1
+         *  }
+         * );
+         */
+
+        /**
+         * Define a group of functions to execute. Automatically wraps the code with a wait. See the shortcut method {@link $codeblock} for examples.         
+         * @memberof module:CodeEngine
+         * @param {...Function} args One or more functions to execute.
+         * @returns {JQueryPromise} Promises to return after executing all of the functions.
+         */
         this.CodeBlock = function () {
 
             var w = $wait();
@@ -105,6 +237,41 @@ DefineModule("CodeEngine",
             return w.promise();
         };
 
+        /**
+         * Insert functions into the currently executing code block.
+         * 
+         * **NOTE: The first line of each function needs to be {@link $flag}; so they are not overridden by
+         * subsequent calls to `$codeinsert`**
+         * @name $codeinsert
+         * @method
+         * @global
+         * @param {...Function} args One or more functions to insert.
+         * @returns {void}
+         * @example
+         * return $codeblock(
+         *  function(){
+         *      
+         *      // This is executed first.
+         * 
+         *      $codeinsert(
+         *          function(){
+         *              $flag;
+         *              // This will now be executed second.
+         *          }
+         *      );
+         *  },
+         *  function(){
+         *      // This is now executed third.
+         *  }
+         * );
+         */
+
+        /**
+         * Insert functions into the currently executing code block. See the shortcut method {@link $codeinsert} for examples.
+         * @memberof module:CodeEngine
+         * @param {...Function} args One or more functions to insert.
+         * @returns {void}
+         */
         this.CodeInsert = function () {
 
             //Create a queue if one does not exist.
@@ -132,14 +299,32 @@ DefineModule("CodeEngine",
             };
         };
 
+        /**
+         * Removes a level from the current code queue.
+         * @memberof module:CodeEngine
+         * @protected
+         * @returns {void}
+         */
         this.RemoveLevel = function () {
             m_queue.splice(m_queue.length - 1, 1);
         };
 
+        /**
+         * @deprecated Since v5.4.0
+         * @memberof module:CodeEngine
+         */
         this.IsNested = function () {
+            Application.LogWarn('CodeEngine.IsNested has been deprecated since v5.4.0');
             return m_queue.length > 1
         };
 
+        /**
+         * Executes the code queue at the current position.
+         * @memberof module:CodeEngine
+         * @protected
+         * @param {*} result_ Argument to pass into the executing function.
+         * @returns {void}
+         */
         this.ResolveQueue = function (result_) {
 
             if (m_queue.length == 0) return;
@@ -208,6 +393,13 @@ DefineModule("CodeEngine",
             }
         };
 
+        /**
+         * Run the next function in the code queue.
+         * @memberof module:CodeEngine
+         * @protected
+         * @param {*} param_ Argument to pass into the next function.
+         * @returns {void}
+         */
         this.RunNextFunction = function (param_) {
 
             if (m_queue.length > 0) {
@@ -219,6 +411,35 @@ DefineModule("CodeEngine",
 
         };
 
+        /**
+         * A loop that supports code blocks.
+         * 
+         * **NOTE: Return {@link $next} into the last function to move to the next loop iteration.**
+         * @name $loop
+         * @method
+         * @global         
+         * @param {function(number)} func Function to execute on each iteration. The iterator is passed in as an argument.
+         * @returns {JQueryPromise} Promises to return after the loop is completed.
+         * @example
+         * return $loop(function(i){
+         *  return $codeblock(
+         *      function(){
+         *          // Execute some stuff.
+         *      },
+         *      function(){
+         *          if(i < 10)
+         *              return $next;
+         *      }
+         *  );
+         * });
+         */
+
+        /**
+         * A loop that supports code blocks. See the shortcut method {@link $loop} for examples.
+         * @memberof module:CodeEngine
+         * @param {function(number)} func Function to execute on each iteration. The iterator is passed in as an argument.
+         * @returns {JQueryPromise} Promises to return after the loop is completed.
+         */
         this.Loop = function (func) {
 
             var recfunc = function (i) {
@@ -257,6 +478,12 @@ DefineModule("CodeEngine",
             return w.promise();
         };
 
+        /**
+         * Get the status of the current code thread.
+         * @memberof module:CodeEngine
+         * @protected
+         * @returns {boolean} Returns `true` if the current code thread is running.
+         */
         this.CheckStatus = function () {
 
             if (!m_running) {
@@ -269,6 +496,21 @@ DefineModule("CodeEngine",
             return true;
         };
 
+        /**
+         * Stops all code threads (including the current).
+         * @name $stopallthreads
+         * @method
+         * @global
+         * @protected
+         * @returns {void}
+         */
+
+        /**
+         * Stops all code threads (including the current).
+         * @memberof module:CodeEngine
+         * @protected
+         * @returns {void}
+         */
         this.StopAllThreads = function () {
 
             Application.LogDebug("%LANG:S_CLEARINGMETHODS%");
@@ -280,6 +522,36 @@ DefineModule("CodeEngine",
 
         };
 
+        /**
+         * Create a new code thread.
+         * @name $thread
+         * @method
+         * @global
+         * @param {Function} func Function to execute in the thread.
+         * @param {number} [id] Internal use only.
+         * @param {number} [i] Internal use only. 
+         * @param {boolean} [skipDelay=false] Executes the function straight away.
+         * @param {*} [threaduid] Unique id for the thread. A thread will not execute if another thread has the same id. 
+         * @returns {void}
+         * @example
+         * $thread(function(){
+         *  // This will execute first.
+         * });
+         * $thread(function(){
+         *  // This will run after the thread above finishes.
+         * });
+         */
+
+        /**
+         * Create a new code thread. See the shortcut method {@link $thread} for examples.
+         * @memberof module:CodeEngine
+         * @param {Function} func Function to execute in the thread.
+         * @param {number} [id] Internal use only.
+         * @param {number} [i] Internal use only. 
+         * @param {boolean} [skipDelay=false] Executes the function straight away.
+         * @param {*} [threaduid] Unique id for the thread. A thread will not execute if another thread has the same id. 
+         * @returns {void}
+         */
         this.CreateThread = function (func, id, i, skipDelay, threaduid) {
 
             if (skipDelay)
@@ -338,6 +610,12 @@ DefineModule("CodeEngine",
 
         };
 
+        /**
+         * Clear the current thread.
+         * @memberof module:CodeEngine
+         * @protected
+         * @returns {void}
+         */
         this.ClearThread = function () {
             if (m_currentThread != 0) {
                 if (m_priority.length > 0)
@@ -347,6 +625,12 @@ DefineModule("CodeEngine",
             }
         };
 
+        /**
+         * Start the code engine.
+         * @memberof module:CodeEngine
+         * @protected
+         * @returns {void}
+         */
         this.Start = function () {
             if (m_queue.length <= 0) {
                 _self.ClearThread();
@@ -354,18 +638,35 @@ DefineModule("CodeEngine",
             }
         };
 
+        /**
+         * Stop the code engine.
+         * @memberof module:CodeEngine
+         * @protected
+         * @returns {void}
+         */
         this.Stop = function () {
             m_running = false;
             _self.Start();
         };
 
+        /**
+         * Restart the code engine.
+         * @memberof module:CodeEngine
+         * @protected
+         * @returns {void}
+         */
         this.Restart = function () {
             m_queue = [];
             _self.StopAllThreads();
             //_self.Start();
         };
 
+        /**
+         * @deprecated Since v5.4.0 
+         * @memberof module:CodeEngine
+         */
         this.Locked = function () {
+            Application.LogWarn('CodeEngine.Locked has been deprecated since v5.4.0');
             return m_queue.length != 0;
         };
 

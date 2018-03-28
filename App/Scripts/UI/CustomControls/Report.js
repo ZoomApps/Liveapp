@@ -321,7 +321,8 @@ Define("Report",
             }
 
             //Totals.
-            var totals = [];
+			var totals = [];
+			var gtotals = Application.CreateArray(m_form.Fields.length,-1);
             var hasTotals = false;
 
             //Get rows.           
@@ -331,8 +332,8 @@ Define("Report",
 
                 for (var k = 0; k < groups.length; k++) {
                     if (lastgroup[k] != data_[i][groups[k]]) {                        
-                        if (hasTotals)
-                            rows += PrintTotals(totals);                        
+                        if (hasTotals)							
+							rows += PrintTotals(totals);                        
                         lastgroup[k] = data_[i][groups[k]];
                         var f = _base.Viewer().Table().Column(groups[k]);
                         if (f) {
@@ -353,7 +354,7 @@ Define("Report",
                 for (var j = 0; j < m_form.Fields.length; j++) {
 
                     if (totals.length != m_form.Fields.length)
-                        totals.push(-1);
+						totals.push(-1);										
 
                     var align = "left";
                     var f = m_form.Fields[j];                    
@@ -376,19 +377,29 @@ Define("Report",
                     var tt = Application.OptionValue(f.Options,"totalstype");
                     if (tt) {
                         var reset = false;
-                        var val2 = Default(data_[i]["FF$" + f.Name], data_[i][f.Name]);
+						var val2 = Default(data_[i]["FF$" + f.Name], data_[i][f.Name]);
+						if (gtotals[j] == -1) {
+							gtotals[j] = 0;
+						}
                         if (totals[j] == -1) {
                             totals[j] = 0;
                             reset = true;
                         }
                         hasTotals = true;
                         if (tt == "Count") {
-                            totals[j] += 1;
+							totals[j] += 1;
+							gtotals[j] += 1;
                         }
                         if (tt == "Sum") {
-                            totals[j] += val2;
+							totals[j] += val2;
+							gtotals[j] += val2;
                         }
                         if (tt == "Avg") {
+							if(gtotals[j] == 0){
+								gtotals[j] = [];
+								gtotals[j][0] = 0;
+								gtotals[j][1] = 0;
+							}
                             if (reset) {
                                 totals[j] = [];
                                 totals[j][0] = 0;
@@ -396,16 +407,22 @@ Define("Report",
                             }
                             if (val2 != 0) {
                                 totals[j][0] += val2;
-                                totals[j][1] += 1;
+								totals[j][1] += 1;
+								gtotals[j][0] += val2;
+                                gtotals[j][1] += 1;
                             }
                         }
                         if (tt == "Min") {
                             if (val2 < totals[j] || reset)
-                                totals[j] = val2;
+								totals[j] = val2;
+							if (val2 < gtotals[j] || gtotals[j] == 0)
+                                gtotals[j] = val2;
                         }
                         if (tt == "Max") {
                             if (val2 > totals[j] || reset)
-                                totals[j] = val2;
+								totals[j] = val2;
+							if (val2 > gtotals[j])
+                                gtotals[j] = val2;
                         }
                     } 
                 }                
@@ -413,7 +430,10 @@ Define("Report",
             }
 
             if (hasTotals)
-                rows += PrintTotals(totals);
+				rows += PrintTotals(totals);
+				
+			if (hasTotals && groups.length > 0)
+                rows += PrintTotals(gtotals);
 
             html = html.replace(/%columns/g, cols);
             html = html.replace(/%rows/g, rows);            
@@ -629,7 +649,8 @@ Define("Report",
             }
 
             //Totals.
-            var totals = [];
+			var totals = [];
+			var gtotals = Application.CreateArray(m_form.Fields.length,-1);            
             var hasTotals = false;
 			
 			var hdrrow = [];
@@ -670,19 +691,29 @@ Define("Report",
 					var tt = Application.OptionValue(f.Options,"totalstype");
                     if (tt) {
                         var reset = false;
-                        var val2 = Default(data_[i]["FF$" + f.Name], data_[i][f.Name]);
+						var val2 = Default(data_[i]["FF$" + f.Name], data_[i][f.Name]);
+						if (gtotals[j] == -1) {
+							gtotals[j] = 0;
+						}
                         if (totals[j] == -1) {
                             totals[j] = 0;
                             reset = true;
                         }
                         hasTotals = true;
                         if (tt == "Count") {
-                            totals[j] += 1;
+							totals[j] += 1;
+							gtotals[j] += 1;
                         }
                         if (tt == "Sum") {
-                            totals[j] += val2;
+							totals[j] += val2;
+							gtotals[j] += val2;
                         }
                         if (tt == "Avg") {
+							if(gtotals[j] == 0){
+								gtotals[j] = [];
+								gtotals[j][0] = 0;
+								gtotals[j][1] = 0;
+							}
                             if (reset) {
                                 totals[j] = [];
                                 totals[j][0] = 0;
@@ -690,16 +721,22 @@ Define("Report",
                             }
                             if (val2 != 0) {
                                 totals[j][0] += val2;
-                                totals[j][1] += 1;
+								totals[j][1] += 1;
+								gtotals[j][0] += val2;
+                                gtotals[j][1] += 1;
                             }
                         }
                         if (tt == "Min") {
                             if (val2 < totals[j] || reset)
-                                totals[j] = val2;
+								totals[j] = val2;
+							if (val2 < gtotals[j] || gtotals[j] == 0)
+                                gtotals[j] = val2;
                         }
                         if (tt == "Max") {
                             if (val2 > totals[j] || reset)
-                                totals[j] = val2;
+								totals[j] = val2;
+							if (val2 > gtotals[j])
+                                gtotals[j] = val2;
                         }
                     } 
 					
@@ -711,6 +748,9 @@ Define("Report",
 			 if (hasTotals)
                 csvFile += ProcessCSVRow(PrintCSVTotals(totals));
 			
+			if (hasTotals && groups.length > 0)
+				csvFile += ProcessCSVRow(PrintCSVTotals(gtotals));
+				
 			return csvFile;			
 		};
 		

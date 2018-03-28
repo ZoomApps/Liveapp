@@ -4086,6 +4086,8 @@ body {
 	background-color: rgba(0,0,0,.2);
 	z-index: 30000;
 	position: fixed;
+	padding-top: calc(40vh - 100px);
+	padding-left: calc(50vw - 100px);
 }
 .container-overlay{
 	width: 100%;

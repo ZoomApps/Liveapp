@@ -47,15 +47,15 @@ DefineModule("LoadingManager",
                 m_controls.push(cont);
 
                 var o;
-                if (Application.UnsupportedIE() || Application.IsInMobile()) {
+                if (Application.UnsupportedIE()) {
                     o = $('<div id="' + cont + 'Overlay" class="ui-widget-overlay app-overlay" style="opacity: .8"></div>');
                 } else {
-                    o = $('<div id="' + cont + 'Overlay" class="ui-widget-overlay app-overlay" style="opacity: .8"><input id="' + cont + 'OverlayProgress" type="text" data-thickness=".4" data-displayPrevious="true" data-linecap="round" readonly="true" data-min="0" data-max="100" style="position: absolute; opacity: .8" value="0"></div>');
+                    o = $('<div id="' + cont + 'Overlay" class="ui-widget-overlay app-overlay" style="opacity: .8;"><input id="' + cont + 'OverlayProgress" type="text" data-thickness=".1" data-displayPrevious="true" data-linecap="round" readonly="true" data-min="0" data-max="100" style="position: absolute; opacity: .8" value="0"></div>');
                 }
                 c.append(o);
             }
 
-            if (!Application.UnsupportedIE() && !Application.IsInMobile())
+            if (!Application.UnsupportedIE())
                 $("#" + cont + 'OverlayProgress').knob().hide();
 
             var overlay = $("#" + cont + 'Overlay');
@@ -65,7 +65,7 @@ DefineModule("LoadingManager",
 
         this.Progress = function (cont, value, type) {
 
-            if (Application.IsInMobile() || Application.UnsupportedIE())
+            if (Application.UnsupportedIE())
                 return;
 
 			type = Default(type,"#");
@@ -101,8 +101,7 @@ DefineModule("LoadingManager",
             }
         };
 
-        this.Hide = function (cont) {
-
+        this.Hide = function (cont) {            
             $("#" + cont + 'OverlayProgress').hide();
             $("#" + cont + 'Overlay').hide();
         };

@@ -74,7 +74,7 @@ Define("Window", null, function () {
                     "<div class='title-bar-text unselectable'><span id='title" + m_id + "' class='title unselectable'></span></div>" +
                     "<div id='" + m_id + "toolbar2' style='display: none;'>" +
 	                "</div>" +
-                    "<div id='" + m_id + "main' class='window-main' style='padding-bottom: 600px;'></div></div>");
+                    "<div id='" + m_id + "main' class='window-main'></div></div>");
 
                 if(m_options.shortcutWorkspace){
 
@@ -87,13 +87,9 @@ Define("Window", null, function () {
                     '<div id="'+id+'title" class="navbar-brand" style="'+(m_options.homepage ? "text-align: center; width: calc(100vw - 100px);" : "")+''+(Application.IsMobileDisplay() ? "font-size: 14px;" : "")+'"> </div> '+
                     (m_options.homepage && !Application.App.SearchHidden() ? '<div id="'+id+'search" class="menu-icon" style="float: right;" data-ripple><i class="mdi mdi-magnify" style="font-size: 30px"></i></div>' : 
                     '<div id="'+id+'ok" class="menu-icon" style="float: right; display:none;" data-ripple><i class="mdi mdi-check" style="font-size: 30px"></i></div> ')+
-                    '</div> </nav> </header> <div id="'+id+'workspace" class="app-main"> </div>'+
+                    '</div> </nav> </header> <div id="'+id+'workspace" class="app-main">'+(!m_options.homepage && m_options.type == "Card" ? '<div id="'+id+'placeholder" style="padding-bottom: 600px;"></div>' : '')+' </div>'+
                     '<div id="' + m_id + 'actions" class="actions-bar-bottom hidden"></div></div>');
-                    
-                    var o = $('<div id="'+id+'overlay" class="ui-widget-overlay app-overlay container-overlay"><svg class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg"><circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle></svg></div>');
-                    $("#AppWorkspace").append(o);		
-                    o.show();
-                    
+                                    
                     if(m_options.homepage){                        
                         $('#'+id+'search').ripple().on('click', function(){
                             if(!m_searchShown){
@@ -166,16 +162,17 @@ Define("Window", null, function () {
                     m_options.workspace = $("#"+Application.App.currentContainer+"workspace");
                 }
                 
-                m_options.workspace.append(m_window);	
+                if(m_options.homepage || m_options.type !== "Card"){
+                    m_options.workspace.append(m_window);	
+                }else{
+                    m_window.insertBefore("#"+Application.App.currentContainer+"placeholder");
+                }
+
                 _self.SetTitle(m_title);
 
             } else {
-
-                var w = UI.MagicWidth()+4;
-				var h = UI.MagicHeight()-50;
-				
-                var win = "<div id='" + m_id + "' class='app-dialog' style='" +
-					"max-width: "+w+"px;  min-width: "+w+"px; height: " + h + "px; max-height: " + h + "px'>" +
+                
+                var win = "<div id='" + m_id + "' class='app-dialog' style='width: 100vw; height: calc(100vh - 50px);'>" +
                     "<div id='" + m_id + "main' style='padding: 10px; padding-bottom: 600px;'></div>" +
                     "</div>";
 
@@ -390,7 +387,8 @@ Define("Window", null, function () {
         }
     };
 
-    this.Progress = function () {
+    this.Progress = function (value_) {
+        return Application.Loading.Progress(m_id+'container', value_);        
     };
 
     this.PreLoad = function () {
@@ -431,12 +429,12 @@ Define("Window", null, function () {
         m_singleColumn = val;
     };
 
-    this.ShowLoad = function () {        
-        $("#"+m_id+"containeroverlay").show();
+    this.ShowLoad = function () {
+        Application.Loading.Show(m_id+'container');
     };
 
-    this.HideLoad = function () {        
-        $("#"+m_id+"containeroverlay").hide();
+    this.HideLoad = function () {
+        Application.Loading.Hide(m_id+'container');                
     };
 
     this.ShowOverlay = function () {

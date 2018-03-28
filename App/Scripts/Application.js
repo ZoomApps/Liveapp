@@ -3,16 +3,26 @@
  * Application module. Contains various utility methods.
  * @module Application
  * @description
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
  * **CONTENTS**
+ * - [Description](#description)
  * - [Logging](#logging)
  * - [Events](#events)
  * 
- * The Application module is loaded by default when an application is started. The module 
- * contains several essential utilty functions and properties.
+ * <hr style='border-color: rgb(200, 201, 204)' />
  * 
- * **NOTE: Methods that return a `JQueryPromise` should be returned into a `$codeblock`**
+ * ## Description
  * 
- * ### Logging
+ * The Application module is loaded by default when an application is started. 
+ * 
+ * This module contains several essential utilty functions and properties.
+ * 
+ * <div style='background: #f9f2f4; padding: 5px'>**NOTE: Methods that return a `JQueryPromise` should be returned into a `$codeblock`**</div>
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Logging
  * 
  * Several functions exist for writing messages and events to the debugger console.
  * 
@@ -22,13 +32,15 @@
  * {@link module:Application.Application.LogDebug Application.LogDebug}, 
  * {@link module:Application.Application.LogError Application.LogError}
  * 
- * **NOTE: `Application.LogDebug` will only write messages if `Application.debugMode` is set to true:**
+ * <div style='background: #f9f2f4; padding: 5px'>**NOTE: `Application.LogDebug` will only write messages if `Application.debugMode` is set to true:**</div>
  * 
  * ```
  * Application.debugMode = true;
  * ```
  * 
- * ### Events
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Events
  * 
  * Application events can be defined and fired with the following functions:
  * 
@@ -96,7 +108,7 @@ Application.name = "%APPNAME%";
  * @memberof module:Application
  * @type {string}
  * @example
- * '5.3.0'
+ * '5.4.0'
  */
 Application.version = "%VERSION%";
 
@@ -3156,6 +3168,9 @@ Application.dateCache = {};
  */
 Application.ConvertDate = function(str,skipTZ) {
     
+    if(str.indexOf && str.indexOf('T') === -1)
+        return str;
+        
 	if(Application.dateCache[str])
         return new Date(Application.dateCache[str]);
 	

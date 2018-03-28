@@ -1,6 +1,6 @@
 {
 	"short_name": "%PARAM:INSTANCE%",
-	"name": "%PARAM:INSTANCE% - Zoom App",
+	"name": "%PARAM:INSTANCE%",
 	"icons": [
 	  {
 		"src":"%SERVERADDRESS%Images/LogoSquare.png",

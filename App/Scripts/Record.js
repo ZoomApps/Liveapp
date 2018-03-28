@@ -1,5 +1,99 @@
-﻿
-
+/**
+ * @description
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * **CONTENTS**
+ * - [Description](#description)
+ * - [Instantiating a Record object](#instantiating-a-record-object)
+ * - [Accessing column values](#accessing-column-values)
+ * - [Data Type Mappings](#data-type-mappings)
+ * - [Constructor](#constructor)
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Description
+ * 
+ * Record Class. Represents one or more records from a table.
+ * 
+ * Contains functions to query and manipulate database records.
+ * 
+ * <div style='background: #f9f2f4; padding: 5px'>**NOTE: Methods that return a `JQueryPromise` should be returned into a {@link $codeblock}**</div>
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Instantiating a Record object
+ * 
+ * If a record with table definition is required, a {@link $codeblock} must be used. Eg:
+ * ```javascript
+ * return $codeblock(
+ *  function(){
+ *      return new Record('Test Table');
+ *  },
+ *  function(r){
+ *      // r is a record object with table definition.
+ *  }
+ * );
+ * ```
+ * 
+ * If table definition is not needed, the constructor must be called with zero arguments. A `$codeblock` is not required for this method. Eg:
+ * 
+ * ```javascript
+ * var r = new Record();
+ * ```
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Accessing column values
+ * 
+ * If the table definition is loaded, each column in the table will be added to the object as a property. Eg:
+ * 
+ * If Test Table has 2 columns (ID (int) and Name (text)), the following properties are available:
+ * ```javascript
+ * return $codeblock(
+ *  function(){
+ *      return new Record('Test Table');
+ *  },
+ *  function(r){
+ *      // r.ID is a number property representing the ID column
+ *      // r.Name is a string property representing the Name column
+ *  }
+ * );
+ * ```
+ * 
+ * **NOTE: If the column name contains spaces, the property will also conatin spaces. Eg. [Start Date] column can be accessed as a property via `r['Start Date']`**
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Data Type Mappings
+ * 
+ * Here is a list of data type mappings.
+ * 
+ * Column Type | Javascript Type
+ * ---------- | --------- |
+ * BigBlob | string (base64) |
+ * BigText | string |
+ * Blob | string (base64) |
+ * Boolean | boolean |
+ * Char | string |
+ * Code | string |
+ * Date | date |
+ * Decimal | number |
+ * Integer| number |
+ * Option | string |
+ * Text | string |
+ * Time | date |
+ * Image | string (base64) |
+ * DateTime | date |
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Constructor
+ * 
+ * Params:
+ * @class Record
+ * @global
+ * @param {string} [name_] Name of the table. If `null`, the table definition will not be loaded.
+ * @returns {Record|JQueryPromise(Record)} Returns a new `Record` object or a promise to return a new `Record` object.
+ */
 Define("Record", null, function (name_) {
 
     //#region Members
@@ -30,19 +124,97 @@ Define("Record", null, function (name_) {
                     m_table = t;
                     return _self.Init();
                 }                
-            );
+            );        
+
+        /**
+         * Number of records in the record set.         
+         * @memberof! Record#
+         * @type {number}
+         * @default 0
+         */
+        this.Count = 0;
+
+        /**
+         * The current position in the record set.         
+         * @memberof! Record#
+         * @type {number}
+         * @default 0
+         */
+        this.Position = 0;
+
+        /**
+         * If `true`, the current record is empty.        
+         * @memberof! Record#
+         * @type {boolean}
+         * @default true
+         */
+        this.Blank = true;
+
+        /**
+         * If `true`, the current record set is temporary.        
+         * @memberof! Record#
+         * @type {boolean}
+         * @default false
+         */
+        this.Temp = false;
+
+        /**
+         * Database table name.
+         * @memberof! Record#
+         * @type {string}
+         */
+        this.Table = null;
+
+        /**
+         * Table view.
+         * @memberof! Record#
+         * @type {string}
+         */
+        this.View = null;
+
+        /**
+         * Primary keys for the table.
+         * @memberof! Record#
+         * @type {string[]}
+         */
+        this.Keys = [];
+
+        /**
+         * Current record.        
+         * @memberof! Record#
+         * @type {RecordInfo}         
+         */
+        this.Record = null;
+
+        /**
+         * Current xrecord (record before any changes were made).        
+         * @memberof! Record#
+         * @type {RecordInfo}         
+         */
+        this.xRecord = null;
 
         var r = Application.Objects.RecordSetInfo();
         app_transferObjectProperties.call(this, r);
+
         return this;
     };
 
+    /**
+     * Disposes the record object.
+     * @memberof! Record#
+     * @returns {void}
+     */
 	this.Dispose = function(){		
 		if(m_table) m_table.Dispose();
 		m_table = null;
 		_self = null;		
 	};
-	
+    
+    /**
+     * Checks that the table name property has been set. An error will occur if a table name is not set.
+     * @memberof! Record#
+     * @returns {void}
+     */
     this.CheckTableName = function () {
         if (m_name == null)
             m_name = this.Table;
@@ -50,6 +222,11 @@ Define("Record", null, function (name_) {
             Application.Error("Please specify a table name");
     };
 
+    /**
+     * Retrieve the table definition for the record object. This is called automatically when the object is instantiated.
+     * @memberof! Record#
+     * @returns {JQueryPromise(Record)} Promises to return after the definition has been fetched. Returns the `Record` object.
+     */
     this.Init = function () {
 
         var w = $wait();
@@ -111,6 +288,23 @@ Define("Record", null, function (name_) {
 
     };
 
+    /**
+     * Create a blank record and add it to the end of the set.
+     * @memberof! Record#
+     * @returns {JQueryPromise(Record)} Promises to return after the record is created. Returns the `Record` object.
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      return r.New();
+     *  },
+     *  function(r){
+     *      // r will be a new blank record for Test Table
+     *  }
+     * );
+     */
     this.New = function () {
 
         var w = $wait();
@@ -192,6 +386,28 @@ Define("Record", null, function (name_) {
         return w.promise();
     };
 
+    /**
+     * Remove all filters and refetch the record set data.
+     * @memberof! Record#
+     * @returns {JQueryPromise(Record)} Promises to return after the new record set data has been fetched. Returns the `Record` object.
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      r.Filter('ID','1');
+     *      return r.FindFirst();
+     *  },
+     *  function(r){
+     *      // r.Count = 1
+     *      return r.Reset();
+     *  },
+     *  function(r){
+     *      // r.Count > 1 (contains all records from Test Table)      
+     *  }
+     * );
+     */
     this.Reset = function () {
 
         var w = $wait();
@@ -215,6 +431,24 @@ Define("Record", null, function (name_) {
         return w.promise();
     };
 
+    /**
+     * Get a record by it's primary key/s.
+     * @memberof! Record#
+     * @param {...string} keys Primary key values.
+     * @returns {JQueryPromise(Record)} Promises to return after the record has been fetched. Returns the `Record` object.
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      return r.Get('1');
+     *  },
+     *  function(r){
+     *      // r will contain a Test Table record with ID = 1     
+     *  }
+     * );
+     */
     this.Get = function () {
 
         var w = $wait();
@@ -274,6 +508,26 @@ Define("Record", null, function (name_) {
         return w.promise();
     };
 
+    /**
+     * Fetch a set of records.
+     * @memberof! Record#
+     * @param {boolean} first_ If `true`, the position will be set to the first record otherwise, the last.
+     * @param {boolean} [reset_=false] If `true`, all filters will be removed.
+     * @returns {JQueryPromise(Record)} Promises to return after the records have been fetched. Returns the `Record` object.
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      return r.FindSet(true);
+     *  },
+     *  function(r){
+     *      // r will contain all Test Table records and the current record
+     *      // position will be set to the first record.
+     *  }
+     * );     
+     */
     this.FindSet = function (first_, reset_) {
 
         if (reset_ == null) reset_ = false;
@@ -346,6 +600,24 @@ Define("Record", null, function (name_) {
         return w.promise();
     };
 
+    /**
+     * Count the number of records in a table.
+     * @memberof! Record#     
+     * @param {boolean} [reset_=false] If `true`, all filters will be removed.
+     * @returns {JQueryPromise(Record)} Promises to return after the record count has been fetched. Returns the `Record` object.
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){     
+     *      return r.CountRecords();
+     *  },
+     *  function(r){
+     *      // r.Count = The record count for Test Table
+     *  }
+     * );     
+     */
     this.CountRecords = function (reset_) {
 
         if (reset_ == null) reset_ = false;
@@ -392,14 +664,61 @@ Define("Record", null, function (name_) {
         return w.promise();
     };
 
+    /**
+     * Fetch a set of records and set the position to the first record.
+     * @memberof! Record#     
+     * @returns {JQueryPromise(Record)} Promises to return after the records have been fetched. Returns the `Record` object.
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      return r.FindFirst();
+     *  },
+     *  function(r){
+     *      // r will contain all Test Table records and the current record
+     *      // position will be set to the first record.
+     *  }
+     * );     
+     */
     this.FindFirst = function () {
         return this.FindSet(true);
     };
 
+    /**
+     * Fetch a set of records and set the position to the last record.
+     * @memberof! Record#     
+     * @returns {JQueryPromise(Record)} Promises to return after the records have been fetched. Returns the `Record` object.
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      return r.FindLast();
+     *  },
+     *  function(r){
+     *      // r will contain all Test Table records and the current record
+     *      // position will be set to the last record.
+     *  }
+     * );     
+     */
     this.FindLast = function () {
         return this.FindSet(false);
     };
 
+    /**
+     * Perform a database operation.
+     * @memberof! Record#
+     * @protected
+     * @param {*} obj_ `Record` object to perform the operation on.
+     * @param {string} func_ Operation to perform (RecordInsert,RecordModify,RecordDelete,RecordModifyAll,RecordDeleteAll).
+     * @param {string} [col_] Column name to modify (RecordModifyAll only). 
+     * @param {*} [value_] Value to modify (RecordModifyAll only).
+     * @param {boolean} [ignoreExisting_=false] Ignore Primary Key or Unique Key errors (RecordInsert only).
+     * @returns {JQueryPromise(Record)} Promises to return after the database operation completes. Returns the `Record` object.          
+     */
     this.Modification = function (obj_, func_, col_, value_, ignoreExisting_) {
 
         var w = $wait();
@@ -424,7 +743,11 @@ Define("Record", null, function (name_) {
 					o.Record.Fields[i].Value = null;
 					o.xRecord.Fields[i].Value = null;
 					o[col.Name] = null;
-				}		
+                }
+                if (func_ == "RecordDelete" && col && col.PrimaryKey == false){
+					o.Record.Fields[i].Value = null;
+					o.xRecord.Fields[i].Value = null;
+				}			
 				if(hasView && col && col.PrimaryKey == false && (col.Type == "Image" || col.Type == "Blob" || col.Type == "BigBlob") && !Application.IsOffline()){
 					if(o.Record.Fields[i].Value == o.xRecord.Fields[i].Value){					
 						o[col.Name] = null;
@@ -433,11 +756,7 @@ Define("Record", null, function (name_) {
 						o.xRecord.Fields.splice(i,1);
 						i -= 1;
 					}						
-				}
-				if (func_ == "RecordDelete" && col && col.PrimaryKey == false){
-					o.Record.Fields[i].Value = null;
-					o.xRecord.Fields[i].Value = null;
-				}					
+				}								
 			}
 			o.Functions = [];			
 		}
@@ -512,6 +831,29 @@ Define("Record", null, function (name_) {
         return w.promise();
     };
 
+    /**
+     * Insert the current record into the database. 
+     * 
+     * **NOTE: If the Primary Key fields are not specified, nothing will happen.**
+     * @memberof! Record#     
+     * @param {boolean} [trigger_=false] If `true`, run the Insert trigger of the table.
+     * @param {boolean} [ignoreExisting_=false] Ignore Primary Key or Unique Key errors.
+     * @param {PageViewer} [viewer] `PageViewer` to pass to the Insert trigger.
+     * @returns {JQueryPromise(Record)} Promises to return after the record is inserted. Returns the `Record` object.  
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      return r.New(); // Create a new blank record.
+     *  },
+     *  function(r){
+     *      r.Name = 'Test Insert';
+     *      return r.Insert(true); // Insert the record and run the insert trigger.
+     *  }
+     * );        
+     */
     this.Insert = function (trigger_, ignoreExisting_, viewer) {
 
 		if(_self.TempRecord() && m_table && Application.IsOffline() && _self.Record.RecID){
@@ -561,6 +903,27 @@ Define("Record", null, function (name_) {
         );
     };
 
+    /**
+     * Modify the current record in the database.
+     * @memberof! Record#     
+     * @param {boolean} [trigger_=false] If `true`, run the Modify trigger of the table.
+     * @param {PageViewer} [viewer] `PageViewer` to pass to the Modify trigger.
+     * @returns {JQueryPromise(Record)} Promises to return after the record is modified. Returns the `Record` object.  
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      r.Filter('ID','1');
+     *      return r.FindFirst(); // Get the record where ID = 1
+     *  },
+     *  function(r){
+     *      r.Name = 'Test Modify';
+     *      return r.Modify(true); // Modify the record and run the modify trigger.
+     *  }
+     * );        
+     */
     this.Modify = function (trigger_, viewer) {
 
         //Save the current record properties.
@@ -583,6 +946,25 @@ Define("Record", null, function (name_) {
         );
     };
 
+    /**
+     * Modify all records matching the current filters.
+     * 
+     * **NOTE: The table's modify trigger will not be run.**
+     * @memberof! Record#     
+     * @param {string} col_ Column name to modify.
+     * @param {*} value_ Value to modify.
+     * @returns {JQueryPromise(Record)} Promises to return after the records are modified. Returns the `Record` object.  
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      r.Filter('ID','>1');
+     *      return r.ModifyAll('Name','Test Modify All'); // All records with an ID > 1 will have Name = 'Test Modify All'
+     *  }
+     * );        
+     */
     this.ModifyAll = function (col_, value_) {
         return $codeblock(
             function () {
@@ -591,6 +973,26 @@ Define("Record", null, function (name_) {
         );
     };
 
+    /**
+     * Delete the current record from the database.
+     * @memberof! Record#     
+     * @param {boolean} [trigger_=false] If `true`, run the Delete trigger of the table.
+     * @param {PageViewer} [viewer] `PageViewer` to pass to the Delete trigger.
+     * @returns {JQueryPromise(Record)} Promises to return after the record is deleted. Returns the `Record` object.  
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      r.Filter('ID','1');
+     *      return r.FindFirst(); // Get the record where ID = 1
+     *  },
+     *  function(r){     
+     *      return r.Delete(true); // Delete the record and run the delete trigger.
+     *  }
+     * );        
+     */
     this.Delete = function (trigger_, viewer) {
         return $codeblock(
             function () {
@@ -604,6 +1006,23 @@ Define("Record", null, function (name_) {
         );
     };
 
+    /**
+     * Delete all records matching the current filters.
+     * 
+     * **NOTE: The table's delete trigger will not be run.**
+     * @memberof! Record#
+     * @returns {JQueryPromise(Record)} Promises to return after the records are deleted. Returns the `Record` object.  
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      r.Filter('ID','10..20');
+     *      return r.DeleteAll(); // All records with an ID between 10 and 20 will be deleted.
+     *  }
+     * );        
+     */
     this.DeleteAll = function () {
         return $codeblock(
             function () {
@@ -612,6 +1031,16 @@ Define("Record", null, function (name_) {
         );
     };
 
+    /**
+     * Goto the next record in the record set.
+     * @memberof! Record#
+     * @returns {boolean} Returns `false` when there are no more records.
+     * @example
+     * r.First();
+     * do{
+     *   // this will loop through each record in the record set.
+     * }while(r.Next());
+     */
     this.Next = function () {
 
         if (this.Count == 0)
@@ -636,6 +1065,16 @@ Define("Record", null, function (name_) {
         return true;
     };
 
+    /**
+     * Goto the previous record in the record set.
+     * @memberof! Record#
+     * @returns {boolean} Returns `false` when there are no more records.
+     * @example
+     * r.Last();
+     * do{
+     *   // this will loop through each record in the record set (backwards).
+     * }while(r.Prev());
+     */
     this.Prev = function () {
 
         if (this.Count == 0)
@@ -660,6 +1099,14 @@ Define("Record", null, function (name_) {
         return true;
     };
 
+    /**
+     * Goto the first record in the record set.
+     * @memberof! Record#
+     * @returns {boolean} Returns `false` if there are no records.
+     * @example
+     * r.First();
+     * // the current record will be the first in the set.
+     */
     this.First = function () {
 
         if (this.Count == 0)
@@ -672,6 +1119,14 @@ Define("Record", null, function (name_) {
         return true;
     };
 
+    /**
+     * Goto the last record in the record set.
+     * @memberof! Record#
+     * @returns {boolean} Returns `false` if there are no records.
+     * @example
+     * r.Last();
+     * // the current record will be the last in the set.
+     */
     this.Last = function () {
 
         if (this.Count == 0)
@@ -683,7 +1138,16 @@ Define("Record", null, function (name_) {
         this.GetCurrent();
         return true;
     };
-	
+    
+    /**
+     * Goto the record at a certain position in the record set.
+     * @memberof! Record#
+     * @param {number} pos The position to go to (zero based).
+     * @returns {boolean} Returns `false` if there are no records.
+     * @example
+     * r.SetPosition(2);
+     * // the current record will be the third in the set.
+     */
 	this.SetPosition = function (pos) {
 
         if (this.Count == 0)
@@ -696,6 +1160,17 @@ Define("Record", null, function (name_) {
         return true;
     };
 
+    /**
+     * Get a filter value.
+     * @memberof! Record#
+     * @param {string} col_ Column name to check.
+     * @param {boolean} [filterGroup_=false] If `true` check hidden filters for the value.
+     * @returns {string} Returns the filter value if found, otherwise returns a blank string.
+     * @example
+     * r.Filter('ID','>1');
+     * // r.GetFilter('ID') = '>1'
+     * // r.GetFilter('Name') = ''
+     */
     this.GetFilter = function (col_, filterGroup_) {
         if (!filterGroup_) {
 			return Application.GetFilter(col_, _self.View);
@@ -708,6 +1183,17 @@ Define("Record", null, function (name_) {
 		}
     };
 
+    /**
+     * Set/remove a filter value.
+     * @memberof! Record#
+     * @param {string} col_ Column to filter.
+     * @param {string} [filter_] Filter value. If `null`, removes the filter for the column.
+     * @param {boolean} [filterGroup_=false] If `true`, adds the filter as a hidden filter.
+     * @returns {void}
+     * @example
+     * r.Filter('ID','>1'); // Add a filter for where ID > 1.
+     * r.Filter('Name'); // Remove the filter on the Name column.
+     */
     this.Filter = function (col_, filter_, filterGroup_) {
 
         filterGroup_ = Default(filterGroup_, null);
@@ -735,6 +1221,11 @@ Define("Record", null, function (name_) {
         }
     };
 
+    /**
+     * Get the current filters.
+     * @memberof! Record#
+     * @returns {RecordFieldInfo[]} Returns an array of filters.
+     */
     this.Filters = function () {
         var filters = Application.GetFilters(_self.View);
         var ret = new Array();
@@ -747,16 +1238,32 @@ Define("Record", null, function (name_) {
         return ret;
     };
 
+    /**
+     * Determine if the current record was created in offline mode.
+     * @memberof! Record#
+     * @returns {boolean} Returns `true` if the current record was created in offline mode.
+     */
 	this.TempRecord = function(){
 		if(!_self.Record.RecID)
 			return false;
 		return _self.Record.RecID.toString().indexOf(":") == -1;
 	};
-	
+    
+    /**
+     * Get the table name.
+     * @memberof! Record#
+     * @returns {string} Returns the table name.
+     */
 	this.Name = function(){
 		return m_name;
 	};
-	
+    
+    /**
+     * Get the caption for a record field.
+     * @memberof! Record#
+     * @param {string} field_ Field name.
+     * @returns {string} Returns the field caption if found, otherwise returns a blank string.
+     */
     this.Caption = function (field_) {
 
         //Get the Field caption.
@@ -769,6 +1276,16 @@ Define("Record", null, function (name_) {
         return "";
     };
 
+    /**
+     * Copies record field values to the `Record` object properties.
+     * @memberof! Record#
+     * @returns {void}
+     * @see [Accessing column values](#accessing-column-values)
+     * @example
+     * r.GetField('Name').Value = 'Test 123';
+     * r.GetCurrent();
+     * // r.Name = 'Test 123'
+     */
     this.GetCurrent = function () {
 
         //Clear the xRec.
@@ -790,6 +1307,19 @@ Define("Record", null, function (name_) {
         _self.Calcfields();
     };
 
+    /**
+     * Copies the `Record` object properties to record field values.
+     * @memberof! Record#
+     * @param {Record} [rec_] `Record` object to use. If `null` will use the current `Record` object.
+     * @param {boolean} [skipff=false] If `false` flowfields will be blanked out.
+     * @param {boolean} [skipxrec=false] If `false` the xrecord will be processed too.
+     * @returns {void}
+     * @see [Accessing column values](#accessing-column-values)
+     * @example
+     * r.Name = 'Test 123'
+     * r.SaveCurrent();
+     * // r.GetField('Name').Value = 'Test 123';
+     */
     this.SaveCurrent = function (rec_, skipff, skipxrec) {
 
         rec_ = Default(rec_, _self);
@@ -810,6 +1340,11 @@ Define("Record", null, function (name_) {
 			m_xrecords[_self.Position] = CloneRecord(rec_.xRecord);
     };
 
+    /**
+     * Remove the record at the current position from the record set.
+     * @memberof! Record#
+     * @returns {void}
+     */
     this.RemoveRecord = function () {
 
         m_records.splice(this.Position, 1);
@@ -823,6 +1358,11 @@ Define("Record", null, function (name_) {
         this.xRecord = CloneRecord(m_xrecords[this.Position]);
     };
 
+    /**
+     * Clear the `Record` object (removes all records from the record set and blanks all properties).
+     * @memberof! Record#
+     * @returns {void}
+     */
     this.Clear = function () {
 
         this.Blank = true;
@@ -854,6 +1394,13 @@ Define("Record", null, function (name_) {
         this.xRecord = CloneRecord(this.Record);
     };
 
+    /**
+     * Clear the xrecord. 
+     * @memberof! Record#
+     * @param {boolean} [clearkeys=false] If `true`, the primary key fields will be cleared.
+     * @param {string[]} [keys] Array of primary keys. If `null` will use `this.Keys`.
+     * @returns {void}
+     */
     this.ClearXRec = function (clearkeys, keys) {
 
         clearkeys = Default(clearkeys, false);
@@ -880,6 +1427,23 @@ Define("Record", null, function (name_) {
         }
     };
 
+    /**
+     * Validate a value using the column's validate trigger.
+     * @memberof! Record#
+     * @param {string} col Column to validate.
+     * @param {*} value Value to validate.
+     * @param {PageViewer} [viewer] `PageViewer` to pass into the validate trigger.
+     * @returns {JQueryPromise(Record)} Promise to return after validating the value. Returns the `Record` object.
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){
+     *      return r.Validate('Name','Test Validate');
+     *  }
+     * ); 
+     */
     this.Validate = function (col, value, viewer) {
 
         var func_code = null;
@@ -915,6 +1479,14 @@ Define("Record", null, function (name_) {
         );
     };
 
+    /**
+     * Execute a table trigger.
+     * @memberof! Record#
+     * @protected
+     * @param {string} trigger Table trigger name.
+     * @param {PageViewer} [viewer] `PageViewer` to pass into the trigger.
+     * @returns {JQueryPromise(Record)} Promise to return after executing the trigger. Returns the `Record` object.
+     */
     this.Trigger = function (trigger, viewer) {
 
         var func_code = null;
@@ -940,6 +1512,17 @@ Define("Record", null, function (name_) {
         );
     };
 
+    /**
+     * Test a field value. If the test fails, an error will occur.
+     * @memberof! Record#
+     * @param {string} col Coulumn to test.
+     * @param {*} [value] Value to test for. If `null`, the column will be tested for a non `null` value.
+     * @returns {void}
+     * @example
+     * r.Name = 'Test';
+     * r.TestField('Name'); // This will pass as Name has a non null value.
+     * r.TestField('Name','123') // This will error as the value of Name is not '123'.
+     */
     this.TestField = function (col, value) {
 
         if (value == null) {
@@ -964,12 +1547,22 @@ Define("Record", null, function (name_) {
         }
     };
 
+    /**
+     * Update the xrecord with the current record values.
+     * @memberof! Record#
+     * @returns {void}
+     */
     this.UpdateXRec = function () {
         _self.xRecord = CloneRecord(_self.Record);
 		m_xrecords[_self.Position] = CloneRecord(_self.Record);
         _self.GetCurrent();
     };
 
+    /**
+     * Rollback the record values to the xrecord values.
+     * @memberof! Record#
+     * @returns {void}
+     */
     this.RollBack = function () {
         if (_self.Record.UnAssigned || _self.Record.NewRecord)
             return;
@@ -978,6 +1571,26 @@ Define("Record", null, function (name_) {
         _self.GetCurrent();
     };
 
+    /**
+     * Copy a record into the `Record` object.
+     * @memberof! Record#
+     * @param {Record} r `Record` to copy into this `Record` object.
+     * @returns {void}
+     * @example
+     * return $codeblock(
+     *  function(){
+     *      return new Record('Test Table');
+     *  },
+     *  function(r){     
+     *      return r.FindFirst();
+     *  },
+     *  function(r){
+     *      var r2 = new Record();
+     *      r2.Copy(r);
+     *      // r2 will contain the current record from r      
+     *  }
+     * );
+     */
     this.Copy = function (r) {
 
 		var t = new Object();
@@ -1012,17 +1625,44 @@ Define("Record", null, function (name_) {
         }
         this.GetCurrent();
     };
-	
+    
+    /**
+     * Get this records `Table` object.
+     * @memberof! Record#
+     * @returns {Table} Returns this records `Table` object.
+     */
 	this.DatabaseTable = function(){
 		return m_table;
 	};
 
+    /**
+     * Add a new field to the record.
+     * @memberof! Record#
+     * @param {string} name_ Name of the field.
+     * @param {string} caption_ Field caption.
+     * @param {string} type_ Column type.
+     * @param {*} value_ Value of the field.
+     * @returns {void}
+     */
     this.AddValue = function (name_, caption_, type_, value_) {
         this.Record.Fields.push({ Name: name_, Caption: caption_, Value: value_, Type: type_ });
         this.UpdateXRec();
         this.GetCurrent();
     };
 
+    /**
+     * Transfer field values from another record.
+     * @memberof! Record#
+     * @param {Record} rec_ `Record` to copy field values from.
+     * @param {string} [exclude_] Comma seperated list of columns to exclude from the transfer.
+     * @param {function(string,*)} [callback_] Callback function that is executed for each field transferred. The field name and new value is passed in.
+     * @returns {void}
+     * @example
+     * // Transfer all fields except ID and log the changes.
+     * r2.TransferFields(r,'ID',function(field,value){
+     *  Application.LogInfo('Field '+field+' value has changed: '+value.toString());
+     * });
+     */
     this.TransferFields = function (rec_, exclude_, callback_) {
 
         exclude_ = Default(exclude_, "");
@@ -1042,6 +1682,16 @@ Define("Record", null, function (name_) {
         this.GetCurrent();
     };
 
+    /**
+     * Get a record field.
+     * @memberof! Record#
+     * @param {string} name_ Field name.
+     * @returns {RecordFieldInfo} Returns the record field if found, otherwise returns `null`.
+     * @example
+     * var f = r.GetField('Name');
+     * // f.Name = 'Name'
+     * // f.Type = 'Text'
+     */
     this.GetField = function (name_) {
 
         for (var i = 0; i < this.Record.Fields.length; i++) {
@@ -1051,6 +1701,11 @@ Define("Record", null, function (name_) {
         return null;
     };
 
+    /**
+     * Calculate client-side flowfield values.
+     * @memberof! Record#
+     * @returns {void}
+     */
     this.Calcfields = function () {
 
         if (!m_table)
@@ -1110,6 +1765,11 @@ Define("Record", null, function (name_) {
         }
     };
 
+    /**
+     * Determine if Primary Keys and Mandatory fields have values.
+     * @memberof! Record#
+     * @returns {boolean} Returns `true` if one or more primary keys or mandatory fields have no value.
+     */
     this.NoKeys = function () {
 
         if (_self.Keys == null && m_mandatory.length == 0)
@@ -1136,6 +1796,11 @@ Define("Record", null, function (name_) {
         return false;
     };
 
+    /**
+     * Determine if there are unsaved changes in the record set.
+     * @memberof! Record#
+     * @returns {boolean} Returns `true` if there are unsaved changes in the record set.
+     */
     this.UnsavedChanges = function () {
 		if(_self.NoKeys())
 			return true;
@@ -1146,26 +1811,72 @@ Define("Record", null, function (name_) {
         return false;
     };
 
+    /**
+     * Add a mandatory field to the `Record` object.
+     * @memberof! Record#
+     * @param {string} col_ Column to add as a mandatory field.
+     * @returns {void}
+     * @example
+     * r.AddMandatoryField('Name');
+     * // The Name field is now mandatory.
+     */
     this.AddMandatoryField = function (col_) {
         m_mandatory.push(col_);
     };
 
+    /**
+     * Get a list of mandatory fields.
+     * @memberof! Record#
+     * @returns {string[]} Returns an array of mandatory field names.
+     */
     this.MandatoryFields = function () {
         return m_mandatory;
     };
 
+    /**
+     * Add a field to the list of lookup fields.
+     * 
+     * **NOTE: If one or more lookup fields exist, they will be the only fields fetched from the database.**
+     * @memberof! Record#
+     * @param {string} col_ Column to add as a lookup field.
+     * @returns {void}
+     * @example
+     * r.AddLookupField('Name');
+     * return r.FindFirst(); // Only the Name column will be fetched from the database.
+     */
     this.AddLookupField = function (col_) {
         m_lookupCols.push(col_.replace("FF$", ""));
     };
 
+    /**
+     * Add run-time flow fields to be calculated when CalcClientSideFields is run.
+     * @memberof! Record#
+     * @param {string} field_ Field name to add.
+     * @returns {void}
+     */
     this.AddFlowField = function (field_) {
         m_flowfields.push(field_);
     };
 
+    /**
+     * Add a calculated field. Table columns with the property 'Calculated' will only be fetched if added to the `Record` object calculated field list.
+     * @memberof! Record#
+     * @param {strinig} col_ Calculated column to add.
+     * @returns {void}
+     */
     this.CalculateField = function (col_) {
         _self.CalculatedFields.push(col_);
     };
 
+    /**
+     * Checks the record set for a certain record by recid.
+     * @memberof! Record#
+     * @param {string} recid Recid to check.
+     * @returns {boolean} Returns `true` if the record was found in the record set.
+     * @example
+     * var exists = r.Exists('Test Table: 1');
+     * // exists = true if a record exists where ID = 1.
+     */
     this.Exists = function (recid) {
         for (var i = 0; i < m_records.length; i++) {
             if (m_records[i].RecID == recid)
@@ -1174,6 +1885,12 @@ Define("Record", null, function (name_) {
         return false;
     };
 
+    /**
+     * Add all records from one record set into this record set. If a certain record is already in the record set, it will be skipped.
+     * @memberof! Record#
+     * @param {Record} rec Record set to copy from.
+     * @returns {void}
+     */
     this.AddRecords = function (rec) {
         do {
             if (!_self.Exists(rec.Record.RecID)) {
@@ -1185,6 +1902,11 @@ Define("Record", null, function (name_) {
     };
 
     //Liveapp #75 - Offline flowfield
+    /**
+     * Calculate client-side flow fields that contain a FINDSET or COUNT function.
+     * @memberof! Record#
+     * @returns {JQueryPromise(Record)} Promises to return after calculating the client-side flow fields. Returns the `Record` object.
+     */
     this.CalcClientSideFields = function () {
 
         if (!m_table || _self.Count == 0)
@@ -1254,11 +1976,15 @@ Define("Record", null, function (name_) {
     function DeFriendifyValues(rec) {
 
         for (var i = 0; i < rec.Record.Fields.length; i++) {
-            if (typeof rec.Record.Fields[i].Value == "string") {
-
-                //Fix dates.
+            
+            //Fix dates.
+            if (typeof rec.Record.Fields[i].Value == "string") {                
                 if (rec.Record.Fields[i].Type == "Date" || rec.Record.Fields[i].Type == "Time" || rec.Record.Fields[i].Type == "DateTime") {
-                    rec.Record.Fields[i].Value = Application.ConvertDate(rec.Record.Fields[i].Value);
+                    rec.Record.Fields[i].Value = Application.ConvertDate(rec.Record.Fields[i].Value);                
+                }     
+            }
+            if (typeof rec.xRecord.Fields[i].Value == "string") {                          
+                if (rec.xRecord.Fields[i].Type == "Date" || rec.xRecord.Fields[i].Type == "Time" || rec.xRecord.Fields[i].Type == "DateTime") {                    
                     rec.xRecord.Fields[i].Value = Application.ConvertDate(rec.xRecord.Fields[i].Value);
                 }
             }
