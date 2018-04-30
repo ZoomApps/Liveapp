@@ -144,7 +144,24 @@ Define("Control",
                 return;
             }
 
-            m_control.val($.fn.fmatter(m_field.Mask, value));
+            if(m_field.Mask){
+                var opts = null;
+                var mask = m_field.Mask;
+                if(mask.indexOf(":") !== -1){
+                    opts = {
+                        colModel: {
+                            formatoptions: {
+                               decimalPlaces: parseInt(mask.split(':')[1])
+                            }
+                        }
+                    }
+                    mask = mask.split(':')[0];
+                }
+                m_control.val($.fn.fmatter(mask, value, opts));
+            }else{
+                m_control.val(value);
+            }
+            
             m_loaded = true;
         };
 

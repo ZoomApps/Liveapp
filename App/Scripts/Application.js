@@ -451,6 +451,7 @@ Application.Objects.ArrayList = function () {
  * @property {string} Layout User layout data stored as a JSON string.
  * @property {string} OfflineAuth Offline authentication string.
  * @property {string} AppSecret Application auth secret (used instead of `Username` and `Password`).
+ * @property {string} ScreenType Screen type for the current session (Desktop,Mobile,Tablet,Frame).
  */
 
 /**  
@@ -459,7 +460,7 @@ Application.Objects.ArrayList = function () {
  * @returns {AuthInfo} Returns an `AuthInfo` object.
  */
 Application.Objects.AuthInfo = function () {
-    return {"Username":"","Password":"","SessionID":"","Remember":false,"Type":0,"LoginTime":"","Instance":"","Role":"","UserData":"","Layout":"","OfflineAuth":"","AppSecret":""};
+    return {"Username":"","Password":"","SessionID":"","Remember":false,"Type":0,"LoginTime":"","Instance":"","Role":"","UserData":"","Layout":"","OfflineAuth":"","AppSecret":"","ScreenType":""};
 };
 
 /**
@@ -1320,6 +1321,17 @@ Application.WebServiceWait = function (func, params, async_, progress_, ignoreCo
 Application.Authorize = function () {
 
     var w = $wait();
+
+    // Screen type.
+    Application.auth.ScreenType = "Desktop";
+    if(Application.IsInFrame()){
+        Application.auth.ScreenType = "Frame";
+    }else if(Application.IsInMobile()){
+        Application.auth.ScreenType = "Mobile";
+        if(Application.IsTabletDisplay()){     
+            Application.auth.ScreenType = "Tablet";       
+        }
+    }
 
     Application.ExecuteWebService("Authorize", { auth: Application.auth }, function (r) {
         

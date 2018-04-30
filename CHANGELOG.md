@@ -1,3 +1,26 @@
+<a name="5.5"></a>
+# Liveapp v5.5 (April 2018)
+
+## Bug Fixes
+
+  - **app**
+    - menu items not using `Application.ProcessCaption` ([#76](https://github.com/ZoomApps/Liveapp/issues/76))
+
+  - **system**
+    - xpress user layout performance ([#82](https://github.com/ZoomApps/Liveapp/issues/82))
+
+## Features
+
+  - **control**
+    - add `number:` field mask to card controls ([#81](https://github.com/ZoomApps/Liveapp/issues/81))
+
+  - **system**
+    - tracking of device login ([#77](https://github.com/ZoomApps/Liveapp/issues/77))a
+
+## Documentation
+  - add options documentation ([#84](https://github.com/ZoomApps/Liveapp/issues/84))
+
+  
 <a name="5.4"></a>
 # Liveapp v5.4 (March 2018)
 

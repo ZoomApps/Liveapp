@@ -1110,7 +1110,7 @@ DefineModule("App",
                                 added = true;
                                 if (item.Icon == "")
                                     item.Icon = "window";
-                                _self.PrintSideLink(mnu2, item.Icon, item.Name, "Application.App.LoadPage('" + item.ID + "');", false, false, item.ID);
+                                _self.PrintSideLink(mnu2, item.Icon,  Application.ProcessCaption(item.Name), "Application.App.LoadPage('" + item.ID + "');", false, false, item.ID);
                             }
                         }
 
