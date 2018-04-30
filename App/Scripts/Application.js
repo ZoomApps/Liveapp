@@ -241,7 +241,7 @@ Application.Objects.ArrayList = function () {
 };
 
 Application.Objects.AuthInfo = function () {
-    return {"Username":"","Password":"","SessionID":"","Remember":false,"Type":0,"LoginTime":"","Instance":"","Role":"","UserData":"","Layout":"","OfflineAuth":"","AppSecret":""};
+    return {"Username":"","Password":"","SessionID":"","Remember":false,"Type":0,"LoginTime":"","Instance":"","Role":"","UserData":"","Layout":"","OfflineAuth":"","AppSecret":"","ScreenType":""};
 };
 
 Application.Objects.RecordSetInfo = function () {
@@ -641,6 +641,17 @@ Application.WebServiceWait = function (func, params, async_, progress_, ignoreCo
 Application.Authorize = function () {
 
     var w = $wait();
+
+    // Screen type.
+    Application.auth.ScreenType = "Desktop";
+    if(Application.IsInFrame()){
+        Application.auth.ScreenType = "Frame";
+    }else if(Application.IsInMobile()){
+        Application.auth.ScreenType = "Mobile";
+        if(Application.IsTabletDisplay()){     
+            Application.auth.ScreenType = "Tablet";       
+        }
+    }
 
     Application.ExecuteWebService("Authorize", { auth: Application.auth }, function (r) {
         
