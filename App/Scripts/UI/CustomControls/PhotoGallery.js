@@ -97,7 +97,7 @@ Define("PhotoGallery",
 
             m_record = rec_;
             
-            $('#gallery' + _base.ID()).html("");
+            $('#gallery' + _base.ID()).children().remove();
 
             rec_.First();
             if (rec_.Count > 0)
@@ -249,7 +249,9 @@ Define("PhotoGallery",
 		};
 		
         function RefreshGallery() {
-            Application.RunSilent($('#gallery' + _base.ID()).lightGallery().destroy);
+            Application.RunSilent(function(){
+                $('#gallery' + _base.ID()).lightGallery().data('lightGallery').destroy(true);
+            });
             $('#gallery' + _base.ID()).lightGallery({                
                 showThumbByDefault: true,
                 addClass: 'showThumbByDefault',

@@ -931,7 +931,7 @@ a,visited{
     width: 400px; 
     background: transparent;
     font-size: 14px;
-    color: #FFF;
+    color: %HEADERTEXTCOLOR%;
     height: 20px;
 }
 
@@ -1264,6 +1264,10 @@ th.ui-th-column div{
 .xpress-dialog
 {
     z-index: 30002;
+}
+
+.pac-container {
+    z-index: 40000;
 }
 
 /*#endregion*/

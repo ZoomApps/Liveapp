@@ -1,3 +1,90 @@
+<a name="5.6"></a>
+# Liveapp v5.6 (May/June 2018)
+
+## Bug Fixes
+
+  - **application**
+    - strsubstitute infinite loop when merging strings containing `$` and a number
+    - z-index and style fixes
+    - fix cache issues on ios (v5.x)
+    - fix integer/decimal values containing a comma
+    - layout fixes for `frame` version of app
+
+  - **article**
+    - incorrect width when sending articles via email
+
+  - **combobox**
+    - open `edit` page in a dialog if the parent page is a dialog
+
+  - **grid**
+    - allow grouping to work with row templates in mobile (v5.x)
+
+  - **pageviewer**
+    - controls using the option `ignorecolumns` are passed the wrong width
+    - don't reload `card` page data source on validate if mandatory fields are missing
+    - don't use `null` PK values when updating the page filters
+    - allow overlay on subpages in `frame` mode
+
+  - **photogallery**
+    - gallery stops working after update
+
+  - **server**
+    - caching not working on 'default' instance (v5.x) ([#78](https://github.com/ZoomApps/Liveapp/issues/78))
+
+  - **system**
+    - ampersand character causes a filtering issue ([#80](https://github.com/ZoomApps/Liveapp/issues/80))
+    - fixed errors in data import objects (v5.x)
+
+  - **ui**
+    - icon images have incorrect html tags (v5.x)
+
+  - **window**
+    - `more` action in wrong spot in mobile (v5.x)
+
+  - **windowmanager**
+    - error on `closeall`
+
+## Features
+
+  - **application**
+    - use a single service worker and auto cache resources (v5.x)
+
+  - **checkbox**
+    - style mobile checkbox using material design (v5.x)
+
+  - **combobox**
+    - style mobile combo like material design (v5.x)
+
+  - **grid**
+    - delay the `onbind` function
+
+  - **multicombobox**
+    - allow field to be disabled
+
+  - **optionswindow**
+    - add new column option `hidefilter` - hides that table column from the `OptionsWindow` field filter list
+
+  - **pageviewer**
+    - allow `card` pages to reload the data source if the page option `refresh` is used
+
+  - **server**
+    - don't cache the service worker file (v5.x)
+    - skip ping check on dev server
+    - add new function WebsiteImage to server endpoint
+    - kill sessions that stop pinging the server after 2 mins
+
+  - **timepicker**
+    - add options `mininterval` and `24hours`
+
+  - **websitemanager**
+    - add header/footer config
+
+## Documentation
+
+  - **optionswindow**
+    - document the optionswindow class
+
+
 <a name="5.5"></a>
 # Liveapp v5.5 (April 2018)
 

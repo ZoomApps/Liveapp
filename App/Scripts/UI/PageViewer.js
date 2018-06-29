@@ -973,7 +973,7 @@ Define("PageViewer",
                 if (m_options.record != null)
                     return m_record;
 
-                if (first_ || m_form.Type == "List" || (!Application.restrictedMode && m_options.homepage) || (!m_tempChanged && m_temp))
+                if (Application.HasOption(m_form.Options,"refresh") || first_ || m_form.Type == "List" || (!Application.restrictedMode && m_options.homepage) || (!m_tempChanged && m_temp))
                     if (!Application.HasOption(m_form.Options, "temp"))
                         return m_record.FindFirst();
 
@@ -1115,7 +1115,7 @@ Define("PageViewer",
 				if (_base.Dialog())
 					Application.RunNext(_base.CenterDialog);
 					
-                if (m_options.homepage != true && m_options.mobilegrideditor != true && m_parent && m_parent.Record()) {
+                if ((m_options.homepage != true || Application.IsInFrame()) && m_options.mobilegrideditor != true && m_parent && m_parent.Record()) {
                     if (m_parent.Record().NewRecord && !Application.HasOption(m_parent.Page().Options, "temp")) {
                         _base.ShowOverlay();
                     } else {
@@ -1702,7 +1702,7 @@ Define("PageViewer",
                                     }
                                 }
 
-                                if(filters[i][1] != f.Value) {
+                                if(filters[i][1] != f.Value && f.Value !== null) {
                                     m_record.Filter(filters[i][0], f.Value);
                                 }
                             }
@@ -2035,13 +2035,17 @@ Define("PageViewer",
 
                 } else if (field.Type == "Integer") {
 
+                    if(value_ && value_.replace)
+                        value_ = value_.replace(/\,/g,'');
                     var i = parseInt(value_);
                     if (isNaN(i))
                         Application.Error("Invalid integer: " + value_);
-                    value_ = (i === 0 ? null : i);                    
+                    value_ = (i === 0 ? null : i);
 
                 } else if (field.Type == "Decimal") {
 
+                    if(value_ && value_.replace)
+                        value_ = value_.replace(/\,/g,'');
                     var i = parseFloat(value_);
                     if (isNaN(i))
                         Application.Error("Invalid decimal: " + value_);
@@ -2230,7 +2234,18 @@ Define("PageViewer",
 
                 //Reload page?
                 if (field_.ReloadOnValidate || (m_form.Type == "Card" && !Application.HasOption(field_.Options,"skipupdate"))) {
-                    return _self.Update(false, false);
+                        if(m_record.UnsavedChanges()){
+                            return $codeblock(
+                                function(){
+                                    return _self.UpdateControls(false);
+                                },
+                                function(){
+                                    _self.HideLoad();
+                                }
+                            );
+                        }else{
+                            return _self.Update(false, false);
+                        }                    
 					} else {
 						if(!skipupdate)
 							_self.HideLoad();
@@ -2316,7 +2331,7 @@ Define("PageViewer",
                             }
 
                             var field = m_table.Column(f.Name);
-                            if (field && filters[i][1] != f.Value && field.PrimaryKey){
+                            if (field && filters[i][1] != f.Value && field.PrimaryKey && f.Value !== null){
                                 m_record.Filter(filters[i][0], f.Value);
                             }
                         }
@@ -4226,6 +4241,13 @@ Define("PageViewer",
                 } else {
 
                     var w = width / 2 - 5;
+
+                    var ignore = cont.IgnoreColumns();
+                    if(!ignore && cont.Field() && Application.HasOption(cont.Field().Options,"ignorecolumns"))
+                        ignore = true;
+
+                    if(ignore)
+                        w = width;
 
                     if (_base.GetSingleColumn())
                         w = width - 10;

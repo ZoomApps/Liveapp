@@ -110,7 +110,7 @@ Define("Window", null, function () {
 				
                 m_window = $("<div id='" + m_id + "' class='ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all app-window'>" +
                     "<div class='ui-dialog-titlebar ui-widget-header app-window-titlebar ui-helper-clearfix unselectable title" + m_id + " "+alt+"' style='"+(m_options.removetitle ? 'display: none; ' : '')+"'>" +
-                    "<span class='ui-dialog-title app-window-title unselectable' id='title" + m_id + "' style='max-width: calc(98% - "+(pos+4)+"px);'>" + m_title + "</span>" +
+                    "<span class='ui-dialog-title app-window-title unselectable' id='title" + m_id + "' style='max-width: calc(98% - "+(pos+4)+"px);'>" + m_title + "</span>" +                    
                     closebtn +
                     refreshpge +
                     export_csv +
@@ -142,11 +142,11 @@ Define("Window", null, function () {
 
             } else {
 
-                var win = "<div id='" + m_id + "' class='app-dialog' style='max-height: "+($(window).height()-150)+"px;'><div id='" + m_id + "actions' class='ui-widget ui-state-default' style='border: 0px;'>" +
+                var win = "<div id='" + m_id + "' class='app-dialog' style='max-height: "+($(window).height()-150)+"px;"+(Application.IsInFrame() ? "max-width: "+($(window).width()-80)+"px;":"")+"'><div id='" + m_id + "actions' class='ui-widget ui-state-default' style='border: 0px;'>" +
 	                "</div>" +
                     "<div id='" + m_id + "toolbar2' style='display: none;'>" +
 	                "</div>" +
-                    "<div id='" + m_id + "main' class='ui-widget-content' style='border-width: 0px; height: 98%; width: 95%;'></div>" +
+                    "<div id='" + m_id + "main' class='ui-widget-content' style='border-width: 0px; height: 98%; width: 100%;'></div>" +
                     "</div>";
 
                 m_boxy = new Boxy(win, {

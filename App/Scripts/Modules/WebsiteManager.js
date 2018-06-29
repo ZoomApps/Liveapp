@@ -67,34 +67,44 @@ DefineModule("WebsiteManager",
 				return;
 			});
 			
-			Application.RunNext(function(){
+			ExecuteQuery(m_setup.query,null,function(recs){
 
-				return $codeblock(
-					function(){
-						return ExecuteQuery(m_setup.query);
-					},
-					function(recs){
-												
-						if(recs[0].length == 0)
-							Application.Error("Domain not found");	
-						
-						var domain = recs[0][0];
-						
-						eval("var func = function(){" + domain.OnLoad + "};");
-						eval("var func2 = function(){" + domain.OnError + "};");
-						
-						m_setup.onload = func;
-						m_setup.onerror = func2;
-						m_setup.homepage = domain["Home Page"];					
-						m_setup.webpagequery = domain["Web Page Query"];
-						m_setup.domain = domain.Code;
-						if(m_setup.onload)
-							m_setup.onload();
-						_self.Process();		
-						
-					}
-				);
+				if(recs[0].length == 0)
+					Application.Error("Domain not found");	
+				
+				var domain = recs[0][0];
+				
+				eval("var func = function(){" + domain.OnLoad + "};");
+				eval("var func2 = function(){" + domain.OnError + "};");
+				
+				m_setup.onload = func;
+				m_setup.onerror = func2;
+				m_setup.homepage = domain["Home Page"];		
+				m_setup.webpagequery = domain["Web Page Query"];
+				m_setup.domain = domain.Code;
+				if(m_setup.onload)
+					m_setup.onload();
 
+				Application.RunNext(function(){
+
+					var params = {};
+					Application.LoadParams(params);	
+					var skip = (params.page === domain["Header Page"]) || (params.page === domain["Footer Page"]);
+					
+					return $codeblock(
+						function(){
+							if(domain["Header Page"] && !skip)
+								return _self.LoadHeader(domain["Header Page"]);
+						},
+						function(){
+							if(domain["Footer Page"] && !skip)
+								return _self.LoadFooter(domain["Footer Page"]);
+						},
+						function(){
+							_self.Process();
+						}
+					);
+				});					
 			});
         };        
 		
@@ -117,12 +127,8 @@ DefineModule("WebsiteManager",
 				SetupDeveloperTools(params);															
 				$("body").append('<button type="button" class="btn btn-default btn-sm" style="position: fixed; left: 0px; bottom: 15px; z-index: 999999; opacity: 0.6;" onclick="Website.ToggleDev();">Dev</button>');
 			}
-			
-			if(!params || !params.page){
-				Website.LoadPage(m_setup.homepage,params,true);	
-			}else{
-				Website.LoadPage(params.page,params,true);									
-			}		
+						
+			Website.LoadPage((params.page ? params.page : m_setup.homepage),params,true);				
 		};
 		
 		this.Error = function(body){			
@@ -163,6 +169,44 @@ DefineModule("WebsiteManager",
 			}	
 			
 		};
+
+		this.LoadHeader = function(code){							
+			
+			return $codeblock(
+			
+				function(){						
+					return ExecuteQuery(m_setup.webpagequery,[code]);						
+				},
+				
+				function(recs){																	
+					
+					if(recs[0].length == 0)
+						Application.Error("Header page not found");	
+					
+					var p = recs[0][0];						
+					_self.Header().html(p.TemplateHTML);						
+				}
+			);			
+		};
+
+		this.LoadFooter = function(code){							
+			
+			return $codeblock(
+			
+				function(){						
+					return ExecuteQuery(m_setup.webpagequery,[code]);						
+				},
+				
+				function(recs){																	
+					
+					if(recs[0].length == 0)
+						Application.Error("Footer page not found");	
+					
+					var p = recs[0][0];						
+					_self.Footer().html(p.TemplateHTML);						
+				}
+			);			
+		};
 		
 		this.LoadPage = function(code,params,skiphistory){							
 			
@@ -190,7 +234,7 @@ DefineModule("WebsiteManager",
 				
 			_self.ShowLoad();
 			
-			Application.RunNext(function(){							
+			Application.RunNext(function(){						
 				
 				return $codeblock(
 				
@@ -370,6 +414,14 @@ DefineModule("WebsiteManager",
 			return $(m_setup.main);
 		};
 		
+		this.Header = function(){
+			return $(m_setup.header);
+		};
+
+		this.Footer = function(){
+			return $(m_setup.footer);
+		};
+
 		this.DevBar = function(){
 			return $(m_setup.devbar);
 		};
@@ -526,6 +578,8 @@ DefineModule("WebsiteManager",
 			var edit = $("#divEditor");
 			edit.html(html);
 			edit.css({
+				height: '100%',
+				'min-height': 'calc(100vh - 50px)',
 				'max-height': 'calc(100vh - 50px)',
 				overflow: 'auto'
 			});	
@@ -545,10 +599,9 @@ DefineModule("WebsiteManager",
 			var cssClass = 'trumbowyg-fullscreen';
 			edit.parent().toggleClass(cssClass);
 			$('body').addClass('trumbowyg-body-fullscreen');																			
-			$(edit.parent().children()[0]).css('width', '100%');									
-			$(window).trigger('scroll');			
+			$(edit.parent().children()[0]).css('width', '100%');															
 			$(".trumbowyg-fullscreen-button").hide();
-			$(".trumbowyg-textarea").css('max-height','calc(100vh - 50px)');		
+			$(".trumbowyg-textarea").css('min-height','calc(100vh - 50px)');		
 
 			edit.unbind("tbwclose");
 			edit.on("tbwclose",function(){	
@@ -566,30 +619,31 @@ DefineModule("WebsiteManager",
 			
 		};
 		
-		function ExecuteQuery(code, params_arr){
+		function ExecuteQuery(code, params_arr, callback){
 			
 			params_arr = Default(params_arr,[]);
+								
+			var params = Application.StrSubstitute('"param1_": "$1", "param2_": "$2", "param3_": "$3", "param4_": "$4", "param5_": "$5"',
+				Default(params_arr[0],""),
+				Default(params_arr[1],""),
+				Default(params_arr[2],""),
+				Default(params_arr[3],""),
+				Default(params_arr[4],"")
+				);					
 			
-			return $codeblock(
-				function(){
-					
-					var params = Application.StrSubstitute('"param1_": "$1", "param2_": "$2", "param3_": "$3", "param4_": "$4", "param5_": "$5"',
-						Default(params_arr[0],""),
-						Default(params_arr[1],""),
-						Default(params_arr[2],""),
-						Default(params_arr[3],""),
-						Default(params_arr[4],"")
-						);					
-					
-					var w = $wait();
-					
-					Application.ExecuteEndpoint(Application.StrSubstitute(Application.url+'/q/?e=Server&m=ExecuteQueryJSONP&p={"instance_": "'+m_setup.instance+'", "code_": "$1", '+params+'}',code),function(results){
-						w.resolve(FormatRecordset(results));
-					},null,'jsonp');
-					
-					return w.promise();
-				}				
-			);
+			var w = $wait();
+			
+			Application.ExecuteEndpoint(Application.StrSubstitute(Application.url+'/q/?e=Server&m=ExecuteQueryJSONP&p={"instance_": "'+m_setup.instance+'", "code_": "$1", '+params+'}',code),function(results){
+				if(callback){
+					callback(FormatRecordset(results));
+				}else{
+					w.resolve(FormatRecordset(results));
+				}
+				
+			},null,'jsonp');
+			
+			if(!callback)
+			return w.promise();							
 			
 		};
 
@@ -715,13 +769,13 @@ DefineModule("WebsiteManager",
 			edit.parent().toggleClass(cssClass);
 			$('body').addClass('trumbowyg-body-fullscreen');									
 			edit.css({
+				'min-height': 'calc(100vh - 50px)',
 				'max-height': 'calc(100vh - 50px)',
 				overflow: 'auto'
 			});									
-			$(edit.parent().children()[0]).css('width', '100%');									
-			$(window).trigger('scroll');			
+			$(edit.parent().children()[0]).css('width', '100%');														
 			$(".trumbowyg-fullscreen-button").hide();
-			$(".trumbowyg-textarea").css('max-height','calc(100vh - 50px)');		
+			$(".trumbowyg-textarea").css('min-height','calc(100vh - 100px)');		
 
 			edit.unbind("tbwclose");
 			edit.on("tbwclose",function(){	
@@ -818,4 +872,3 @@ DefineModule("WebsiteManager",
 		this.Constructor(setup_);
 
     });
-	

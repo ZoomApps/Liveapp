@@ -1,5 +1,96 @@
-﻿/// <reference path="../Application.js" />
+﻿/**
+ * @typedef OptionsWindowSettings
+ * @type {object}
+ * @property {string} [caption=Options] Options window caption.
+ * @property {string} [view] Default filters.
+ * @property {string} [icon=window] Options window icon.
+ * @property {Page} [page] Page settings.
+ * @property {PageField[]} [fields] Fields to add to the options window.
+ * @property {object} [optionvalues] Default values for the fields.
+ * @property {boolean} [showclose=true] Show the close icon.
+ * @property {boolean} [hideaddnew=false] Hide the `Add New` filter button.
+ * @property {RecordFieldInfo[]} [filtercolumns] Add default filter fields to the options window.
+ */
 
+/**
+ * @description
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * **CONTENTS**
+ * - [Description](#description)
+ * - [Constructor](#constructor)
+ * - [Ask the user for options](#ask-the-user-for-options)
+ * - [Ask the user for filters](#ask-the-user-for-filters)
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Description
+ * 
+ * OptionsWindow Class. 
+ * 
+ * Creates a dialog page which can be used to ask the user for options or to create a filter view.
+ * 
+ * <div style='background: #f9f2f4; padding: 5px'>**NOTE: Methods that return a `JQueryPromise` should be returned into a {@link $codeblock}**</div>
+ *
+ * <hr style='border-color: rgb(200, 201, 204)' /> 
+ * 
+ * ## Ask the user for options
+ * 
+ * Ask the user for event details (remember to run this code in a {@link $codeblock}):
+ * 
+ * ```javascript
+ * var options = new OptionsWindow({
+ *  caption: 'Event Options',
+ *  // Options window fields.
+ *  fields: [
+ *      { Name: "StartTime", Caption: "Start Time", Type: "Time", Mandatory: true},
+ *      { Name: "Duration", Caption: "Duration (hrs)", Type: "Decimal", Mandatory: true},
+ *      { Name: "Description", Caption: "Description", Type: "Text"}
+ *  ],
+ *  // Default values.
+ *  optionvalues: {StartTime: new Date()}
+ * });
+ * options.CloseFunction(function (okclicked) {
+ *  if(okclicked){
+ *      var desc = options.GetOption('Description');
+ *      var starttime = options.GetOption('StartTime');
+ *      var duration = options.GetOption('Duration');
+ *  }
+ * });
+ * return options.Open();
+ * ```
+ <hr style='border-color: rgb(200, 201, 204)' /> 
+ * 
+ * ## Ask the user for filters
+ * 
+ * Ask the user for table filters (remember to run this code in a {@link $codeblock}):
+ * 
+ * ```javascript
+ * var options = new OptionsWindow({
+ *  caption: 'User Filters',
+ *  // Source table.
+ *  page: {SourceID:'Xpress User'},
+ *  // Default filters.
+ *  view: 'WHERE(Active=CONST(1))'
+ * });
+ * options.CloseFunction(function (okclicked) {
+ *  if(okclicked){
+ *      var view = options.GetView();
+ *  }
+ * });
+ * return options.Open();
+ * ```
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Constructor
+ * 
+ * Params:
+ * @class OptionsWindow
+ * @global
+ * @param {OptionsWindowSettings} [options_] Options window settings.
+ * @returns {OptionsWindow} Returns a new `OptionsWindow` object.
+ */
 Define("OptionsWindow", null, function (options_) {
 
     //#region Members
@@ -43,6 +134,12 @@ Define("OptionsWindow", null, function (options_) {
 		
     };
 
+    /**
+     * Open the options window.
+     * @memberof! OptionsWindow#
+     * @param {PageViewer} [parent_] Parent viewer.
+     * @returns {JQueryPromise} Promises to open the options window.
+     */
     this.Open = function (parent_) {
 
         return $codeblock(
@@ -115,6 +212,12 @@ Define("OptionsWindow", null, function (options_) {
         );
     };
 
+    /**
+     * Load the options winow.
+     * @memberof! OptionsWindow#
+     * @protected
+     * @returns {JQueryPromise} Promises to load the options window.
+     */
     this.Load = function () {
 
         Application.LogInfo('Loading Options Window');
@@ -202,12 +305,31 @@ Define("OptionsWindow", null, function (options_) {
 						//Add filtering fields.				
 						var cmbFields = $("<select id='" + m_window.ID() + "fields' class='ui-widget ui-widget-content ui-corner-left' style='width: auto; max-width: 200px; font-size: 16px; margin-left: 10px; margin-bottom: 20px;' />");
 						m_container.append(cmbFields);
-						cmbFields.append("<option value='ADDNEW'>Add new filter...</option>");
+                        cmbFields.append("<option value='ADDNEW'>Add new filter...</option>");
+                        var f = [];
 						for (var i = 0; i < m_table.Columns.length; i++) {
 							var col = m_table.Columns[i];
-							var name = col.Name;
-							cmbFields.append("<option value='" + name + "'>" + col.Caption + "</option>");
-						}
+                            var name = col.Name;
+                            if(!Application.HasOption(col.Options,'hidefilter'))
+							   f.push({
+                                   name: name, 
+                                   caption: col.Caption
+                                }); 
+                        }
+
+                        f.sort(function (a, b) {
+                            if (a.caption == b.caption)
+                                return 0;
+                            if (a.caption > b.caption) {
+                                return 1;
+                            } else {
+                                return -1;
+                            }
+                        });
+                        
+                        $.each(f,function(index,value){
+                            cmbFields.append("<option value='" + value.name + "'>" + value.caption + "</option>");
+                        });                        
 
 						cmbFields.change(function () {
 							_self.AddFilter(this.value);
@@ -253,11 +375,21 @@ Define("OptionsWindow", null, function (options_) {
 
         );
     };
-	
+    
+    /**
+     * Get the options window settings.
+     * @memberof! OptionsWindow#
+     * @returns {OptionsWindowSettings} Returns the options window settings.
+     */
 	this.Options = function(){
 		return m_options;
 	};
-	
+    
+    /**
+     * Function that runs when showing the options window.
+     * @memberof! OptionsWindow#
+     * @returns {void}
+     */
 	this.OnShow = function(){
 		
 		if (Application.IsInMobile()) {
@@ -272,6 +404,13 @@ Define("OptionsWindow", null, function (options_) {
 		
 	};
 
+    /**
+     * Update the options window page.
+     * @memberof! OptionsWindow#
+     * @param {boolean} [first_] Pass `true` if this is the first update.
+     * @param {boolean} [showProgress_] If `true`, shows the progress bar.
+     * @returns {JQueryPromise} Promises to return after updating the page.
+     */
     this.Update = function (first_, showProgress_) {
 
         Application.LogInfo('Updating Options Window');
@@ -298,7 +437,14 @@ Define("OptionsWindow", null, function (options_) {
             }
         );
     };	
-	
+    
+    /**
+     * Update the page controls.
+     * @memberof! OptionsWindow#
+     * @param {boolean} [first_] Pass `true` if this is the first update. 
+     * @param {boolean} [showProgress_] If `true`, shows the progress bar.
+     * @returns {JQueryPromise} Promises to return after updating the controls. 
+     */
     this.UpdateControls = function (first_, showProgress_) {
 
         Application.LogDebug("Updating Controls.");
@@ -333,14 +479,26 @@ Define("OptionsWindow", null, function (options_) {
 
     };
 
+    /**
+     * Set the page controls as loaded/unloaded.
+     * @memberof! OptionsWindow#
+     * @param {boolean} loaded_ If `true`, marks the page controls as loaded.
+     * @returns {void}
+     */
     this.LoadControls = function (loaded_) {
 
         for (var i = 0; i < m_controls.length; i++) {
             m_controls[i].Loaded(loaded_);
-			m_controls[i].SetSize(690, 730);
+			m_controls[i].SetSize(m_window.InnerWidth(), 730);
         }
     };
 
+    /**
+     * Get a page conrol by name.
+     * @memberof! OptionsWindow#
+     * @param {string} name_ Name of the control.
+     * @returns {Control} Returns the control if found, otherwise returns `null.
+     */
 	this.Control = function (name_) {
 
 		for (var i = 0; i < m_controls.length; i++) {
@@ -349,12 +507,27 @@ Define("OptionsWindow", null, function (options_) {
 		}
 		return null;
 	};
-	
+    
+    /**
+     * Add data for a filter field.
+     * @memberof! OptionsWindow#
+     * @param {string} name Name of the field.
+     * @param {*} data Data for the field.
+     * @returns {void}
+     */
 	this.AddFilterData = function(name, data){
 		if(m_options.addfilterdata)
 			m_options.addfilterdata(name,data);
 	};
-	
+    
+    /**
+     * Add a custom control to the page.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field_ Page field.
+     * @param {Function} [onchange_] Function to call on value change. If `null`, uses the `RecordValidate` function.
+     * @param {boolean} [editor_] If `true`, add the control as an assist editor.
+     * @returns {void}
+     */
     this.AddCustomControl = function (field_, onchange_, editor_) {
 
         var cont = null;
@@ -373,6 +546,14 @@ Define("OptionsWindow", null, function (options_) {
 		}
     };
 
+    /**
+     * Add a text field control to the page.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field_ Page field.
+     * @param {Function} [onchange_] Function to call on value change. If `null`, uses the `RecordValidate` function.
+     * @param {boolean} [editor_] If `true`, add the control as an assist editor.
+     * @returns {void}
+     */
     this.AddTextField = function (field_, onchange_, editor_) {
 
         var txt = new Textbox(field_, _self);
@@ -386,6 +567,14 @@ Define("OptionsWindow", null, function (options_) {
 		}
     };
 
+    /**
+     * Add a time field control to the page.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field_ Page field.
+     * @param {Function} [onchange_] Function to call on value change. If `null`, uses the `RecordValidate` function.
+     * @param {boolean} [editor_] If `true`, add the control as an assist editor.
+     * @returns {void}
+     */
     this.AddTimeField = function (field_, onchange_, editor_) {
 
         var txt = new TimePicker(field_, _self);
@@ -399,6 +588,14 @@ Define("OptionsWindow", null, function (options_) {
 		}
     };
 
+    /**
+     * Add a spinner control to the page.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field_ Page field.
+     * @param {Function} [onchange_] Function to call on value change. If `null`, uses the `RecordValidate` function.
+     * @param {boolean} [editor_] If `true`, add the control as an assist editor.
+     * @returns {void}
+     */
     this.AddSpinnerField = function (field_, onchange_, editor_) {
 
         var txt = new Spinner(field_, _self);
@@ -412,6 +609,14 @@ Define("OptionsWindow", null, function (options_) {
 		}
     };
 
+    /**
+     * Add a date field control to the page.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field_ Page field.
+     * @param {Function} [onchange_] Function to call on value change. If `null`, uses the `RecordValidate` function.
+     * @param {boolean} [editor_] If `true`, add the control as an assist editor.
+     * @returns {void}
+     */
     this.AddDateField = function (field_, onchange_, editor_) {
 
         var dte = new DatePicker(field_, _self);
@@ -425,6 +630,14 @@ Define("OptionsWindow", null, function (options_) {
 		}
     };
 
+    /**
+     * Add a date time control to the page.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field_ Page field.
+     * @param {Function} [onchange_] Function to call on value change. If `null`, uses the `RecordValidate` function.
+     * @param {boolean} [editor_] If `true`, add the control as an assist editor.
+     * @returns {void}
+     */
     this.AddDateTimeField = function (field_, onchange_, editor_) {
 
         var dte = new DateTimePicker(field_, _self);
@@ -438,6 +651,14 @@ Define("OptionsWindow", null, function (options_) {
 		}
     };
 
+    /**
+     * Add a combobox control to the page.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field_ Page field.
+     * @param {Function} [onchange_] Function to call on value change. If `null`, uses the `RecordValidate` function.
+     * @param {boolean} [editor_] If `true`, add the control as an assist editor.
+     * @returns {void}
+     */
     this.AddComboField = function (field_, onchange_, editor_) {
 
         var cmb = new Combobox(field_, _self);
@@ -451,6 +672,14 @@ Define("OptionsWindow", null, function (options_) {
 		}
     };
 
+    /**
+     * Add a checkbox control to the page.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field_ Page field.
+     * @param {Function} [onchange_] Function to call on value change. If `null`, uses the `RecordValidate` function.
+     * @param {boolean} [editor_] If `true`, add the control as an assist editor.
+     * @returns {void}
+     */
     this.AddCheckboxField = function (field_, onchange_, editor_) {
 
         var chk = new Checkbox(field_, _self);
@@ -464,6 +693,13 @@ Define("OptionsWindow", null, function (options_) {
 		}
     };
 
+    /**
+     * Convert a field value to the correct type.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field Page field.
+     * @param {*} value_ Field value to convert.
+     * @returns {*} Returns the converted field value.
+     */
 	this.FixValue = function (field, value_) {
 
 		//Check for nulls
@@ -492,6 +728,8 @@ Define("OptionsWindow", null, function (options_) {
 
 			} else if (field.Type == "Integer") {
 
+                if(value_ && value_.replace)
+                    value_ = value_.replace(/\,/g,'');
 				var i = parseInt(value_);
 				if (isNaN(i))
 					Application.Error("Invalid integer: " + value_);
@@ -499,6 +737,8 @@ Define("OptionsWindow", null, function (options_) {
 
 			} else if (field.Type == "Decimal") {
 
+                if(value_ && value_.replace)
+                    value_ = value_.replace(/\,/g,'');
 				var i = parseFloat(value_);
 				if (isNaN(i))
 					Application.Error("Invalid decimal: " + value_);
@@ -552,7 +792,14 @@ Define("OptionsWindow", null, function (options_) {
 
 		return value_;
 	};
-		
+        
+    /**
+     * Validate a record field value.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @param {*} value Value to validate.
+     * @returns {void}
+     */
     this.RecordValidate = function (col, value) {
 		
 		var field = null;
@@ -601,6 +848,13 @@ Define("OptionsWindow", null, function (options_) {
 
     //#region Filtering
 
+    /**
+     * Add a filter field control to the page.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @param {boolean} [first] If `true`, adds a new control to the page.
+     * @returns {void}
+     */
     this.AddFilter = function (col, first) {
 
         if (typeof m_filters[col] == "undefined" || first) {
@@ -645,6 +899,12 @@ Define("OptionsWindow", null, function (options_) {
         $("#" + m_window.ID() + "fields").val("ADDNEW");
     };
 
+    /**
+     * Show the assist editor for a field.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @returns {void}
+     */
     this.ShowAssistEdit = function (col) {
 
         var editor = _self.GetEditor(col);
@@ -659,6 +919,12 @@ Define("OptionsWindow", null, function (options_) {
         }
     };
 
+    /**
+     * Get an assist editor by name.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @returns {Control} Returns the control if found, otherwise returns `null`.
+     */
     this.GetEditor = function (col) {
         for (var i = 0; i < m_editors.length; i++) {
             var cont = m_editors[i];
@@ -669,6 +935,12 @@ Define("OptionsWindow", null, function (options_) {
         return null;
     };
 
+    /**
+     * Get a filter control by name.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @return {Control} Returns the control if found, otherwise returns `null`.
+     */
     this.GetFilterControl = function (col) {
         for (var i = 0; i < m_filterControls.length; i++) {
             var cont = m_filterControls[i];
@@ -679,6 +951,13 @@ Define("OptionsWindow", null, function (options_) {
         return null;
     };
 
+    /**
+     * Assist editor on change event handler.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @param {*} value Editor value.
+     * @returns {void}
+     */
     this.AssistChange = function (col, value) {
 
         var editor = _self.GetEditor(col);
@@ -694,6 +973,12 @@ Define("OptionsWindow", null, function (options_) {
         }
     };
 
+    /**
+     * Add an assist editor button to a field.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field Page field.
+     * @returns {boolean} Returns `true` if the button was added.
+     */
     this.AddAssistButton = function (field) {
 
         var assistfield = Extend(field, Application.Objects.PageFieldInfo());
@@ -728,10 +1013,23 @@ Define("OptionsWindow", null, function (options_) {
         return true;
     };
 
+    /**
+     * Filter on change event.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @param {*} value Filter value.
+     * @returns {void}
+     */
     this.FilterChange = function (col, value) {
         m_filters[col] = value;
     };
 
+    /**
+     * Remove a filter field from the page.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @returns {void}
+     */
     this.RemoveFilter = function (col) {
 
         delete m_filters[col];
@@ -761,6 +1059,12 @@ Define("OptionsWindow", null, function (options_) {
         m_window.CenterDialog();
     };
 
+    /**
+     * Check if the page layout caused an error.
+     * @memberof! OptionsWindow#
+     * @param {OptionsWindow} pge Options window reference.
+     * @returns {boolean} Returns `true` if an error was found in the layout.
+     */
 	this.CheckLayout = function (pge) {
 		if (m_openedFrom && m_openedFrom.ReportOptions && m_openedFrom.ReportOptions() != null) {
 			Application.Confirm("One or more options may have caused an error. Do you wish to clear them?", function (r) {
@@ -789,10 +1093,21 @@ Define("OptionsWindow", null, function (options_) {
 
     //#region Public Properties
 
+    /**
+     * Get the window reference.
+     * @memberof! OptionsWindow#
+     * @returns {Window} Returns the window reference.
+     */
     this.Window = function () {
         return m_window;
     };
 
+    /**
+     * Get/set the on close function.
+     * @memberof! OptionsWindow#
+     * @param {Function} [func_] Set the on close function.
+     * @returns {Function} Returns the on close function if `func_` is not specified.
+     */
     this.CloseFunction = function (func_) {		
         if (typeof func_ == "undefined") {
             return m_closeFunc;
@@ -801,10 +1116,21 @@ Define("OptionsWindow", null, function (options_) {
         }
     };
 
+    /**
+     * Get the opened from reference.
+     * @memberof! OptionsWindow#
+     * @returns {PageViewer} Returns the opened from reference.
+     */
     this.OpenedFrom = function () {
         return m_openedFrom;
     };
 
+    /**
+     * Add a field to the options window setup.
+     * @memberof! OptionsWindow#
+     * @param {PageField} field Page field to add.
+     * @returns {void}
+     */
 	this.AddField = function(field){
 		if(!m_options)
 			m_options = new Object();
@@ -812,19 +1138,41 @@ Define("OptionsWindow", null, function (options_) {
 			m_options.fields = [];
 		m_options.fields.push(field);
 	};
-	
+    
+    /**
+     * Set the options window values.
+     * @memberof! OptionsWindow#
+     * @param {object} val Values to set.
+     * @returns {void}
+     */
     this.SetOptions = function (val) {
         m_record = val;
     }
 
+    /**
+     * Get the options window values.
+     * @memberof! OptionsWindow#
+     * @returns {object} Returns the options window values.
+     */
     this.GetOptions = function () {
         return m_record;
     };
 
+    /**
+     * Get an options window value by name.
+     * @memberof! OptionsWindow#
+     * @param {string} col Column name.
+     * @returns {*} Returns the options window value.
+     */
     this.GetOption = function (col) {
         return m_record[col];
     };
-	
+    
+    /**
+     * Get the filter view for the page.
+     * @memberof! OptionsWindow#
+     * @returns {string} Returns the filter view.
+     */
 	this.GetView = function () {
 
         if (!m_okClicked)
@@ -868,10 +1216,21 @@ Define("OptionsWindow", null, function (options_) {
     this.XFocusControl = function () {
     };
 
+    /**
+     * Get the page type.
+     * @memberof! OptionsWindow#
+     * @returns {string} Returns the page type.
+     */
     this.Type = function () {
         return "Card";
     };
 
+    /**
+     * Merge the options window values with a filter view.
+     * @memberof! OptionsWindow#
+     * @param {string} view Filter view to merge with the options window values.
+     * @returns {string} Returns the merged filter view.
+     */
     this.MergeView = function (view) {
 		
 		if(m_record){
@@ -905,22 +1264,48 @@ Define("OptionsWindow", null, function (options_) {
         return view;
     };
 
+    /**
+     * Get the record view.
+     * @memberof! OptionsWindow#
+     * @returns {string} Returns the record view.
+     */
     this.View = function () {
         return null;
     };
-	
+    
+    /**
+     * Get the record reference.
+     * @memberof! OptionsWindow#
+     * @returns {Record} Returns the record reference.
+     */
 	this.Record = function(){
 		return m_record;
 	};
 
+    /**
+     * Show the page load overlay.
+     * @memberof! OptionsWindow#
+     * @returns {void}
+     */
     this.ShowLoad = function () {
         m_window.ShowLoad();
     };
 
+    /**
+     * Hide the page load overlay.
+     * @memberof! OptionsWindow#
+     * @returns {void}
+     */
     this.HideLoad = function () {
         m_window.HideLoad();
     };
 
+    /**
+     * Close the page.
+     * @memberof! OptionsWindow#
+     * @param {boolean} [save] If `true`, saves the page. 
+     * @returns {void}
+     */
     this.Close = function (save) {		
         if (m_options.closeButton == false) return;
         m_window.HideDialog(save);
@@ -930,6 +1315,12 @@ Define("OptionsWindow", null, function (options_) {
 
     //#region Events
 
+    /**
+     * On error event handler.
+     * @memberof! OptionsWindow#
+     * @param {string} e Error message.
+     * @returns {void}
+     */
     this.OnError = function (e) {        
 
         if (Application.transactionStarted > 0)
@@ -965,10 +1356,23 @@ Define("OptionsWindow", null, function (options_) {
         });        
     };
 
+    /**
+     * On resize event handler.
+     * @memberof! OptionsWindow#
+     * @param {number} width New width value.
+     * @param {number} height New height value.
+     * @returns {void}
+     */
     this.OnResize = function (width, height) {
 
     };
 
+    /**
+     * On key press event handler.
+     * @memberof! OptionsWindow#
+     * @param {Event} ev Event reference.
+     * @returns {void}
+     */
     this.OnKeyPress = function (ev) {
 
         try {
@@ -979,6 +1383,12 @@ Define("OptionsWindow", null, function (options_) {
 
     };
 
+    /**
+     * On before close event handler.
+     * @memberof! OptionsWindow#
+     * @param {boolean} okclicked Pass `true` if the OK button was used to close the page.
+     * @returns {boolean} Returns `false` if the page should not close.
+     */
     this.OnBeforeClose = function (okclicked) {
 
         //Check mandatory.
@@ -998,6 +1408,11 @@ Define("OptionsWindow", null, function (options_) {
         return true;
     };
 
+    /**
+     * On close event handler.
+     * @memberof! OptionsWindow#
+     * @returns {JQueryPromise} Promises to close the page.
+     */
     this.OnClose = function () {
 
         _self.ShowLoad();

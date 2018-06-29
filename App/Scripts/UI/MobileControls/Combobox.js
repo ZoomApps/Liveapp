@@ -17,6 +17,8 @@ Define("Combobox",
         var m_values = null;
         var m_data = null;
         var m_searchMode = false;
+        var m_dd = false;
+        var m_clearbtn = null;
 
         //#endregion
 
@@ -90,11 +92,20 @@ Define("Combobox",
                 if (_base.Field().Editable != false) {
 
                     cont.tap(_self.OnClick);
+                    
+                    m_clearbtn = cont.next().tap(function(){
+                        Search('');
+                    });
+
+                    m_dd = $('<i class="mdi mdi-menu-down" style="position: absolute;right: 5px;font-size: 2em;top:50%;margin:-14px 0 0;"></i>').tap(_self.OnClick);
+                    cont.parent().append(m_dd);                    
 
                     cont.keydown(app_debouncer(function (ev) {
 
                         if (_base.Field().Editable == false)
-                            return;                        
+                            return;      
+                            
+                        if(m_clearbtn) m_clearbtn.show();
 
                         if (ev.which == 13) {
                             HideResults(true);
@@ -137,7 +148,7 @@ Define("Combobox",
             var field = _base.Field();
 
             if (!viewer)
-                return;
+                return;            
 			
 			if(term == "" && Application.HasOption(_base.Field().Options,"skipload")){
 				m_data = [];
@@ -361,6 +372,8 @@ Define("Combobox",
 
                 var cont = _base.Control().parent().detach();
 
+                if(m_dd) m_dd.hide();
+
                 $("body").append(cont);
 
                 cont.css({
@@ -388,6 +401,9 @@ Define("Combobox",
             } else {
 
                 var cont = _base.Control().parent().detach();
+                
+                if(m_dd) m_dd.show();
+                if(m_clearbtn) m_clearbtn.hide();
 
                 $("#lbl" + _base.ID()).after(cont);
 

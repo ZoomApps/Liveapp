@@ -51,15 +51,15 @@ Define("Grid",
             _self.Loaded(true);
         };
 
-        this.CreateColumns = function(){
-
-            if(Application.HasOption(_base.Viewer().Page().Options,"rowtemplate"))
-                return;
+        this.CreateColumns = function(){            
 
             //Issue #95 - Add grouping to mobile grid
             //Get grouping details.
             var options = _base.Viewer().Page().Options;
             m_grouping = Application.OptionValue(options, "groupfields");            
+
+            if(Application.HasOption(_base.Viewer().Page().Options,"rowtemplate"))
+                return;
 
             $('#tr' + _base.ID()).append('<th style="width: 15px;"></th>');
 
@@ -251,13 +251,22 @@ Define("Grid",
 					}
 				}
 			}				
-			
+            
+            //Get grouping column.
+            var col = null;
+            for (var j = 0; j < m_cols.length; j++) {
+                if(m_cols[j].name == m_grouping)
+                    col = m_cols[j];
+            } 
+
             for (var i = 0; i < m_dataSource.length; i++) {
 
                 //Issue #95 - Add grouping to mobile grid
                 if (m_grouping && grp != m_dataSource[i][m_grouping]) {
-                    grp = m_dataSource[i][m_grouping];
-                    $('#tbody' + _base.ID()).append("<tr style='-webkit-user-select: none; font-size: 14px;'><th style='color: black;' colspan='"+(m_cols.length+1)+"'>"+grp+"</th></tr>");                    
+                    grp = m_dataSource[i][m_grouping];                                
+                    $('#tbody' + _base.ID()).append("<tr style='-webkit-user-select: none; font-size: 14px;'><th style='color: black;' colspan='"+(m_cols.length+1)+"'>" + 
+                        (col && col.onformat ? col.onformat(grp) : grp) +
+                        "</th></tr>");                    
                 }
 
                 this.CreateRow(m_dataSource[i], i);

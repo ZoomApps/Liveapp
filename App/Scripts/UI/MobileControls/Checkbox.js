@@ -26,13 +26,12 @@ Define("Checkbox",
         this.Create = function (window_) {
 
             //Create the control.
-            var container = $('<div style="height: 6px;"></div><label><input type="checkbox" id="ctl' + _base.ID() + '" data-theme="a" /><span id="lbl' + _base.ID() + '"></span></label><div style="height: 7px;"></div>');
+            var container = $('<label><input id="ctl' + _base.ID()+ '" type="checkbox" class="filled-in" /><span id="lbl' + _base.ID() + '"></span></label>');                                            
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
-                cont.checkboxradio();                
-                cont.unbind("change");
+                cont.unbind('focus');
                 cont.change(function () {
                     if (_base.Loaded() == false)
                         return;
@@ -57,7 +56,7 @@ Define("Checkbox",
                 return;
             }
 
-            _base.Control().prop("checked", value).checkboxradio("refresh");
+            _base.Control().prop("checked", value);
 
             _self.Loaded(true);
         };

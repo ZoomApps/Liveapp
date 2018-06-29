@@ -38,7 +38,7 @@ Define("Article",
 			});
 
             //Create the control.
-            m_container = $('<div id="' + _base.ID() + '" style="padding: 15px; font-size: '+m_options.bodyFont+';"></div>');
+            m_container = $('<div id="' + _base.ID() + '" style="width: 100%; padding: 15px; font-size: '+m_options.bodyFont+';"></div>');
 			m_completed = $("<div id='completed"+_base.ID()+"'  style='padding: 15px; font-size: "+m_options.bodyFont+"; display: none;'></div>");
 			var filters = $('<div id="artfilters' + _base.ID() + '" style="padding: 15px; font-size: '+m_options.bodyFont+'; display: none;"></div>');
 			
@@ -88,11 +88,9 @@ Define("Article",
         };
 
         this.Height = function (h) {			
-            m_container.height(h - 70);
         };
 
-        this.Width = function (w) {			
-			m_container.width(w - 20);			
+        this.Width = function (w) {					
         };	
 
         //#endregion

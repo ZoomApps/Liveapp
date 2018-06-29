@@ -38,8 +38,8 @@ Define("NotesBox",
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
                 if (showlabel == false) {
-                    $("#lbltd" + _base.ID()).hide();
-                    $("#ctltd" + _base.ID()).css("width", "100%");
+                    $("#lbltd" + _base.ID()).hide();                    
+                    $("#ctltd" + _base.ID()).css("width", "100%").css("padding-left","6px");
                 }
 
                 //Setup the textbox.

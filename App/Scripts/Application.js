@@ -108,7 +108,7 @@ Application.name = "%APPNAME%";
  * @memberof module:Application
  * @type {string}
  * @example
- * '5.4.0'
+ * '5.6.0'
  */
 Application.version = "%VERSION%";
 
@@ -2312,31 +2312,15 @@ Application.HookCacheEvents = function(instance){
 
     if ('serviceWorker' in navigator){
         
-        navigator.serviceWorker.register('%SERVERADDRESS%service-worker'+(Application.IsInMobile()?'-mobile':'')+'.js?instance='+instance)
-            .then(function(reg) {
-                Application.serviceWorkerReg = reg;
-                reg.onupdatefound = function() {
-                    var installingWorker = reg.installing;
-                    installingWorker.onstatechange = function() {
-                        switch (installingWorker.state) {
-                            case 'installed':
-                            if (navigator.serviceWorker.controller) {
-                                Application.LogInfo('New or updated content is available.');
-                            } else {
-                                Application.LogInfo('Content is now available offline!');
-                            }
-                            break;
-                            case 'redundant':
-                                Application.LogError('The installing service worker became redundant.');
-                            break;
-                        }
-                    };
-                };
-                Application.LogInfo("Yes, it did.");
-            }).catch(function(err) {
-                Application.LogError("No it didn't. This happened: ", err)
-            });
-
+        var url = './service-worker.js';
+        navigator.serviceWorker.register(url)
+        .then(function(reg) {
+            Application.serviceWorkerReg = reg;
+            Application.LogInfo("Registered service worker");
+        }).catch(function(err) {
+            Application.LogError("Service worker error: ", err)
+        });
+                
     }else{
         Application.LogDebug('Service worker not supported.');
     }
@@ -3016,13 +3000,11 @@ Application.HideProgress = function () {
  * // str = 'This is a message'
  */
 Application.StrSubstitute = function (msg) {
-
-    //Use arguments to replace $ const values.
-    for (var i = 1; i < arguments.length; i++)
-        while (msg.indexOf("$" + i) != -1)
-            msg = msg.replace("$" + i, arguments[i]);
-
-    return msg;
+    var a = arguments;
+    return msg.replace(/\$(\d+)/g, function(match, number) {
+      return typeof a[+number] !== 'undefined'
+        ? a[+number] : match;
+    });
 };
 
 /**

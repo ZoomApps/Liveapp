@@ -182,9 +182,9 @@ DefineModule("AppUI",
             size = Default(size, 15);
 
             if(img.indexOf("mdi-") !== 0)
-                return img + "<i/>";
+                return img + "</i>";
        
-            return '<i class="mdi ' + img + '" style="font-size: '+size+'px" />';
+            return '<i class="mdi ' + img + '" style="font-size: '+size+'px"></i>';
         };
 
         this.BigIconImage = function (img, path, size) {

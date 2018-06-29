@@ -144,6 +144,9 @@ Define("Control",
                 return;
             }
 
+            if((m_field.Type == "Integer" || m_field.Type == "Decimal") && value && value.replace)
+                value = value.replace(/\,/g,'');
+
             if(m_field.Mask){
                 var opts = null;
                 var mask = m_field.Mask;

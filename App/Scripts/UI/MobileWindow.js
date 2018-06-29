@@ -281,7 +281,34 @@ Define("Window", null, function () {
         return false;
     };
 
+    this.AnimateActionBar = function(){
+        if(m_actionCount > 0){      
+            var bar = $("#" + m_id + "actions");      
+            bar.show();
+            if(m_moreID){
+                $("#"+m_moreID).hide();
+                var count = 0;
+                $.each(bar.children(),function(index,value){
+                    if($(value).css('display') !== 'none'){
+                        count += 1;
+                        if(count === 4)
+                            $("#"+m_moreID).show().detach().insertBefore($(value));
+                    }
+                });
+                if(count === 4)
+                    $("#"+m_moreID).hide();
+            }
+            setTimeout(function(){
+                bar.animate({
+                    bottom: 60 - bar.height()
+                });
+            },500);
+        }
+    };
+
     this.Show = function (w) {
+                
+        this.AnimateActionBar();
 
         if (m_options.dialog == true) {
             if (m_boxy.isVisible() == false) {
@@ -290,15 +317,7 @@ Define("Window", null, function () {
             }
             return;
         }
-
-        if(m_actionCount == (m_maxActions+1) && m_moreID)
-            $("#"+m_moreID).remove();
-
-        if(m_actionCount > 0)
-            $("#" + m_id + "actions").show().animate({
-                bottom: 60 - $("#" + m_id + "actions").height()
-            });
-
+            
 		$("#" + m_id + "loader").remove();
         m_preLoading = false;
 
@@ -609,7 +628,7 @@ Define("Window", null, function () {
         m_actionCount += 1;
 
         if(m_actionCount == m_maxActions)
-            _self.AddButton("More","mdi-chevron-right","More");
+             _self.AddButton("More","mdi-chevron-right","More");
 
         var id = m_id + "action" + $id();
 

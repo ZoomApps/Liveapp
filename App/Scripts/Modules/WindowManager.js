@@ -94,38 +94,39 @@ DefineModule("WindowManager",
 
         this.CloseAll = function (keephome_) {
 
-            Application.RunNext(function () {
-                return $loop(function (i) {
-                    return $codeblock(
+            if(m_queue.length > 0)
+                Application.RunNext(function () {
+                    return $loop(function (i) {
+                        return $codeblock(
 
-                        function () {
+                            function () {
 
-                            var id = m_queue[m_queue.length - 1].ID();
-                            //_self.Open(id);
-                            return _self.Close(id, true);
-                        },
+                                var id = m_queue[m_queue.length - 1].ID();
+                                //_self.Open(id);
+                                return _self.Close(id, true);
+                            },
 
-                        function (r) {
+                            function (r) {
 
-                            var id = m_queue[m_queue.length - 1].ID();
+                                var id = m_queue[m_queue.length - 1].ID();
 
-                            if (r == true) //cancelled
-                                return;
+                                if (r == true) //cancelled
+                                    return;
 
-                            if (m_queue.length != 0 && !keephome_)
-                                return $next;
-
-                            if (keephome_) {
-                                if (m_queue.length != 1) {
+                                if (m_queue.length != 0 && !keephome_)
                                     return $next;
-                                } else {
-                                    return _self.Open(m_queue[0].ID());
+
+                                if (keephome_) {
+                                    if (m_queue.length != 1) {
+                                        return $next;
+                                    } else {
+                                        return _self.Open(m_queue[0].ID());
+                                    }
                                 }
                             }
-                        }
-                    );
-                });
-            });
+                        );
+                    });
+                },null,"CLOSEALLWINDOWS");
         };
 
         this.RemoveAll = function () {

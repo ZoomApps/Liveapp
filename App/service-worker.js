@@ -1,16 +1,8 @@
-var CACHE_NAME = 'LiveappCache-V%PARAM:INSTANCEVERSION%';
+var CACHE_NAME = 'LiveappCache-5_6';
 
 self.addEventListener('install', function (event) {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(function (cache) {
-            return cache.addAll(
-                [
-                    '%SERVERADDRESS%%PARAM:INSTANCE%',
-                    '%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true',
-                    '%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true'
-                ]
-            );
-        }).then(function() {
+        caches.open(CACHE_NAME).then(function() {
             return self.skipWaiting();
           })
     );
@@ -36,17 +28,20 @@ self.addEventListener('activate', function (event) {
 });
 
 self.addEventListener('fetch', function(event) {
-    //console.log(event.request);
     event.respondWith(
-        caches.match(event.request)
-        .then(function(response) {
-            // Cache hit - return response
-            if (response) {
-                console.log('Im Cached!');
-                return response;
-            }
-            return fetch(event.request);
-        }
-        )
+        caches.open(CACHE_NAME).then(function(cache) {
+            return cache.match(event.request).then(function(response) {
+                // Cache hit - return response
+                if (response) {
+                    console.log('Im Cached!');
+                    return response;
+                }
+                return fetch(event.request).then(function(response) {
+                    if(event.request.method === "GET")
+                      cache.put(event.request, response.clone());
+                    return response;
+                });
+            });
+        })
     );
 });

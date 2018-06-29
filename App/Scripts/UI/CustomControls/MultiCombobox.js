@@ -254,11 +254,11 @@ Define("MultiCombobox",
 			
             if (m_loaded) {
                 if (typeof value == 'undefined') {
+                    _self.Loaded(true);                    
+                }else{
+                    _base.Control().val(value);
                     _self.Loaded(true);
-                    return;
                 }
-                _base.Control().val(value);
-                _self.Loaded(true);
             }
 
             //if (!m_loaded || Application.IsInMobile()) {
@@ -336,6 +336,30 @@ Define("MultiCombobox",
                 _base.Control().parent().hide();
             }
         };
+
+        this.Enabled = function (value_, update_) {
+
+            _base.Enabled(value_, update_);
+
+            if (!Application.IsInMobile()) {
+                if(_base.Field().Editable){
+                    _base.Control().multiselectcombo('enable');
+                    _base.Control().next().css('background','');
+                }else{
+                    _base.Control().multiselectcombo('disable');
+                    _base.Control().next().css('background','rgb(235, 235, 228)');
+                }
+            }else{
+                _base.Control().selectmenu();
+                if(_base.Field().Editable){
+                    _base.Control().selectmenu('enable');
+                }else{
+                    _base.Control().selectmenu('disable');
+                }
+            }
+
+            return _base.Enabled();
+        }
 
         //#endregion
 
