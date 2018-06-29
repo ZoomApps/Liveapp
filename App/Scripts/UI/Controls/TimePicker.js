@@ -31,13 +31,18 @@ Define("TimePicker",
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
+                var mininterval = parseInt(Default(Application.OptionValue(_base.Field().Options,'mininterval'),5));
+
                 //Setup timepicker.
                 cont.timepicker({
-                    showPeriod: true,
+                    showPeriod: !Application.HasOption(_base.Field().Options,'24hours'),
                     showLeadingZero: true,
                     showDeselectButton: true,
                     showNowButton: true,
-					deselectButtonText: "Clear"
+                    deselectButtonText: "Clear",
+                    minutes: {                                                
+                        interval: mininterval
+                    }
                 });
 
             });
@@ -50,13 +55,18 @@ Define("TimePicker",
             .addClass("ui-combobox")
             .css("width", "100%");
 
+            var mininterval = parseInt(Default(Application.OptionValue(_base.Field().Options,'mininterval'),5));
+
             var cont = $('<input>')
             .appendTo(container)
             .timepicker({
-                showPeriod: true,
+                showPeriod: !Application.HasOption(_base.Field().Options,'24hours'),
                 showLeadingZero: true,
                 showDeselectButton: true,
-                showNowButton: true
+                showNowButton: true,
+                minutes: {                                                
+                    interval: mininterval
+                }
             })
             .addClass("ui-widget ui-widget-content ui-corner-left")
 	        .css("width", "80%")
@@ -79,7 +89,7 @@ Define("TimePicker",
                 return;
 
             if (value != null) {
-                _base.Control().val(Application.FormatDate(value,'hh:mm a'));
+                _base.Control().val(Application.FormatDate(value, Application.HasOption(_base.Field().Options,'24hours') ? 'HH:mm' : 'hh:mm a'));
             } else {
                 _base.Control().val(null);
             }

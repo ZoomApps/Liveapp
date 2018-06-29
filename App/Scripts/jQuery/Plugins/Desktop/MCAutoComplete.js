@@ -36,7 +36,10 @@ $.widget('custom.mcautocomplete', $.ui.autocomplete, {
                 } else {
                     var dd = $('<span class="ui-state-default" style="padding:0 4px;float:left;width:15px;background-color:transparent;border:0px;color:white;cursor:pointer;"><small>edit</small></span>');
                     dd.on('click', function () {
-                        Application.App.LoadPage(self.options.drilldown, self.options.drilldownview); //#44 - Apply lookup view
+                        var opts = {};
+                        if(ThisViewer() && ThisViewer().Dialog && ThisViewer().Dialog())
+                            opts.dialog = true;
+                        Application.App.LoadPage(self.options.drilldown, self.options.drilldownview, opts); //#44 - Apply lookup view
                     })
 					.mouseover(function () {
 					    $(this).removeClass("ui-state-default");

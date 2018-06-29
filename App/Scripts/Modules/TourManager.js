@@ -54,7 +54,7 @@
 			if(!viewer.Page().Name || viewer.Page().Name == "")
 				return;	
 
-			if(Application.IsMobileDisplay())
+			if(Application.IsMobileDisplay() || Application.IsInFrame())
 				return;
 			
 			return $codeblock(

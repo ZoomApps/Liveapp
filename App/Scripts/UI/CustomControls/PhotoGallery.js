@@ -100,7 +100,7 @@ Define("PhotoGallery",
                 $('#gallery' + _base.ID() + el).html("");
             });
             
-            $('#gallery' + _base.ID()).html("");
+            $('#gallery' + _base.ID()).children().remove();
 
 			for(var i = 0; i < m_archiveButtons.length; i++){
 				m_archiveButtons[i].remove();
@@ -257,13 +257,12 @@ Define("PhotoGallery",
             });
             
         };
-
-        function RefreshGallery(parent_) {
-			
-			parent_ = Default(parent_,'#gallery' + _base.ID());
-			
-            Application.RunSilent($(parent_).lightGallery().destroy);
-            $(parent_).lightGallery({                
+		
+        function RefreshGallery() {
+            Application.RunSilent(function(){
+                $('#gallery' + _base.ID()).lightGallery().data('lightGallery').destroy(true);
+            });
+            $('#gallery' + _base.ID()).lightGallery({                
                 showThumbByDefault: true,
                 addClass: 'showThumbByDefault',
                 cssEasing: 'cubic-bezier(1.000, 0.000, 0.000, 1.000)'

@@ -1066,8 +1066,8 @@ Application.HookCacheEvents = function(){
 			},
 			false
 		);
-
-    } else {
+                
+    }else{
         Application.LogDebug('App cache not supported.');
     }
 };
@@ -1519,13 +1519,11 @@ Application.HideProgress = function () {
 };
 
 Application.StrSubstitute = function (msg) {
-
-    //Use arguments to replace $ const values.
-    for (var i = 1; i < arguments.length; i++)
-        while (msg.indexOf("$" + i) != -1)
-            msg = msg.replace("$" + i, arguments[i]);
-
-    return msg;
+    var a = arguments;
+    return msg.replace(/\$(\d+)/g, function(match, number) {
+      return typeof a[+number] !== 'undefined'
+        ? a[+number] : match;
+    });
 };
 
 Application.LoadParams = function (arr, paramstr) {

@@ -527,6 +527,8 @@ Define("Grid",
                     hidden: false,
                     sortable: true,
 					sorttype: function (cell, obj) {
+                        if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell.replace)
+                            cell = cell.replace(/\,/g,'');                        
 						if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell != "")
 							return parseFloat(cell);
 						return cell;
@@ -539,6 +541,8 @@ Define("Grid",
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null")
                             return "";
+                        if((field.Type == "Integer" || field.Type == "Decimal") && cellvalue && cellvalue.replace)
+                            cellvalue = cellvalue.replace(/\,/g,'');
                         if(field.Mask){
                             var opts = null;
                             var mask = field.Mask;
@@ -558,6 +562,9 @@ Define("Grid",
                     },
                     editoptions: {
                         custom_element: function (value, options) {
+
+                            if((field.Type == "Integer" || field.Type == "Decimal") && value && value.replace)
+                                value = value.replace(/\,/g,'');
 
 							value = MandatoryRevert(value, field);
 							
@@ -1017,11 +1024,13 @@ Define("Grid",
         };
 
         function OnBind(offset, load) {
-            for (var i = offset; i < m_dataSource.length; i++) {
-                if (i > offset + load)
-                    return;
-                _self.OnBindRow((i+1), m_dataSource[i], m_grid.getInd(i + 1, true));
-            }
+            setTimeout(function(){
+                for (var i = offset; i < m_dataSource.length; i++) {
+                    if (i > offset + load)
+                        return;
+                    _self.OnBindRow((i+1), m_dataSource[i], m_grid.getInd(i + 1, true));
+                }
+            },50);
         };		
 		
 		function UpdateComboCell(field, cellvalue, rowObject){

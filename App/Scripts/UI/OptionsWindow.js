@@ -199,12 +199,31 @@ Define("OptionsWindow", null, function (options_) {
 						//Add filtering fields.				
 						var cmbFields = $("<select id='" + m_window.ID() + "fields' class='ui-widget ui-widget-content ui-corner-left' style='width: auto; max-width: 200px; font-size: 16px; margin-left: 10px; margin-bottom: 20px;' />");
 						m_container.append(cmbFields);
-						cmbFields.append("<option value='ADDNEW'>Add new filter...</option>");
+                        cmbFields.append("<option value='ADDNEW'>Add new filter...</option>");
+                        var f = [];
 						for (var i = 0; i < m_table.Columns.length; i++) {
 							var col = m_table.Columns[i];
-							var name = col.Name;
-							cmbFields.append("<option value='" + name + "'>" + col.Caption + "</option>");
-						}
+                            var name = col.Name;
+                            if(!Application.HasOption(col.Options,'hidefilter'))
+							   f.push({
+                                   name: name, 
+                                   caption: col.Caption
+                                }); 
+                        }
+
+                        f.sort(function (a, b) {
+                            if (a.caption == b.caption)
+                                return 0;
+                            if (a.caption > b.caption) {
+                                return 1;
+                            } else {
+                                return -1;
+                            }
+                        });
+                        
+                        $.each(f,function(index,value){
+                            cmbFields.append("<option value='" + value.name + "'>" + value.caption + "</option>");
+                        });                        
 
 						cmbFields.change(function () {
 							_self.AddFilter(this.value);
@@ -334,7 +353,7 @@ Define("OptionsWindow", null, function (options_) {
 
         for (var i = 0; i < m_controls.length; i++) {
             m_controls[i].Loaded(loaded_);
-			m_controls[i].SetSize(690, 730);
+			m_controls[i].SetSize(m_window.InnerWidth(), 730);
         }
     };
 
@@ -489,6 +508,8 @@ Define("OptionsWindow", null, function (options_) {
 
 			} else if (field.Type == "Integer") {
 
+                if(value_ && value_.replace)
+                    value_ = value_.replace(/\,/g,'');
 				var i = parseInt(value_);
 				if (isNaN(i))
 					Application.Error("Invalid integer: " + value_);
@@ -496,6 +517,8 @@ Define("OptionsWindow", null, function (options_) {
 
 			} else if (field.Type == "Decimal") {
 
+                if(value_ && value_.replace)
+                    value_ = value_.replace(/\,/g,'');
 				var i = parseFloat(value_);
 				if (isNaN(i))
 					Application.Error("Invalid decimal: " + value_);

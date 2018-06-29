@@ -123,7 +123,7 @@ DefineModule("App",
 
                         //Set title.
                         m_params["title"] = decodeURIComponent(m_params["title"]).replace(/\+/g, ' ');
-                        parent.document.title = m_params["title"];
+                        window.document.title = m_params["title"];
                         if (Application.IsInMobile() && m_params["img"].indexOf("Portrait") == -1)
                             m_params["title"] = '<img src="' + m_params["img"] + '" style="max-height: 20px;" />';
                         $("#windowTitle").html(m_params["title"]);
@@ -691,7 +691,7 @@ DefineModule("App",
                 UI.WindowManager.HasHome(true);
             }
 
-
+            $('.main-table').css('padding-top','0px');
             Application.Loading.Hide("tdMain");
 
             m_loaded = true;
@@ -1409,6 +1409,8 @@ DefineModule("App",
             $("#divMobileHeader,#AppWindows").hide();
             $("#divLogin,#imgHeader").show();
 
+            $("#AppWorkspace").css("height","");
+
             $("#txtUsername, #txtPassword, #chkRemember").unbind("keyup", _self.LoginClick);
             $("#txtUsername, #txtPassword, #chkRemember").keyup(_self.LoginClick);
             
@@ -1719,14 +1721,30 @@ DefineModule("App",
 
 				function(){
 					
-					m_runningStartup = false;
-					
-					if($moduleloaded("OfflineManager"))
-						return Application.Offline.LoadDatapack();
-				},
-				
-                _self.CheckChangePassword,
+					m_runningStartup = false;									
+                        
+                    if (!Application.IsInFrame())
+                        return $codeblock(
 
+                            _self.CheckChangePassword,
+
+                            function(){
+                                COUNT("Xpress Global Search Setup",null,function(r){
+                                    if(r.Count === 0){
+                                        m_hideSearch = true;
+                                        $(".search-container").hide();
+                                    }
+                                });
+                            }
+                            
+                        );
+                },
+
+                function(){
+                    if($moduleloaded("OfflineManager"))
+                        return Application.Offline.LoadDatapack();
+                },
+				
                 function () { //Load the main menu.                      
 
                     if (Application.IsInFrame() || Application.restrictedMode) {
@@ -1955,7 +1973,7 @@ DefineModule("App",
             if (value === undefined) {
                 return $("#chkRemember").prop('checked');
             } else {
-                $("#chkRemember").prop('checked', value);
+                $("#chkRemember").prop('checked', value);                
                 if (Application.IsInMobile())
                     $("#chkRemember").checkboxradio('refresh');
             }

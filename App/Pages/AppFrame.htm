@@ -2,22 +2,26 @@
 <html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;" manifest="%SERVERADDRESS%Pages/2?instance=%PARAM:INSTANCE%">
 <head>
     <title></title>
-
-    <link rel="icon" href="favicon.png" type="image/x-icon" /> 
-    <link rel="shortcut icon" href="favicon.png" type="image/x-icon" /> 
     
     <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 
-    <script type="text/javascript">
-        var PAGE_PARAMETERS = "%PARAM:PAGEPARAMS%";    
-    </script>
+    <link rel="manifest" href="%SERVERADDRESS%manifest.json?instance=%PARAM:INSTANCE%" type="application/manifest">
 
-    <link href="%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/css" rel="stylesheet" />
+    <script type="text/javascript">
+
+        var PAGE_PARAMETERS = "%PARAM:PAGEPARAMS%";
+
+    </script>    
     
-    <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/javascript"></script>
+    <link href="%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/css" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,500' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+        
+    <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true" type="text/javascript"></script>
     
     <script type="text/javascript">
+
 
         //Check if the scripts loaded.
         if (typeof Application == 'undefined') {
@@ -30,15 +34,20 @@
 
             alert("%LANG:ERR_LOADFAILED%");
             throw "";
-        }  
+        }
+
+        Application.developerMode = !%PARAM:MINIFY%;
+        
 
         //Page Loader
         $(document).ready(function () {
-
+            
             Application.LoadModules(Application.windowType.Frame);
-            Application.HookPageEvents();
+            Application.HookPageEvents("%PARAM:INSTANCE%");
+            
+            
         });
-       
+
     </script>
 
     <!--[if lte IE 8]>    	    
@@ -73,15 +82,14 @@
                 <center>
                     <!-- LOGIN FORM -->
                     <div id="divLogin" class="ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all"
-                        style="text-align: left; width: 400px; display: none; margin-top: 50px; background-color: #FBFBFF; padding: 10px;">
+                        style="text-align: left; width: 400px; display: none; margin-top: 50px; background-color: #FBFBFF; padding: 10px;">                        
                         <h1 id="hdrLogin">%LANG:S_LOGINPROMPT%</h1>                     
-                        <fieldset>                
+                        <fieldset id="fieldsLogin">                
                             <input type="text" id="txtUsername" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="1" placeholder="Username" />
                             <input type="password" id="txtPassword" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="2" placeholder="Password" />
                             <br />
                             <span id="spanRemember"><input type="checkbox" id="chkRemember" onclick="Application.App.RememberOnClick();" tabindex="3">%LANG:S_REMEMBER%</value></span>
-                        </fieldset>
-                        <br />
+                        </fieldset>                        
                         <br />
                         <div id="btnLogin" onclick="Application.RunNext(Application.App.Login);" 
                             onmouseover="$(this).addClass('mobilebtn-hover');" 
@@ -91,35 +99,12 @@
                         </div>
                     </div>                      
                 </center>
-            </td>            
-            <td id="tdSide" class="main-side" style="width: 24%; min-width: 30px;">
-                <div id="SideWindows" class="main-windowstb" style="height: 30px;">
-                    <a href='#' onclick='Application.App.ToggleSide();' class='ui-corner-all'><img id="sideToggle" border="0" src="%SERVERADDRESS%Images/Icons/icon-arrowright.png" style="display: none;"></span></a>
-                </div>
+            </td>
+            <td id="tdSide" class="main-side" style="width: 24%; min-width: 30px; vertical-align: top; padding: 3px 23px 3px 3px;">
                 <div id="AppSideWorkspace" class="main-window-side">
                 </div>
             </td>
         </tr>        
-        <tr id="trFooter">
-            <td class="main-center footer-box">
-                <table id="tdFooter" style="width: 100%;">
-                    <tr>
-                        <td class="footer-text" style="width: 60%;">
-                            <script type="text/javascript">
-                                if (typeof Application != 'undefined')
-                                    document.write(Application.copyright + '. ' + Application.name + ' v' + Application.version);
-                            </script>
-                        </td>
-                        <td style="width: 40%; text-align: right;">
-                            <div id="divStatus" class="footer-text">
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td class="main-side">
-            </td>
-        </tr>
     </table>
   
 </body>
