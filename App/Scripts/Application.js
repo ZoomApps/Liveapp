@@ -2422,23 +2422,28 @@ Application.MergeView = function (view, rec) {
 
     if(view == null) return "";
 
-    var check = new RegExp('\=FIELD\\(((.*?))\\)', 'g');
-    var consts = view.match(check);
-    if (consts && rec) {
-        for (var j = 0; j < consts.length; j++) {
-            var name = consts[j].replace(check, '$2');
-            var f = rec.GetField(name);            
-            if (f) {
-                if(f.Value == null || f.Value == "" || f.Value == 0)
-                    f.Value = null;
-                if(f.Value && f.Value.getMonth){           
-                    view = view.replace("=FIELD(" + consts[j].replace(check, '$1') + ")", "=CONST(" + $.format.date(f.Value,"dd/MM/yyyy") + ")");
-                }else{
-                    view = view.replace("=FIELD(" + consts[j].replace(check, '$1') + ")", "=CONST(" + f.Value + ")");
-                }
-            }         
+    function MergeFields(keyword){        
+        var check = new RegExp('\='+keyword+'\\(((.*?))\\)', 'g');
+        var consts = view.match(check);
+        if (consts && rec) {
+            for (var j = 0; j < consts.length; j++) {
+                var name = consts[j].replace(check, '$2');
+                var f = rec.GetField(name);            
+                if (f) {
+                    if(f.Value == null || f.Value == "" || f.Value == 0)
+                        f.Value = null;
+                    if(f.Value && f.Value.getMonth){           
+                        view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + $.format.date(f.Value,"dd/MM/yyyy") + ")");
+                    }else{
+                        view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + f.Value + ")");
+                    }
+                }         
+            }
         }
     }
+
+    MergeFields('FIELD');
+    MergeFields('FILTERFIELD');
 
     view = Application.ViewSubstitute(view);
 
@@ -3366,10 +3371,23 @@ function app_debouncer(func, timeout) {
  * var ret = Application.DecodeHTML('&amp;lt;html&amp;gt;&amp;lt;/html&amp;gt;')
  * // ret = '&lt;html&gt;&lt;/html&gt;'
  */
-Application.DecodeHTML = function(text){
-	var decoded = $('<div/>').html(text).text();
-	return decoded;
-};
+Application.DecodeHTML = (function() {
+
+    var element = window.document.createElement('textarea');
+
+    function decodeHTMLEntities(str) {
+        if (str && typeof str === 'string') {
+            str = str.replace(/</g, '&lt;');
+            element.innerHTML = str;
+            str = element.textContent;
+            element.textContent = '';
+        }
+
+        return str;
+    }
+
+    return decodeHTMLEntities;
+})();
 
 /**
  * Decrypts a string using AES.
@@ -4189,9 +4207,9 @@ OPENPAGE = function (id, filters, options, parent, singleThread, sorting){
     var f = "";
     for (var i in filters) {
         if(f.length == 0){
-            f += i + "=CONST("+filters[i]+")";
+            f += i + "=FILTER("+filters[i]+")";
         }else{
-            f += ", "+ i + "=CONST("+filters[i]+")";
+            f += ", "+ i + "=FILTER("+filters[i]+")";
         }
     }
     if(f.length > 0)

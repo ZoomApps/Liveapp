@@ -1,3 +1,25 @@
+<a name="5.6.1"></a>
+# Liveapp v5.6.1 (July 2018)
+
+## Bug Fixes
+
+  - **application**
+    - reflected cross site scripting (OTG-INPVAL­001)
+    - openpage error when using filter operators ([#88](https://github.com/ZoomApps/Liveapp/issues/88))
+
+  - **pageviewer**
+    - page error saves invalid page filters ([#89](https://github.com/ZoomApps/Liveapp/issues/89))
+
+  - **server**
+    - weak encryption (OTG­-CRYPST­-004)
+    - browser cache weakness (OTG-AUTHN­006)
+
+## Features
+
+  - **app**
+    - new filter keyword FILTERFIELD ([#87](https://github.com/ZoomApps/Liveapp/issues/87))
+
+
 <a name="5.6"></a>
 # Liveapp v5.6 (May/June 2018)
 

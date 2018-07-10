@@ -1238,24 +1238,29 @@ Define("OptionsWindow", null, function (options_) {
 			var rec = m_record;
 			if(view == null) return "";
 
-			var check = new RegExp('\=FIELD\\(((.*?))\\)', 'g');
-			var consts = view.match(check);
-			if (consts) {
-				for (var j = 0; j < consts.length; j++) {
-					var name = consts[j].replace(check, '$2');
-					var cont = _self.Control(name);					
-					var f = Default(rec[name], null);            										
-					if(f == "null" || f == "" || f == 0)
-						f = null;
-					if(f && cont && (cont.ObjectType() == "MultiCombobox" || cont.ObjectType() == "MultiSelect"))
-						f = f.replace(/,/g,'|');
-					if(f && f.getMonth){           
-						view = view.replace("=FIELD(" + consts[j].replace(check, '$1') + ")", "=CONST(" + $.format.date(f,"dd/MM/yyyy") + ")");
-					}else{
-						view = view.replace("=FIELD(" + consts[j].replace(check, '$1') + ")", "=CONST(" + f + ")");
-					}					      
-				}
-			}
+            function MergeFields(keyword){       
+                var check = new RegExp('\='+keyword+'\\(((.*?))\\)', 'g');
+                var consts = view.match(check);
+                if (consts) {
+                    for (var j = 0; j < consts.length; j++) {
+                        var name = consts[j].replace(check, '$2');
+                        var cont = _self.Control(name);					
+                        var f = Default(rec[name], null);            										
+                        if(f == "null" || f == "" || f == 0)
+                            f = null;
+                        if(f && cont && (cont.ObjectType() == "MultiCombobox" || cont.ObjectType() == "MultiSelect"))
+                            f = f.replace(/,/g,'|');
+                        if(f && f.getMonth){           
+                            view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + $.format.date(f,"dd/MM/yyyy") + ")");
+                        }else{
+                            view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + f + ")");
+                        }					      
+                    }
+                }
+            }
+
+            MergeFields('FIELD');
+            MergeFields('FILTERFIELD');
 
 			view = Application.ViewSubstitute(view);
 
