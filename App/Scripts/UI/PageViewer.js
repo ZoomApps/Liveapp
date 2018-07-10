@@ -3825,7 +3825,7 @@ Define("PageViewer",
 						var filters = Application.GetFilters(m_view);
 						m_layout.Filters = {};
 						for (var i = 0; i < filters.length; i++) {
-						    m_layout.Filters[filters[0]] = filters[1];
+						    m_layout.Filters[filters[i][0]] = filters[i][1];
 						}
 						_self.SaveLayout();
 					}					
