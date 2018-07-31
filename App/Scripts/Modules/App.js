@@ -680,7 +680,7 @@ DefineModule("App",
 
             //Load external page or home page.
             if (m_params["pageid"] != null) {
-                _self.LoadExternalPage(m_params["pageid"], true);
+                _self.LoadExternalPage(m_params["pageid"], false);
                 UI.WindowManager.HasHome(true);
             }
 

@@ -63,7 +63,7 @@ Define("Window", null, function () {
             m_hidden = true;
 
         //Generate a new id for the window.
-        m_id = $id();
+        m_id = options_.windowid || $id();
 
         //Create the window.
         if (m_options.workspace != null) {
@@ -242,7 +242,7 @@ Define("Window", null, function () {
         $("#"+m_id+"containertitle").html(m_options.homepage ? '<img class="navbar-logo" src="'+Application.App.Params()["img"]+'" />'
              : m_title);
 
-        if(m_options.shortcutWorkspace || m_options.homepage){
+        if((m_options.shortcutWorkspace || m_options.homepage) && !m_options.showtitles){
             $("#title" + m_id).parent().hide();
         }else{
             $("#title" + m_id).html(m_title);
@@ -384,7 +384,7 @@ Define("Window", null, function () {
             _self = null;
         }
 
-        if(!m_container){
+        if(!m_container || !m_visible){
             DestroyWindow();
         }else{
             if(m_prevContainer){
@@ -833,7 +833,7 @@ Define("Window", null, function () {
 
     this.Main = function () {
         return $('#' + m_id + 'main');
-    }
+    }   
 
     //#endregion
 

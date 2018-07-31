@@ -652,7 +652,7 @@ Define("Window", null, function () {
         }
         var $action = $("<div id='" + id + "' class='unselectable app-button' style='border-width: 0px;'>" + imgcode + UI.InputManager.AddKeyBinding(text, id, m_id) + "</div>");
 
-        $action.click(func);
+        $action.on('mousedown',func);
         $("#" + m_id + "actions").append($action);
 
         return $action;

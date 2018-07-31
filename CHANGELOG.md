@@ -1,3 +1,51 @@
+<a name="5.7"></a>
+# Liveapp v5.7 (July 2018)
+
+## Bug Fixes
+
+  - **app**
+    - option fields using a custom control validate incorrectly
+    - frame mode layout fixes
+    - disable pull down to refresh in chrome
+
+  - **checkbox**
+    - mobile checkbox is double validating (v5.x)
+
+  - **pageviewer**
+    - stop double validate of fields
+    - stop auto select of field after validate
+
+  - **server**
+    - increase auto disconnect to 20 mins
+
+  - **serviceworker**
+    - don't cache bad responses (v5.x)
+
+  - **textbox**
+    - `password` option not working on an `OptionsWindow`
+
+  - **timepicker**
+    - when using `24hours` option, the value validates incorrectly
+
+  - **window**
+    - cannot click a page action while validating a field value
+
+## Features
+
+  - **pageviewer**
+    - when using option `loadColumnsOnly`, automatically add primary keys
+    - change tablet mode to single column
+
+  - **style**
+    - add line action styles to desktop (v5.x)
+
+  - **ui**
+    - if `Application.Message` contains a question mark change icon to `question`
+
+  - **window**
+    - add new option `showtitles` to show tab titles for sub windows on the home screen
+
+
 <a name="5.6.1"></a>
 # Liveapp v5.6.1 (July 2018)
 

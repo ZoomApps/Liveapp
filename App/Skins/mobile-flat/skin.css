@@ -4258,7 +4258,7 @@ body {
 }
 .title {
     font-size: 21px;
-    white-space: nowrap;
+    white-space: normal;
     overflow-x: hidden;
     text-overflow: ellipsis;
     overflow-y: hidden;

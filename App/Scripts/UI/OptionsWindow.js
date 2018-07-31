@@ -717,7 +717,11 @@ Define("OptionsWindow", null, function (options_) {
 
 			} else if (field.Type == "Time") {
 
-				value_ = Application.ParseTime(value_);
+                if(Application.HasOption(field.Options,'24hours') && typeof value_ === 'string'){
+                    value_ = moment('1900/01/01 '+value_,'YYYY-MM-DD HH:mm').toDate();
+                }else{
+                    value_ = Application.ParseTime(value_);
+                }
 
 			} else if (field.Type == "DateTime") {
 
@@ -758,7 +762,7 @@ Define("OptionsWindow", null, function (options_) {
 			}
 		}
 
-		if (field.OptionCaption != "" && value_ != null && field.Type != "BigText") {
+		if (field.OptionCaption != "" && value_ != null && field.Type != "BigText" && field.CustomControl === '') {
 
 			var found = false;
 			var vals = field.OptionString.split(",");

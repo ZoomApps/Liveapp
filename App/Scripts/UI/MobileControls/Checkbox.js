@@ -31,12 +31,12 @@ Define("Checkbox",
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
-                cont.unbind('focus');
+                cont.unbind("change");
                 cont.change(function () {
                     if (_base.Loaded() == false)
                         return;
                     _base.Viewer().XFocusControl(cont);
-                    _self.OnValueChange(_base.Field().Name, _base.Control().prop("checked"));
+                    _self.OnValueChange(_base.Field().Name, _base.Control().is(":checked"));
                 });
 
             });
@@ -55,8 +55,8 @@ Define("Checkbox",
                 _self.Loaded(true);
                 return;
             }
-
-            _base.Control().prop("checked", value);
+            
+            _base.Control()[0].checked = value;
 
             _self.Loaded(true);
         };

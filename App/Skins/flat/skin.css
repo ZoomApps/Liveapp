@@ -716,8 +716,8 @@ a,visited{
     vertical-align: top; 
     width: 10px; 
     height: auto; 
-    margin-top: 5px !important;
-    margin-left: 5px !important; 
+    margin-top: 5px;
+    margin-left: 5px; 
     background: White !important;
     border: 1px solid #f1f1f1 !important;
     font-weight: Normal !important; 
@@ -878,6 +878,7 @@ a,visited{
     font-variant: normal;
     font-weight: 400;
     line-height: 22.5px;
+    box-sizing: border-box;
 }
 
 .app-control
@@ -906,6 +907,44 @@ a,visited{
 
 .app-button:hover {
     background: whitesmoke; 
+}
+
+.lineactions {
+	position: fixed;
+    overflow-y: auto;
+    z-index: 30001;
+    width: 50vw;
+    background: white;
+    height: 80vh;
+    top: 10%;
+    left: 25%;
+}
+
+.lineactions-title {
+	border-width: 0px; 
+	padding: 15px; 
+	width: auto; 
+	display: block; 
+	height: 35px; 
+	box-sizing: border-box; 
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.lineactions-btn {
+	border-width: 0px; 
+	padding-left: 20px; 
+	width: auto; 
+	display: block; 
+	background: white; 
+	height: 40px; 
+	line-height: 40px; 
+	box-sizing: border-box;
+	font-size: 14px;
+	font-weight: 500;
+	text-transform: uppercase;
+    color: rgba(0,0,0,0.5);
+    cursor: pointer;
 }
  
 /*#endregion*/

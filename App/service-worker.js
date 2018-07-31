@@ -32,12 +32,12 @@ self.addEventListener('fetch', function(event) {
         caches.open(CACHE_NAME).then(function(cache) {
             return cache.match(event.request).then(function(response) {
                 // Cache hit - return response
-                if (response) {
+                if (response && response.ok) {
                     console.log('Im Cached!');
                     return response;
                 }
                 return fetch(event.request).then(function(response) {
-                    if(event.request.method === "GET")
+                    if(event.request.method === "GET" && response.ok)
                       cache.put(event.request, response.clone());
                     return response;
                 });
