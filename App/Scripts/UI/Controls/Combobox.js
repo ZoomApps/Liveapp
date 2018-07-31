@@ -238,7 +238,8 @@ Define("Combobox",
                     }
 					
 					if (field.LookupDisplayField != "") {
-						this.value = (ui.item ? ui.item[field.LookupDisplayField] : '');
+                        if(ui.item && !ui.item.BlankRow)
+                            this.value = (ui.item ? ui.item[field.LookupDisplayField] : '');                           		
 						if(_base.Viewer().Record){
 							var rec = _base.Viewer().Record();
 							rec["FF$" + field.Name] = ui.item[field.LookupDisplayField];
@@ -251,7 +252,8 @@ Define("Combobox",
 							_base.Viewer().SetOptions(rec);
 						}
 					} else {
-						this.value = (ui.item ? ui.item[field.LookupField] : '');
+                        if(ui.item && !ui.item.BlankRow)
+                            this.value = (ui.item ? ui.item[field.LookupField] : '');                        
 					}
                 }
 

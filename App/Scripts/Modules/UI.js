@@ -260,7 +260,9 @@ DefineModule("AppUI",
 					var type = "warning";
 					if (msg.toLowerCase().indexOf("done") != -1 || msg.toLowerCase().indexOf("success") != -1 ||
 					title.toLowerCase().indexOf("done") != -1 || title.toLowerCase().indexOf("success") != -1)
-						type = "success";
+                        type = "success";
+                    if (msg.indexOf("?") != -1 || title.indexOf("?") != -1)
+                        type = "question";
 
 					if (title == '%LANG:S_APPMSG%')
 						title = "";

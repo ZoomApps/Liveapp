@@ -40,6 +40,7 @@ Define("TimePicker",
                     showDeselectButton: true,
                     showNowButton: true,
                     deselectButtonText: "Clear",
+                    defaultTime: '',
                     minutes: {                                                
                         interval: mininterval
                     }

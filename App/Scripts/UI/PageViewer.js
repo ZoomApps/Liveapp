@@ -306,7 +306,7 @@ Define("PageViewer",
                     diag = true;
 
                 //Apply form options.
-                if (m_form.Option("singleColumn") || Application.IsMobileDisplay())
+                if (m_form.Option("singleColumn") || Application.IsInMobile())
                     m_options.singleColumn = true;
 
                 //Tabname
@@ -637,8 +637,21 @@ Define("PageViewer",
                     for (var i = 0; i < m_form.Fields.length; i++) {
                         if (m_form.Fields[i].Mandatory)
                             m_record.AddMandatoryField(m_form.Fields[i].Name);
-                        if (m_form.Option("loadColumnsOnly"))
+                    }
+
+                    //Load page columns only.
+                    if (m_form.Option("loadColumnsOnly")){
+                        for (var i = 0; i < m_form.Fields.length; i++) {                                                        
                             m_record.AddLookupField(m_form.Fields[i].Name);
+                        }
+                        //Add primary keys if they aren't on the page.
+                        if(m_record.DatabaseTable()){
+                            for (var i = 0; i < m_record.DatabaseTable().Columns.length; i++) {
+                                var col = m_record.DatabaseTable().Columns[i];
+                                if(col.PrimaryKey && m_form.GetField(col.Name) === null)
+                                    m_record.AddLookupField(col.Name);
+                            }
+                        }
                     }
 
                     //Set the view.                                
@@ -1022,9 +1035,6 @@ Define("PageViewer",
                     _self.LoadControls(true);
 
                 _self.HideLoad();
-
-                if (m_focusControl != null && m_form.Type == "Card" && !Application.IsInMobile())
-                    m_focusControl.select();
 
                 //Focus on first editable field.                
                 if (first_ && m_form.Type == "Card" && !Application.IsInMobile() && !Application.HasOption(m_form.Options,"skipfocus")) {                    
@@ -1594,6 +1604,7 @@ Define("PageViewer",
                                     }
                                 );
                             });
+                        return m_record;
                     }
 
                     m_record.Temp = false;
@@ -1948,7 +1959,11 @@ Define("PageViewer",
 
                 } else if (field.Type == "Time") {
 
-                    value_ = Application.ParseTime(value_);
+                    if(Application.HasOption(field.Options,'24hours') && typeof value_ === 'string'){
+                        value_ = moment('1900/01/01 '+value_,'YYYY-MM-DD HH:mm').toDate();
+                    }else{
+                        value_ = Application.ParseTime(value_);
+                    }
 
                 } else if (field.Type == "DateTime") {
 
@@ -1989,7 +2004,7 @@ Define("PageViewer",
                 }
             }
 
-            if (field.OptionCaption != "" && value_ != null && field.Type != "BigText") {
+            if (field.OptionCaption != "" && value_ != null && field.Type != "BigText" && field.CustomControl === '') {
 
                 var found = false;
                 var vals = field.OptionString.split(",");
@@ -2116,7 +2131,7 @@ Define("PageViewer",
 
             Application.RunNext(function () {                
                 return _self.FinishValidate(name_, value_, rowid_, showLoad_, field);
-            });
+            },null,'VALIDATE'+name_);
 
         };
 
@@ -2641,7 +2656,7 @@ Define("PageViewer",
 
             win.Caption = tab_.Name;
             win.AddColumns();
-            if (m_form.TabOption(tab_, "factbox") || Application.IsMobileDisplay())
+            if (m_form.TabOption(tab_, "factbox") || Application.IsInMobile() || m_options.singleColumn)
                 win.SingleColumn(true);
             win.HideActions();
             win.ShowLoad();
