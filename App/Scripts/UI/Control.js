@@ -67,7 +67,7 @@ Define("Control",
             m_label = $('#lbl' + m_id);
 
             //Set the tab index.
-            m_control.attr("tabindex", m_field.TabIndex);
+            m_control.attr("tabindex", (m_viewer && m_viewer.ID ? m_viewer.ID()+'' : '')+m_field.TabIndex);
             m_control.addClass("app-control");
 			
 			if(m_field.Mandatory)	
@@ -144,7 +144,7 @@ Define("Control",
                 return;
             }
 
-            if((m_field.Type == "Integer" || m_field.Type == "Decimal") && value && value.replace)
+            if((m_field.Type == "Integer" || m_field.Type == "Decimal") && value && value.replace && m_field.Mask !== '')
                 value = value.replace(/\,/g,'');
 
             if(m_field.Mask){

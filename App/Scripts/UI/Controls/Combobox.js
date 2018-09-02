@@ -156,6 +156,7 @@ Define("Combobox",
 				filters = field.LookupFilters();
             options.drilldownview = filters; //#44 - Apply lookup view
             options.menu = Application.HasOption(_base.Field().Options, "menu");
+            options.drillheight = Application.OptionValue(_base.Field().Options, "drillheight");
 
             options.allowdelete = false;
             if (Application.HasOption(field.Options, "allowdelete"))

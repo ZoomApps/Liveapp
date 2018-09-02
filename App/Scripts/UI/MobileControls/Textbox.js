@@ -25,7 +25,9 @@ Define("Textbox",
 
         this.Create = function (window_) {
 
-            var type = "text";            
+            var type = "text"; 
+            if(_base.Field().Type === "Integer" || _base.Field().Type === "Decimal")
+                type = "number";
             if (Application.HasOption(_base.Field().Options, "password"))
                 type = "password";
 

@@ -527,7 +527,7 @@ Define("Grid",
                     hidden: false,
                     sortable: true,
 					sorttype: function (cell, obj) {
-                        if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell.replace)
+                        if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell.replace && field.Mask !== '')
                             cell = cell.replace(/\,/g,'');                        
 						if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell != "")
 							return parseFloat(cell);
@@ -541,7 +541,7 @@ Define("Grid",
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null")
                             return "";
-                        if((field.Type == "Integer" || field.Type == "Decimal") && cellvalue && cellvalue.replace)
+                        if((field.Type == "Integer" || field.Type == "Decimal") && cellvalue && cellvalue.replace && field.Mask !== '')
                             cellvalue = cellvalue.replace(/\,/g,'');
                         if(field.Mask){
                             var opts = null;
@@ -563,7 +563,7 @@ Define("Grid",
                     editoptions: {
                         custom_element: function (value, options) {
 
-                            if((field.Type == "Integer" || field.Type == "Decimal") && value && value.replace)
+                            if((field.Type == "Integer" || field.Type == "Decimal") && value && value.replace && field.Mask !== '')
                                 value = value.replace(/\,/g,'');
 
 							value = MandatoryRevert(value, field);

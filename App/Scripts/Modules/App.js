@@ -646,7 +646,7 @@ DefineModule("App",
 							callback_(form);							
 					}					
                 );
-            }, null, "LOADPAGE" + id_, null, !singleThread_);
+            }, null, "LOADPAGE" + id_ + Default(view_,''), null, !singleThread_);
 
             if (Application.IsInMobile()) {
                 $("#divSideMenu,#divFactbox").panel("close");
@@ -916,8 +916,10 @@ DefineModule("App",
                         Application.connected = false;
                         return;
                     } else if (Application.HasDisconnected(e)) {					
-						if (m_params["returnurl"] != null) 
-							window.location = m_params["returnurl"]+(Application.IsInMobile() ? "?mobile=true" : "");
+						if (m_params["returnurl"] != null){
+                            window.location = m_params["returnurl"];
+                            return;
+                        }
                         m_hideErrors = true;
                         if (Application.restrictedMode) {
                             window.location = Application.url + m_params["instance"];
@@ -1110,6 +1112,9 @@ DefineModule("App",
                             UI.WindowManager.HasHome(true);
                         }
                         _self.LoadExternalPage(m_params["pageid"]);
+
+                        if(window.history && window.history.pushState)
+                            window.history.pushState(null, window.title, "%SERVERADDRESS%"+Application.auth.Instance);
 
                     } else if (id != "") {
                         _self.LoadPage(id, null, { homepage: true });

@@ -801,8 +801,8 @@ Define("PageViewer",
 			}
 			return skipupdate;
 			
-		};		
-		
+        };		
+        
         this.Update = function (first_, showProgress_, skipOpenFunc_) {
 
             _base.SetStatus("");
@@ -2041,7 +2041,8 @@ Define("PageViewer",
 
         this.RecordValidate = function (name_, value_, rowid_, showLoad_) {
             
-            _base.SetStatus("Saving changes...");
+            if(!m_record.Temp)
+                _base.SetStatus("Saving changes...");
 
 			//Partial refresh.
 			m_causedUpdate = null;			
@@ -2138,17 +2139,21 @@ Define("PageViewer",
         this.FinishValidate = function (name_, value_, rowid_, showLoad_, field_) {            
 
 			//Partial refresh.			
-			var skipupdate = _self.SkipPageRefresh();
+            var skipupdate = _self.SkipPageRefresh(),
+                skiptrans = m_record.Temp;
 			
             if (field_.LookupDisplayField != "" && value_ != "" && value_ != null && field_.CustomControl == "" && m_comboSelected) {
                 value_ = m_record[name_];
             }			
 
-            m_comboSelected = false;
+            m_comboSelected = false;            
 
             return $codeblock(
 
-            Application.BeginTransaction,
+            function(){
+                if(!skiptrans)
+                    return Application.BeginTransaction();
+            },
 
             function () {
                 //Get the record (List form only).                    
@@ -2158,22 +2163,25 @@ Define("PageViewer",
                 return _self.Validate(name_, value_, rowid_, field_);
             },
 
-            Application.CommitTransaction,
+            function(){
+                if(!skiptrans)
+                    return Application.CommitTransaction();
+            },
 
             function () {
 
                 m_col = null;
-					m_row = null;									
+                m_row = null;									
 
-					if (m_form.Type == "List")
-						_self.DisableKeys(false);
+                if (m_form.Type == "List")
+                    _self.DisableKeys(false);
 
-					//A change has been made.
-					_self.ChangeMade();
+                //A change has been made.
+                _self.ChangeMade();
 
                 //Reload page?
-                if (field_.ReloadOnValidate || (m_form.Type == "Card" && !Application.HasOption(field_.Options,"skipupdate"))) {
-                        if(m_record.UnsavedChanges()){
+                if (field_.ReloadOnValidate || m_form.Type == "Card") {
+                        if(m_record.UnsavedChanges() || Application.HasOption(m_form.Options,"skipupdate")){
                             return $codeblock(
                                 function(){
                                     return _self.UpdateControls(false);
@@ -2195,7 +2203,8 @@ Define("PageViewer",
 					
 					//Partial refresh.
                     m_causedUpdate = null;	
-                    _base.SetStatus("Changes have been saved");
+                    if(!m_record.Temp)
+                        _base.SetStatus("Changes have been saved");
 				}
 
 			);
@@ -2429,8 +2438,6 @@ Define("PageViewer",
                         if (m_form.Fields[j].Importance == "Additional" && m_options.mobilegrideditor != null) {
                             m_form.Fields[j].Importance = "Standard";
                         }
-                        if (m_form.Fields[j].Type == "BigText" && m_options.mobilegrideditor != null && m_form.Fields[j].LookupTable == "")
-                            m_form.Fields[j].CustomControl = "NotesBox";
                     }
                 }
 

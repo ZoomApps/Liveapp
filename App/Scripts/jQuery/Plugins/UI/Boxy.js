@@ -394,7 +394,7 @@ Boxy.prototype = {
 
     // Move this dialog (y-coord only)
     moveToY: function (y) {
-        if (typeof y == 'number') this.boxy.css({ top: y });
+        if (typeof y == 'number') this.boxy.css({ top: y < 0 ? 0 : y });
         else this.centerY();
         return this;
     },

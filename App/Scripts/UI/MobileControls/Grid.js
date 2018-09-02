@@ -59,7 +59,9 @@ Define("Grid",
             //Issue #95 - Add grouping to mobile grid
             //Get grouping details.
             var options = _base.Viewer().Page().Options;
-            m_grouping = Application.OptionValue(options, "groupfields");            
+            m_grouping = Application.OptionValue(options, "groupfields");    
+            if(m_grouping)
+                m_grouping = m_grouping.split(',')[0];            
 
             $('#tr' + _base.ID()).append('<th style="width: 15px;"></th>');
 
@@ -330,6 +332,8 @@ Define("Grid",
             r.bind("tap", function (ev) {
                 if (ev.originalEvent.isDefaultPrevented()) return;
 
+                ev.preventDefault();
+
 				var lineEditMode = _base.Viewer().LineActions().length > 0;
 				var isRowSelector = false;
 				var isHyperLink = false;
@@ -352,7 +356,7 @@ Define("Grid",
 				
                 if (m_tapped == rid && !lineEditMode) {
 					_self.OnDoubleClick(rowid);					
-                    return;
+                    return false;
                 }
 
                 m_tapped = rid;
@@ -384,7 +388,8 @@ Define("Grid",
                 setTimeout(function () {
                     m_tapped = 0;
                 }, 1000);
-				
+
+                return false;				
             });
 
             //Issue #96 - Add OnBindRow in mobile.
