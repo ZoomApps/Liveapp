@@ -22,6 +22,9 @@ $.widget('custom.mcautocomplete', $.ui.autocomplete, {
         if (this.options.menu)
             ul.css("overflow", "hidden").css("height", "auto");
 
+        if(this.options.drillheight)
+            ul.css('height',this.options.drillheight);
+
         if (this.options.showHeader && !this.options.menu) {
             table = $('<div class="ui-widget-header" style="width:100%; padding-top: 0.3em; padding-bottom: 0.3em;"></div>');
 

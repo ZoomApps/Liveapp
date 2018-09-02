@@ -17,11 +17,12 @@ Define("Grid",
         var m_cols = new Array();
         var m_dataSource = null;
         var m_footer = false;
-        var m_selected = new Array();
+        var m_selected = [];
         var m_loading = false;
         var m_timeoutID = null;
         var m_grouping = null;
-		var m_newSort = null;
+        var m_newSort = null;
+        var m_toggleMulti = false;
 
         //#endregion
 
@@ -33,11 +34,60 @@ Define("Grid",
             _base = Base("Grid");
 
             //Add row id column;
-            m_colNames.push(" ");
+            var options = _base.Viewer() ? _base.Viewer().Page().Options : '';
+            if (Application.HasOption(options, "nomultiselect")){
+                m_colNames.push(" ");
+            }else{
+                var hid = $id();
+                m_colNames.push("<div id='"+hid+"' style='margin-left:-2px'>"+UI.IconImage("mdi-checkbox-blank-outline")+"</div>");
+                Application.RunNext(function () {
+                    $("#" + hid).on('click', function (ev) {
+                        m_toggleMulti = !m_toggleMulti;
+                        if (m_toggleMulti) {
+                            _self.SelectAll();   
+                            $(this).children().first().removeClass("mdi-checkbox-blank-outline").addClass("mdi-checkbox-marked-outline");                 
+                        }else{       
+                            _self.SelectAll(true);                   
+                            $(this).children().first().addClass("mdi-checkbox-blank-outline").removeClass("mdi-checkbox-marked-outline");   
+                        }
+                        ev.preventDefault();
+                        return false;
+                    });
+                });
+            }
             m_cols.push({ name: 'RowId', index: 'RowId', width: '20px', fixed: true, editable: false, sortable: true, search: false, align: 'center', classes: 'row-id', hidedlg: true,
-                formatter: function (cellvalue, options, rowObject) {
+                formatter: function (cellvalue, opts, rowObject) {
+                    
+                    if (!Application.HasOption(options, "nomultiselect")){
+                        var id = $id();
+                        var input = "<input type='checkbox' class='noinput' id='" + id + "' />";
+                        setTimeout(function () {
+                            $("#" + id).on('click', function () {
+                                var rowid = rowObject.RowId;
+                                var recid = _self.DataSourceById(rowid).Record.RecID;
+                                var index = m_selected.indexOf(recid);
+                                var ind = m_grid[0].rows.namedItem(rowid);
+                                if (!this.checked) {
+                                    
+                                    if (index !== -1)
+                                        m_selected.splice(index, 1);
+        
+                                    $(ind).removeClass("multiselect");
+        
+                                } else {
+        
+                                    if (index === -1)
+                                        m_selected.push(recid);
+        
+                                    $(ind).addClass("multiselect");
+                                }
+                            });
+                        }, 10);
+                        return input;
+                    }
+
                     var temp = false;
-                    if (_base.Viewer() && Application.HasOption(_base.Viewer().Page().Options, "temp"))
+                    if (Application.HasOption(options, "temp"))
                         temp = true;
                     if (rowObject.Record && !temp && (rowObject.Record.NewRecord || rowObject.NoKeys())) {
                         return UI.IconImage("row_add_after");
@@ -151,52 +201,7 @@ Define("Grid",
                     if(m_dataSource)
                         OnBind(0,m_dataSource.length);
 				},
-                beforeSelectRow: function (rowid, e) {
-
-                    var multiselect = true;
-                    if (_base.Viewer() && Application.HasOption(_base.Viewer().Page().Options, "nomultiselect"))
-                        multiselect = false;
-
-                    if (!e.ctrlKey || !multiselect) {
-
-                        for (var i = 0; i < m_selected.length; i++) {
-                            var rowid = _self.GetRowID(m_selected[i]);
-                            if (rowid) {
-                                var ind = m_grid[0].rows.namedItem(rowid);
-                                $(ind).removeClass("ui-state-highlight");
-                            }
-                        }
-                        m_selected = new Array();
-                        //_self.SelectRow(rowid);
-
-                    } else {
-
-                        if (rowid == _self.SelectedRow())
-                            return;
-
-                        var ind = m_grid[0].rows.namedItem(rowid);
-                        var recid = _self.DataSourceById(rowid).Record.RecID;
-
-                        if ($(ind).hasClass("ui-state-highlight")) {
-
-                            for (var i = 0; i < m_selected.length; i++) {
-                                if (m_selected[i] == recid) {
-                                    m_selected.splice(i, 1);
-                                    break;
-                                }
-                            }
-
-                            $(ind).removeClass("ui-state-highlight");
-
-                        } else {
-
-                            if (m_selected.indexOf(recid) == -1)
-                                m_selected.push(recid);
-
-                            $(ind).addClass("ui-state-highlight");
-                        }
-                        return false;
-                    }
+                beforeSelectRow: function (rowid, e) {                                       
 
                     if (rowid != _self.SelectedRow()){
                         _self.OnRowSelect(rowid, e);
@@ -527,7 +532,7 @@ Define("Grid",
                     hidden: false,
                     sortable: true,
 					sorttype: function (cell, obj) {
-                        if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell.replace)
+                        if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell.replace && field.Mask !== '')
                             cell = cell.replace(/\,/g,'');                        
 						if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell != "")
 							return parseFloat(cell);
@@ -541,7 +546,7 @@ Define("Grid",
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null")
                             return "";
-                        if((field.Type == "Integer" || field.Type == "Decimal") && cellvalue && cellvalue.replace)
+                        if((field.Type == "Integer" || field.Type == "Decimal") && cellvalue && cellvalue.replace && field.Mask !== '')
                             cellvalue = cellvalue.replace(/\,/g,'');
                         if(field.Mask){
                             var opts = null;
@@ -563,7 +568,7 @@ Define("Grid",
                     editoptions: {
                         custom_element: function (value, options) {
 
-                            if((field.Type == "Integer" || field.Type == "Decimal") && value && value.replace)
+                            if((field.Type == "Integer" || field.Type == "Decimal") && value && value.replace && field.Mask !== '')
                                 value = value.replace(/\,/g,'');
 
 							value = MandatoryRevert(value, field);
@@ -925,21 +930,29 @@ Define("Grid",
             return null;
         };
 		
-		this.SelectAll = function(){
-			
+		this.SelectAll = function(unselect){
+            
+            var options = _base.Viewer() ? _base.Viewer().Page().Options : '';
+            if (Application.HasOption(options, "nomultiselect"))
+                return;
+
 			m_selected = [];
-			if(m_dataSource.length > 0)
-				_self.SelectRow(1);
-			
-			if(m_dataSource.length > 1)
-				for (var i = 1; i < m_dataSource.length; i++) {
-					m_selected.push(m_dataSource[i].Record.RecID);
-					var ind = m_grid[0].rows.namedItem(i+1);
-					if (!$(ind).hasClass("ui-state-highlight")) {
-						$(ind).addClass("ui-state-highlight");
-					};
-				}							
-		};
+						
+            for (var i = 0; i < m_dataSource.length; i++) {
+                if(!unselect)
+                    m_selected.push(m_dataSource[i].Record.RecID);
+                var ind = m_grid[0].rows.namedItem(i+1);
+                if(!unselect){
+                    if (!$(ind).hasClass("multiselect")) {
+                        $(ind).addClass("multiselect");
+                    }
+                    $(ind).children().first().children().first()[0].checked = true;
+                }else{                        
+                    $(ind).removeClass("multiselect");                        
+                    $(ind).children().first().children().first()[0].checked = false;
+                }
+            }							
+        };        
 
         //#endregion
 
@@ -1017,7 +1030,8 @@ Define("Grid",
                     var rowid = _self.GetRowID(m_selected[i]);
                     if (rowid) {
                         var ind = m_grid[0].rows.namedItem(rowid);
-                        $(ind).addClass("ui-state-highlight");
+                        $(ind).addClass("multiselect");
+                        $(ind).children().first().children().first()[0].checked = true;
                     }
                 });
             }

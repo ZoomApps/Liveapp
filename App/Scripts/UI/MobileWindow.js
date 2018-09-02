@@ -93,13 +93,14 @@ Define("Window", null, function () {
                     if(m_options.homepage){                        
                         $('#'+id+'search').ripple().on('click', function(){
                             if(!m_searchShown){
-                                var search = $("<input class='navbar-search' style='color: white !important;' placeholder='Search' data-clear-btn='true'></input>");
+                                var search = $("<input class='navbar-search' placeholder='Search' data-clear-btn='true'></input>");
                                 $('#'+id+'title').html("").append(search);
                                 search.textinput().on('keyup tap',app_debouncer(function(){
                                     Application.App.OnSearch($(this));
                                 },1000)).focus().parent().css({
-                                    'background-color': 'transparent',
-                                    margin: '0px'
+                                    'background-color': '#FFF',
+                                    margin: '0px',
+                                    'padding-left': '3px'
                                 }).children().next().addClass("navbar-search");
                             }else{
                                 _self.SetTitle(m_title);

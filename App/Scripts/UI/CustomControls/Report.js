@@ -85,7 +85,7 @@ Define("Report",
 					var wnd = window.open('', m_uid, 'left=0,top=0,width='+w+',height='+h+',toolbar=0,scrollbars=0,status=0, top='+top+', left='+left);
 					_base.Viewer().ShowLoad();
 					setTimeout(function(){
-						wnd.document.write("<html><head><title>Print Preview</title><link rel='stylesheet' href='//cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css'><style>@media print {thead {display: table-header-group;}}</style></head><body>" + m_container.html() + "</body></html>");
+						wnd.document.write("<html><head><title>Print Preview</title><link rel='stylesheet' href='//cdn.materialdesignicons.com/2.4.85/css/materialdesignicons.min.css'><style>@media print {thead {display: table-header-group;}}</style></head><body>" + m_container.html() + "</body></html>");
 						wnd.document.close();
 						wnd.focus();
 						setTimeout(function(){

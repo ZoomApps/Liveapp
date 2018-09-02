@@ -112,7 +112,7 @@ Define("PageViewer",
                     m_id = "VIEWER" + m_options.tableid;
                     m_form = new Page();
                     m_form.SourceID = m_options.tableid;
-                    m_form.Icon = "table_sql_run";
+                    m_form.Icon = "mdi-play";
                     m_form.ShowFilters = true;
                     m_form.ShowSorting = true;
                     m_form.Type = "List";
@@ -132,7 +132,7 @@ Define("PageViewer",
                     var act3 = Application.Objects.PageActionInfo();
                     act3.Name = "Design Table";
                     act3.Type = "Open Page";
-                    act3.Image = "table_sql_select";
+                    act3.Image = "mdi-table-edit";
                     act3.ReferencePage = "VP$TableDesigner";
                     act3.ActionView = "WHERE(Name=CONST(" + m_options.tableid + "))";
                     m_form.Actions.push(act3);
@@ -869,8 +869,8 @@ Define("PageViewer",
 			}
 			return skipupdate;
 			
-		};		
-		
+        };		
+        
         this.Update = function (first_, showProgress_, skipOpenFunc_) {
 
             _base.SetStatus("");
@@ -2122,7 +2122,8 @@ Define("PageViewer",
 
         this.RecordValidate = function (name_, value_, rowid_, showLoad_) {
             
-            _base.SetStatus("Saving changes...");
+            if(!m_record.Temp)
+                _base.SetStatus("Saving changes...");
 
 			//Partial refresh.
 			m_causedUpdate = null;			
@@ -2219,17 +2220,21 @@ Define("PageViewer",
         this.FinishValidate = function (name_, value_, rowid_, showLoad_, field_) {            
 
 			//Partial refresh.			
-			var skipupdate = _self.SkipPageRefresh();
+            var skipupdate = _self.SkipPageRefresh(),
+                skiptrans = m_record.Temp;
 			
             if (field_.LookupDisplayField != "" && value_ != "" && value_ != null && field_.CustomControl == "" && m_comboSelected) {
                 value_ = m_record[name_];
             }			
 
-            m_comboSelected = false;
+            m_comboSelected = false;            
 
             return $codeblock(
 
-            Application.BeginTransaction,
+            function(){
+                if(!skiptrans)
+                    return Application.BeginTransaction();
+            },
 
             function () {
                 //Get the record (List form only).                    
@@ -2239,22 +2244,25 @@ Define("PageViewer",
                 return _self.Validate(name_, value_, rowid_, field_);
             },
 
-            Application.CommitTransaction,
+            function(){
+                if(!skiptrans)
+                    return Application.CommitTransaction();
+            },
 
             function () {
 
                 m_col = null;
-					m_row = null;									
+                m_row = null;									
 
-					if (m_form.Type == "List")
-						_self.DisableKeys(false);
+                if (m_form.Type == "List")
+                    _self.DisableKeys(false);
 
-					//A change has been made.
-					_self.ChangeMade();
+                //A change has been made.
+                _self.ChangeMade();
 
                 //Reload page?
-                if (field_.ReloadOnValidate || (m_form.Type == "Card" && !Application.HasOption(field_.Options,"skipupdate"))) {
-                        if(m_record.UnsavedChanges()){
+                if (field_.ReloadOnValidate || m_form.Type == "Card") {
+                        if(m_record.UnsavedChanges() || Application.HasOption(m_form.Options,"skipupdate")){
                             return $codeblock(
                                 function(){
                                     return _self.UpdateControls(false);
@@ -2276,7 +2284,8 @@ Define("PageViewer",
 					
 					//Partial refresh.
                     m_causedUpdate = null;	
-                    _base.SetStatus("Changes have been saved");
+                    if(!m_record.Temp)
+                        _base.SetStatus("Changes have been saved");
 				}
 
 			);
@@ -2512,8 +2521,6 @@ Define("PageViewer",
                         if (m_form.Fields[j].Importance == "Additional" && m_options.mobilegrideditor != null) {
                             m_form.Fields[j].Importance = "Standard";
                         }
-                        if (m_form.Fields[j].Type == "BigText" && m_options.mobilegrideditor != null && m_form.Fields[j].LookupTable == "")
-                            m_form.Fields[j].CustomControl = "NotesBox";
                     }
                 }
 
@@ -3310,47 +3317,42 @@ Define("PageViewer",
                 var id = grd.SelectedRow();
                 _self.GetRecordByRowId(id);
 
+                var skipmulti = false;
+                if(Application.HasOption(m_form.Options,"rowtemplate"))
+                    skipmulti = !Application.HasOption(action.Options,"lineaction");                
+
                 if (grd.SelectedRows().length == 0 || action.Type == "New" || Application.HasOption(action.Options, "singleaction"))
                     return _self.RunIndividualAction(name_, trans_, false);
 
-                m_actionsQueue = 1 + grd.SelectedRows().length;
-
-                var w = $wait();
-
-                $code(
-
-                function () {
-                    _self.GetRecordByRowId(id);
+                if(skipmulti){
+                    _self.GetRecordByRecId(grd.SelectedRows()[0]);
                     return _self.RunIndividualAction(name_, trans_, false);
-                },
-
-                function () {
-                    return $loop(function (i) {
-
-                        var w2 = $wait();
-
-                        $code(
-
-                            function () {
-                                _self.GetRecordByRecId(grd.SelectedRows()[i]);
-                                return _self.RunIndividualAction(name_, trans_, false);
-                            },
-
-                            function () {
-                                //Continue?
-                                if (i < grd.SelectedRows().length - 1)
-                                    return $next;
-                            }
-                        );
-
-                        return w2.promise();
-
-                    });
                 }
-            );
 
-                return w.promise();
-            }
+                m_actionsQueue = grd.SelectedRows().length;
+
+                return $loop(function (i) {
+
+                    var w2 = $wait();
+
+                    $code(
+
+                        function () {
+                            _self.GetRecordByRecId(grd.SelectedRows()[i]);
+                            return _self.RunIndividualAction(name_, trans_, false);
+                        },
+
+                        function () {
+                            //Continue?
+                            if (i < grd.SelectedRows().length - 1)
+                                return $next;
+                        }
+                    );
+
+                    return w2.promise();
+
+                });  
+            }             
         };
 
         this.RunIndividualAction = function (name_, trans_, hideLoad_) {
@@ -3531,7 +3533,24 @@ Define("PageViewer",
 			$("body").append(dd);						
             
             var fieldname = Application.OptionValue(m_form.Options,"hyperlink");
-            var field = m_form.GetField(fieldname);
+            var field = null;
+            if(fieldname !== null)
+                field = m_form.GetField(fieldname);
+            if(!field)
+                for (var j = 0; j < m_form.Fields.length; j++) {
+                    var f = m_form.Fields[j];
+                    if(Application.HasOption(f.Options,"primary")){
+                        field = f;
+                        break;
+                    }                        
+                }
+            if(!field)
+                field = m_form.GetField('Code');
+            if(!field)
+                field = m_form.GetField('Description');            
+            if(!field)
+                Application.Error('Please specify a hyperlink option');
+            fieldname = field.Name;
             dd.append("<div class='lineactions-title cut-text'>" +
             FormatData((row["FF$"+fieldname] ? row["FF$"+fieldname] : row[fieldname]),field.Type) + 
             "</div>");
@@ -3954,13 +3973,13 @@ Define("PageViewer",
 						_self.SaveLayout();
 					}					
 					
-                    if (m_loaded == false) {
-                        if (_self.CheckLayout(_self))
-                            return;
-                        for (var i = 0; i < m_subPages.length; i++) {
-                            if (m_subPages[i].CheckLayout(_self))
+                    if (m_loaded == false) {                        
+                            if (_self.CheckLayout(_self))
                                 return;
-                        }
+                            for (var i = 0; i < m_subPages.length; i++) {
+                                if (m_subPages[i].CheckLayout(_self))
+                                    return;
+                            }
                         Application.RunNext(_self.Close);
                         return;
                     }

@@ -1,3 +1,67 @@
+<a name="5.8"></a>
+# Liveapp v5.8 (August 2018)
+
+## Bug Fixes
+
+  - **app**
+    - `returnurl` not working on disconnect
+    - change thread id for `LoadPage` to be the same as the `UID` in `PageViewer`
+
+  - **boxy**
+    - stop boxy from setting the `top` attribute to < 0
+
+  - **control**
+    - tabbing on dialog pages
+
+  - **filelookup**
+    - incorrect label when using `Application.FileDownload.ShowUploadDialog`
+
+  - **grid**
+    - stop mobile grid on click function from bubbling
+    - missing group rows in mobile grid
+    - only remove commas from the cell value if a field mask is used
+
+  - **multicombo**
+    - `Enabled` function is defined twice
+
+  - **pageviewer**
+    - mobile grid editor does not allow bigtext fields to use a custom control
+
+  - **search**
+    - global search not visible when using a light header color (v5.x)
+
+## Features
+
+  - **app**
+    - add an id to menu items so they can be used in jquery (eg: `mnuitemLicense` for the `License` menu item) (v5.x)
+    - reset the URL after loading an external page (this allows the end user to refresh the browser without the page opening again)
+
+  - **combobox**
+    - add new field option `drillheight` which controls the drop down height in desktop
+
+  - **grid**
+    - add new field options `primary` and `secondary` for mobile grid (v5.x)
+    - add multi-select check boxes to desktop grid (turn off with the `nomultiselect` page option) (v5.x)
+
+  - **icons**
+    - update to material design icons v2.4.85 (v5.x)
+
+  - **multicombo**
+    - add new field option `hideselectall`
+
+  - **pageviewer**
+    - skip update messages if record is `temp`
+
+  - **server**
+    - skip virtual objects on update of solution if they don't require an update    
+
+  - **system**
+    - update icons and add mobile row templates (v5.x)
+
+  - **texbox**
+    - change textbox type to `number` if the field type is `Integer` or `Decimal`
+
+
 <a name="5.7"></a>
 # Liveapp v5.7 (July 2018)
 

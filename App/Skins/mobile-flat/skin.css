@@ -3961,8 +3961,7 @@ textarea.ui-input-text {
   -webkit-box-sizing: border-box !important;
   box-sizing: border-box !important;
   display: block;
-  background-color: transparent !important;
-  color: rgba(0, 0, 0, 0.87) !important;
+  background-color: transparent !important;  
   border: none !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.26) !important;
   outline: none !important;
@@ -3997,7 +3996,7 @@ textarea.ui-input-text:focus {
 }
 
 .navbar-search.ui-btn-icon-notext:after {
-	color: #FFF !important;
+	color: %HEADERTEXT% !important;
 }
 
 .ui-btn-icon-left:after,
@@ -4141,8 +4140,7 @@ body {
 	height: calc(100vh - 50px); 
 	width: 100vw;
 }
-.navbar-search-item {
-	height: 50px;
+.navbar-search-item {	
 	border-bottom: 1px solid whitesmoke;
 	box-sizing: border-box;
 	padding: 10px;
@@ -4151,8 +4149,11 @@ body {
 	white-space: nowrap;
 	overflow-x: hidden;
 }
+.navbar-search {
+	color: #000;
+}
 .navbar-search::-webkit-input-placeholder {
-	color: #FFF;
+	color: #000;
 }
 .login-header {
 	background: %HEADERCOLOR%;

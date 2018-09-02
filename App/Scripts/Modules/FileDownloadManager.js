@@ -72,7 +72,7 @@ DefineModule("FileDownloadManager",
             var id = $id();
             var value = null;
             var boxy = new Boxy("<div id='" + id + "' class='ui-widget-content' style='border-width: 0px; height: 98%;'></div>", {
-                title: UI.BigIconImage("arrow_up_blue", null, 30) + " " + title_,
+                title: title_,
                 closeText: "X",
                 modal: true,
                 unloadOnHide: true,
@@ -97,6 +97,7 @@ DefineModule("FileDownloadManager",
                 boxy.hide();
             };
             cont.SetSize(340, 300);
+            cont.FormatValue(null);
             boxy.center();
             boxy.show();
             boxy.tween(350, 300);

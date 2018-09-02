@@ -639,15 +639,15 @@ DefineModule("App",
 							callback_(form);							
 					}					
                 );
-            }, null, "LOADPAGE" + id_, null, !singleThread_);
+            }, null, "LOADPAGE" + id_ + Default(view_,''), null, !singleThread_);
 
             if (Application.IsInMobile()) {
                 $("#divSideMenu,#divFactbox").panel("close");
             }
         };
 
-        this.LoadExternalPage = function (id_, home_) {
-
+        this.LoadExternalPage = function (id_, home_) {            
+                    
             if (!Application.CheckOfflineObject("PAGE", id_))
                 return;
 
@@ -883,8 +883,10 @@ DefineModule("App",
                         Application.connected = false;
                         return;
                     } else if (Application.HasDisconnected(e)) {					
-						if (m_params["returnurl"] != null) 
-							window.location = m_params["returnurl"]+(Application.IsInMobile() ? "?mobile=true" : "");
+						if (m_params["returnurl"] != null){
+                            window.location = m_params["returnurl"];
+                            return;
+                        }
                         m_hideErrors = true;
                         if (Application.restrictedMode) {
                             window.location = Application.url + m_params["instance"];
@@ -1013,7 +1015,7 @@ DefineModule("App",
                     }
                 }
                 if (added){
-                    var li = _self.PrintSideLink(m_mainMenu, 'close', '%LANG:S_CLEARPOPULAR%', "Application.App.ClearPopular();", false, true);
+                    var li = _self.PrintSideLink(m_mainMenu, 'mdi-close', '%LANG:S_CLEARPOPULAR%', "Application.App.ClearPopular();", false, true);
                     li.addClass('favoritemenu');
                 }
             }
@@ -1048,7 +1050,7 @@ DefineModule("App",
                     var mnu = _self.PrintSideGroup('%LANG:S_MAINMENU%');
 
 				    if (id != 0 && !Application.IsInMobile()) {
-                        _self.PrintSideLink(mnu, 'home', "%LANG:S_HOME%", "Application.App.LoadPage('" + id + "',null,{homepage:true});");
+                        _self.PrintSideLink(mnu, 'mdi-view-dashboard', "%LANG:S_HOME%", "Application.App.LoadPage('" + id + "',null,{homepage:true});");
                         _self.PrintSideLink(mnu, 'mdi-logout', "Logout", "Application.App.Logout();");
 				    }
 					
@@ -1066,7 +1068,7 @@ DefineModule("App",
                         m_mainMenu.children().first().html(Application.auth.Username).addClass("mnuUser");
 
                         if(!Application.IsOffline())                        
-                            _self.PrintSideLink(mnu, 'key3', (m_params["returnurl"] != null ? 'Exit' : 'Logout'), "Application.App.Logout();");
+                            _self.PrintSideLink(mnu, 'mdi-logout', (m_params["returnurl"] != null ? 'Exit' : 'Logout'), "Application.App.Logout();");
                     }	
 
                     //Load external page or home page.
@@ -1077,6 +1079,9 @@ DefineModule("App",
                             UI.WindowManager.HasHome(true);
                         }
                         _self.LoadExternalPage(m_params["pageid"]);
+
+                        if(window.history && window.history.pushState)
+                            window.history.pushState(null, window.title, "%SERVERADDRESS%"+Application.auth.Instance);
 
                     } else if (id != "") {
                         _self.LoadPage(id, null, { homepage: true });
@@ -1116,10 +1121,10 @@ DefineModule("App",
 
                         if (m[i].Name == "Admin" && !Application.IsOffline() && !Application.IsInMobile()) {
                             added = true;
-                            _self.PrintSideLink(mnu2, 'mailbox_empty', 'Send Message', "Application.Notifications.ShowMessageForm();");
-                            _self.PrintSideLink(mnu2, 'media_play', 'Start Maintenance', "Application.App.StartMaintenanceMode();");
-                            _self.PrintSideLink(mnu2, 'media_stop', 'Finish Maintenance', "Application.App.EndMaintenanceMode();");
-                            _self.PrintSideLink(mnu2, 'box_software', 'Update Platform', "Application.RunNext(function(){return Application.UpdateManager.CheckForUpdates(true);});");
+                            _self.PrintSideLink(mnu2, 'mdi-message-processing', 'Send Message', "Application.Notifications.ShowMessageForm();");
+                            _self.PrintSideLink(mnu2, 'mdi-play', 'Start Maintenance', "Application.App.StartMaintenanceMode();");
+                            _self.PrintSideLink(mnu2, 'mdi-stop', 'Finish Maintenance', "Application.App.EndMaintenanceMode();");
+                            _self.PrintSideLink(mnu2, 'mdi-backup-restore', 'Update Platform', "Application.RunNext(function(){return Application.UpdateManager.CheckForUpdates(true);});");
                         }
 
                         if (!added && mnu2)
@@ -1129,13 +1134,13 @@ DefineModule("App",
                     if (!Application.IsInMobile()) {
 
                         var mnu3 = _self.PrintSideGroup('%LANG:S_TOOLS%', 'mnuTools');
-                        _self.PrintSideLink(mnu3, 'document_certificate', '%LANG:S_LINKLICENSE%', "Application.App.LoadPage('VP$LicenseViewer');");
+                        _self.PrintSideLink(mnu3, 'mdi-certificate', '%LANG:S_LINKLICENSE%', "Application.App.LoadPage('VP$LicenseViewer');");
                         if (!Application.IsOffline()) {
 
-                            _self.PrintSideLink(mnu3, 'window_edit', 'Clear Layout', "UI.WindowManager.ClearLayout();");
-                            _self.PrintSideLink(mnu3, 'box_next', 'Clear Cache', "UI.WindowManager.ClearCache();");
-                            _self.PrintSideLink(mnu3, 'window_edit', 'Split Objects', "Application.App.SplitObjects();");
-                            _self.PrintSideLink(mnu3, 'window_edit', 'Merge Objects', "Application.App.MergeObjects();");
+                            _self.PrintSideLink(mnu3, 'mdi-format-clear', 'Clear Layout', "UI.WindowManager.ClearLayout();");
+                            _self.PrintSideLink(mnu3, 'mdi-cached', 'Clear Cache', "UI.WindowManager.ClearCache();");
+                            _self.PrintSideLink(mnu3, 'mdi-cube-outline', 'Split Objects', "Application.App.SplitObjects();");
+                            _self.PrintSideLink(mnu3, 'mdi-cube-outline', 'Merge Objects', "Application.App.MergeObjects();");
 
                             var mnu4 = _self.PrintSideGroup('%LANG:S_SERVERINFO%', 'mnuServerInfo');
                             $("#mnuMain").append('<li><div id="divServerInfo" style="font-weight: normal; font-size: 12px; padding: 3px; height: auto; width: 200px; overflow-x: auto;"></div></li>');
@@ -1184,7 +1189,7 @@ DefineModule("App",
                     (Application.IsInMobile()?'20':'14')+"px'></i>";
             }
 
-            var li = $('<li onclick="'+action_+'" data-ripple>'+image+
+            var li = $('<li id="mnuitem'+name_.replace(/ /g,'_')+'" onclick="'+action_+'" data-ripple>'+image+
                 (Application.IsInMobile()?' ':'&nbsp;&nbsp;')+name_+'</li>');
             if(!Application.IsInMobile()){
                 if (!name_.within(["%LANG:S_HOME%", "%LANG:S_OFFLINE%", "%LANG:S_CLEARPOPULAR%"]))

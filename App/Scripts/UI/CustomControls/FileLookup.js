@@ -36,16 +36,16 @@ Define("FileLookup",
             var container = (pathonly ?
                 (Application.IsInMobile() ? 
                 $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label>'+
-                '<div id="ctl' + _base.ID() + '" style="min-width:100%;text-overflow: ellipsis;overflow-y: hidden;white-space: nowrap;margin-right: 3px; box-sizing: border-box; border: 3px dashed gainsboro; padding: 5px;">Loading...</div>'+
+                '<div id="ctl' + _base.ID() + '" style="min-width:100%;text-overflow: ellipsis;overflow-y: hidden;white-space: nowrap;margin-right: 3px; box-sizing: border-box; border: 3px dashed gainsboro; padding: 5px;"></div>'+
                 '<p><a id="clear' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("delete") + ' Delete</a> '+
-                '<a id="open' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("document_out") + ' Open</a></p>'+
+                '<a id="open' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("mdi-export") + ' Open</a></p>'+
                 '<input id="file' + _base.ID() + '" type="file" style="display:none;" />'
                 )
                 :
                 $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr>'+
                     '<td style="width: 50%"><label id="lbl' + _base.ID() + '" id= for="ctl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td>'+
                     '<td style="width: 50%; padding-right: 10px; vertical-align: top;">'+
-                    '<div id="ctl' + _base.ID() + '" style="text-overflow: ellipsis;overflow-y: hidden;overflow-x: hidden;white-space: nowrap;margin-right: 3px; box-sizing: border-box; display: inline-block; border: 3px dashed gainsboro; padding: 2px; cursor: pointer;">Loading...</div>'+
+                    '<div id="ctl' + _base.ID() + '" style="text-overflow: ellipsis;overflow-y: hidden;overflow-x: hidden;white-space: nowrap;margin-right: 3px; box-sizing: border-box; display: inline-block; border: 3px dashed gainsboro; padding: 2px; cursor: pointer;"></div>'+
                     '<a id="clear' + _base.ID() + '" style="display: inline-block;overflow-y: hidden;">Delete</a> '+
                     '<a id="open' + _base.ID() + '" style="display: inline-block;overflow-y: hidden;">Open</a>'+
                     '<input id="file' + _base.ID() + '" type="file" style="display:none;" />'+
@@ -55,9 +55,9 @@ Define("FileLookup",
                 :
                 $('<div id="' + _base.ID() + '" style="padding: 10px; '+(Application.IsInMobile() ? '' : 'text-align: center;')+'">'+
                 '<img id="ctl' + _base.ID() + '" src="" style="border: 3px dashed gainsboro; width: '+(Application.IsInMobile()?'80px':'150px')+';" />'+
-                '<p><label id="filelbl' + _base.ID() + '">Loading...</label></p>'+
+                '<p><label id="filelbl' + _base.ID() + '"></label></p>'+
                 '<p><a id="clear' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("delete") + ' Delete</a> '+
-                '<a id="open' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("document_out") + ' Open</a></p>'+
+                '<a id="open' + _base.ID() + '" data-role="button" data-theme="c" data-inline="true" style="display: inline-block;">' + UI.IconImage("mdi-export") + ' Open</a></p>'+
                 '<br/><input id="file' + _base.ID() + '" type="file" style="display:none;" /></div>')
             );
 

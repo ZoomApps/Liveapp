@@ -72,7 +72,8 @@ Define("MultiCombobox",
                     selectedList: parseInt(Default(Application.OptionValue(_base.Field().Options, "selectedlist"),"1")),
                     height: height,
 					drilldown: _base.Field().LookupAdvanced,
-					drilldownview: filters
+                    drilldownview: filters,
+                    header: !Application.HasOption(_base.Field().Options, "hideselectall")
                 });
             });
         };
@@ -85,18 +86,18 @@ Define("MultiCombobox",
             _base.Create(window_, container, function(){
 				
 				var sel = $("#ctl" + _base.ID());
-				
-				var allSelected = $("option:first", sel).attr("selected");
-	
-				if (m_allSelected && !allSelected) {
-					$("#ctl" + _base.ID()+" option:selected").removeAttr("selected");
-					m_allSelected = allSelected;
-				}else if (!m_allSelected && allSelected) {
-					$("#ctl" + _base.ID()+" option").attr("selected", "selected");
-					m_allSelected= allSelected;
-				}
-				
-				sel.selectmenu("refresh", true);
+                
+                if(!Application.HasOption(_base.Field().Options, "hideselectall")){
+                    var allSelected = $("option:first", sel).attr("selected");
+                    if (m_allSelected && !allSelected) {
+                        $("#ctl" + _base.ID()+" option:selected").removeAttr("selected");
+                        m_allSelected = allSelected;
+                    }else if (!m_allSelected && allSelected) {
+                        $("#ctl" + _base.ID()+" option").attr("selected", "selected");
+                        m_allSelected= allSelected;
+                    }
+                    sel.selectmenu("refresh", true);
+                }						
 				
 				var val = sel.val();
 				
@@ -180,12 +181,12 @@ Define("MultiCombobox",
 			
             var allowblank = false;
             if (Application.HasOption(field.Options, "allowblank"))
-                allowblank = true;
+                allowblank = true;                        
 			
             var lastcat = "";
             var html = "";
 			
-			if(Application.IsInMobile())
+			if(Application.IsInMobile() && !Application.HasOption(field.Options, "hideselectall"))
 				html += '<option value="-1">Select/Deselect All</option>';
 			
 			var added = [];
@@ -291,30 +292,6 @@ Define("MultiCombobox",
 				_base.Control().width((width / 2) - 18);
 				_base.Control().multiselectcombo("refresh");
 			}
-        };
-
-        this.Enabled = function (value_, update_) {
-
-            _base.Enabled(value_, update_);
-
-            if (!Application.IsInMobile()) {
-                if(_base.Field().Editable){
-                    _base.Control().multiselectcombo('enable');
-                    _base.Control().next().css('background','');
-                }else{
-                    _base.Control().multiselectcombo('disable');
-                    _base.Control().next().css('background','rgb(235, 235, 228)');
-                }
-            }else{
-                _base.Control().selectmenu();
-                if(_base.Field().Editable){
-                    _base.Control().selectmenu('enable');
-                }else{
-                    _base.Control().selectmenu('disable');
-                }
-            }
-
-            return _base.Enabled();
         };
 
         this.Show = function () {

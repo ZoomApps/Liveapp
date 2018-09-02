@@ -56,7 +56,9 @@ Define("Grid",
             //Issue #95 - Add grouping to mobile grid
             //Get grouping details.
             var options = _base.Viewer().Page().Options;
-            m_grouping = Application.OptionValue(options, "groupfields");            
+            m_grouping = Application.OptionValue(options, "groupfields");    
+            if(m_grouping)
+                m_grouping = m_grouping.split(',')[0];
 
             if(Application.HasOption(_base.Viewer().Page().Options,"rowtemplate"))
                 return;
@@ -294,7 +296,7 @@ Define("Grid",
             if (_base.Viewer().EnableEditMode())
                 img = "redo";
 			if(_base.Viewer().LineActions().length > 0)
-				img = "table_selection_column";
+				img = "mdi-table-column-plus-after";
 
             if(img)
                 img = "<i class='mdi "+UI.MapMDIcon(UI.MapIcon(img))+"' style='color: black; font-size: 17px'></i>";
@@ -342,6 +344,8 @@ Define("Grid",
             r.bind("tap", function (ev) {
                 if (ev.originalEvent.isDefaultPrevented()) return;
 
+                ev.preventDefault();
+
 				var lineEditMode = _base.Viewer().LineActions().length > 0;
 				var isRowSelector = false;
 				var isHyperLink = false;
@@ -364,7 +368,7 @@ Define("Grid",
 				
                 if (m_tapped == rid && !lineEditMode) {
 					_self.OnDoubleClick(rowid);					
-                    return;
+                    return false;
                 }
 
                 m_tapped = rid;
@@ -396,7 +400,8 @@ Define("Grid",
                 setTimeout(function () {
                     m_tapped = 0;
                 }, 1000);
-				
+
+                return false;				
             });
 
             //Issue #96 - Add OnBindRow in mobile.
@@ -455,7 +460,7 @@ Define("Grid",
             if (_base.Viewer().EnableEditMode())
                 img = "redo";
 			if(_base.Viewer().LineActions().length > 0)
-                img = "table_selection_column";
+                img = "mdi-table-column-plus-after";
             
             if(img)
                 img = "<i class='mdi "+UI.MapMDIcon(UI.MapIcon(img))+"' style='color: black; font-size: 17px'></i>";
@@ -651,7 +656,89 @@ Define("Grid",
 		this.OnRowClick = function () {
         };
 
-        this.RowTemplate = function(data){
+        function FormatData(value_, field_) {
+
+            if (value_ == null || typeof value_ == "undefined")
+                return "";
+
+            //Dates and times
+            if (field_.Type == "Date") {
+                return $.format.date(value_, "dd/MM/yyyy");
+            } else if (field_.Type == "DateTime") {
+                return $.format.date(value_, "dd/MM/yyyy hh:mm a");
+            } else if (field_.Type == "Time") {
+                return $.format.date(value_, "hh:mm a");
+            }
+
+			if (field_.Type == "Boolean") {
+				if(value_ == true){
+					return "Yes";
+				}else{
+					return "No";
+				}
+			}
+			
+			if(field_.OptionCaption != ""){
+				var vals = field_.OptionString.split(",");
+				var captions = field_.OptionCaption.split(",");
+				for (var i = 0; i < vals.length; i++) {
+					if (field_.Type == "Integer") {
+						if (parseInt(vals[i]) == value_ || value_ == null)
+							return captions[i];
+					} else {
+						if (vals[i] == value_)
+							return captions[i];
+					}
+				}
+			}
+			
+            return value_;
+        }
+
+        function FieldOptionExists(option){
+            var viewer = _base.Viewer();  
+            if(viewer && viewer.Page){                
+                for (var j = 0; j < viewer.Page().Fields.length; j++) {
+                    var field = viewer.Page().Fields[j];
+                    if(Application.HasOption(field.Options,option)){
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        this.RowTemplate = function(data){     
+            var viewer = _base.Viewer();  
+            if(viewer && viewer.Page){     
+                if(FieldOptionExists("primary") || FieldOptionExists("secondary")){
+                    var html = '<table><tr><td style="background:transparent">';
+                    html += '<i class="mdi '+viewer.Page().Icon+'" style="font-size: 50px; line-height: 60px;" />';
+                    html += '</td><td style="background:transparent">'; 
+                    var secondary = FieldOptionExists("secondary");                   
+                    for (var j = 0; j < viewer.Page().Fields.length; j++) {
+                        var field = viewer.Page().Fields[j];
+                        if(Application.HasOption(field.Options,"primary"))
+                            html += '<h3 style="margin: '+ (secondary ? '10px':'20px') +' 0 0 0">'+FormatData(data[field.Name],field)+'</h3>';
+                    }
+                    for (var j = 0; j < viewer.Page().Fields.length; j++) {
+                        var field = viewer.Page().Fields[j];
+                        if(Application.HasOption(field.Options,"secondary")){
+                            var val = FormatData(data[field.Name],field);
+                            if(val)
+                                html += field.Caption + ': '+ val +'<br>';
+                        }
+                    }
+                    html += '</td></tr></table>';
+                    return html;
+                }else{
+                    return Application.StrSubstitute(
+                        "<table><tr><td style='background:transparent'>$2</td><td style='background:transparent'><h3 style='margin-top: 20px'>$1</h3></td></tr></table>",
+                        Default(data.Code || data.Description,'New Record'),
+                        '<i class="mdi '+viewer.Page().Icon+'" style="font-size: 50px; line-height: 60px;" />'    
+                    );    
+                }          
+            }
         };
 
         this.RowTemplateStyle = function(){
