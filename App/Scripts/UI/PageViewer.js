@@ -1579,7 +1579,7 @@ Define("PageViewer",
                         if (!Application.HasOption(m_form.Options, "savetemp"))
                             return false;
 
-					if(_self.ReadOnly())
+					if(_self.ReadOnly() || m_temp === false)
 						return false;
 						
                     //Allow for temp list pages.
@@ -3867,6 +3867,7 @@ Define("PageViewer",
                     if (m_form.Type == "Card" && m_xFocusControl == null) return;
 
                     //Rollback record.
+                    if (!m_temp && !m_record.UnsavedChanges())
                     m_record.RollBack();
 
                     if (m_form.Type == "List") {

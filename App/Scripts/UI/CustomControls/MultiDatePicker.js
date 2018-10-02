@@ -51,6 +51,44 @@ Define("MultiDatePicker",
             });
         };
 
+        this.CreateMobile = function (window_) {
+
+            //Create the control.
+            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><div class="ui-input-text ui-shadow-inset ui-corner-all ui-btn-shadow ui-body-a"><input type="text" id="ctl' + _base.ID() + '" value=""></div>');
+
+            var mode = "calbox";
+            if (_base.Field()) {
+                mode = Default(Application.OptionValue(_base.Field().Options, "mode"), "calbox");
+            }
+
+			var years = parseInt(Default(Application.OptionValue(_base.Field().Options, "years"), 20));
+			
+            //Call base method.
+            _base.Create(window_, container, function(col,val){
+                if(val)
+                    val = $.format.date(val, 'dd/MM/yyyy');
+                _self.OnValueChange(col,val);
+            }, function (cont) {
+
+                cont.unbind("focus").unbind("blur");
+
+                cont.datebox({
+                    mode: mode,
+                    useFocus: true,
+                    useClearButton: true,
+                    theme: "a",
+                    calUsePickers: true,
+                    popupPosition: 'window',
+                    useTodayButton: true,
+                    calHighToday: true,
+                    themeDateToday: 'c',
+					calYearPickMax: years,
+					calYearPickMin: years
+                });               
+
+            });
+        };
+
         this.CreateList = function (value_) {
 
             //Create the control.
@@ -83,12 +121,18 @@ Define("MultiDatePicker",
         this.Update = function (rec_) {
 
             var value = rec_[_base.Field().Name];
-            if (typeof value == 'undefined')
+            if (typeof value == 'undefined'){
+                _self.Loaded(true);
                 return;
+            }
 
-            value = Default(value, "");
-            _base.Control().multiDatesPicker("value", value)
-
+            if(Application.IsInMobile()){
+                _base.Control().val(value);
+            }else{
+                value = Default(value, "");            
+                _base.Control().multiDatesPicker("value", value);
+            }
+            _self.Loaded(true);
         };
 
         this.Loaded = function (value_) {
