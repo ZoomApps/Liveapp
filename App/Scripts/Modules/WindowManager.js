@@ -93,7 +93,11 @@ DefineModule("WindowManager",
         };
 
         this.CloseAll = function (keephome_) {
-
+                      
+            if (m_selectedWindow && m_selectedWindow.Save) {
+                m_selectedWindow.Save();
+            }
+            
             if(m_queue.length > 0)
                 Application.RunNext(function () {
                     return $loop(function (i) {
@@ -101,7 +105,8 @@ DefineModule("WindowManager",
 
                             function () {
 
-                                var id = m_queue[m_queue.length - 1].ID();
+                                var id = m_queue[m_queue.length - 1].ID();                                
+                                
                                 //_self.Open(id);
                                 return _self.Close(id, true);
                             },

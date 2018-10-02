@@ -1,3 +1,29 @@
+<a name="5.9"></a>
+# Liveapp v5.9 (September 2018)
+
+## Bug Fixes
+
+  - **pageviewer**
+    - don't rollback temp or unsaved records on error
+    - only save on close of dialog if the record is temporary
+
+  - **server**
+    - security fix: host header injection
+    - security fix: referrer-policy header
+    - import data function does not convert blank cells to `null` values (v5.x)
+
+  - **windowmanager**
+    - save grid data before closing all windows
+
+## Features
+
+  - **multidatepicker**
+    - use a normal datepicker in mobile mode
+
+  - **server**
+    - allow encrypted connection strings
+
+
 <a name="5.8"></a>
 # Liveapp v5.8 (August 2018)
 
