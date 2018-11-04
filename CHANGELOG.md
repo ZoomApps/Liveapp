@@ -1,3 +1,50 @@
+<a name="5.10"></a>
+# Liveapp v5.10 (October 2018)
+
+## Bug Fixes
+
+  - **app**
+    - remove `pageid` param after use
+
+  - **application**
+    - time zone is not sent to the server for datetime/time fields
+
+  - **flatskin**
+    - search box text is too dark (v5.x)
+
+  - **multiselect**
+    - multiselect not hiding/disabling in mobile mode
+
+  - **pageviewer**
+    - run `Application.ProcessCaption` on option field captions
+    - allow `hidesave` option to work on dialogs in mobile mode (v5.x)
+
+  - **server**
+    - allow bigtext fields to contain unicode characters (like emojis)
+
+  - **signature**
+    - clear signature fix
+
+  - **timepicker**
+    - 24hour mode not working in mobile mode
+
+  - **window**
+    - mobile window not scrolling correctly for custom windows
+
+## Features
+
+  - **grid**
+    - add new option `notap` for mobile grid
+    - run double click function on tap in mobile mode if line actions = 1 (v5.x)
+
+  - **server**
+    - new filter merge field `%NOW` - merges the current time (in 12 hour format) ie: `09:57 AM`
+    - new filter merge field `%RIGHTNOW` - merges the current date and time (in 12 hour format) ie: `01/11/2018 09:57 AM`
+
+  - **window**
+    - add new page option `cancelopenonclose` - cancels opening the parent window on close of the current dialog page
+
+
 <a name="5.9"></a>
 # Liveapp v5.9 (September 2018)
 
@@ -10,7 +57,7 @@
   - **server**
     - security fix: host header injection
     - security fix: referrer-policy header
-    - import data function does not convert blank cells to `null` values (v5.x)
+    - import data function does not convert blank cells to `null` values
 
   - **windowmanager**
     - save grid data before closing all windows
@@ -99,7 +146,7 @@
     - disable pull down to refresh in chrome
 
   - **checkbox**
-    - mobile checkbox is double validating (v5.x)
+    - mobile checkbox is double validating
 
   - **pageviewer**
     - stop double validate of fields
@@ -109,7 +156,7 @@
     - increase auto disconnect to 20 mins
 
   - **serviceworker**
-    - don't cache bad responses (v5.x)
+    - don't cache bad responses
 
   - **textbox**
     - `password` option not working on an `OptionsWindow`
@@ -127,7 +174,7 @@
     - change tablet mode to single column
 
   - **style**
-    - add line action styles to desktop (v5.x)
+    - add line action styles to desktop
 
   - **ui**
     - if `Application.Message` contains a question mark change icon to `question`

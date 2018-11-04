@@ -194,6 +194,9 @@ Define("PageViewer",
                                 }
                             }
 
+                            if(m_form.Fields[j].OptionCaption)
+                                m_form.Fields[j].OptionCaption = Application.ProcessCaption(m_form.Fields[j].OptionCaption);
+
                             m_form.Fields[j].FlowField = m_table.Columns[i].FlowField;
 
                             if (m_table.Columns[i].Options != null && m_table.Columns[i].Options != '') {
@@ -372,6 +375,9 @@ Define("PageViewer",
                 if (m_form.Option("singleColumn") || Application.IsInMobile())
                     m_options.singleColumn = true;
 
+                if(m_form.Option("cancelopenonclose"))
+                    m_options.cancelopenonclose = true;
+
                 //Tabname
                 if (m_options.tabname == null && Application.IsInMobile())
                     m_options.tabname = "";
@@ -399,7 +405,8 @@ Define("PageViewer",
                         type: m_form.Type,
                         homepage: m_options.homepage,
                         windowid: m_options.windowid,                        
-                        showtitles: m_options.showtitles
+                        showtitles: m_options.showtitles,
+                        cancelopenonclose: m_options.cancelopenonclose
                     });
                 } else if (m_parent == null) {
                     _base.Create(UI.IconImage(m_form.Icon) + ' ' + m_form.Caption, {
@@ -414,7 +421,8 @@ Define("PageViewer",
 						removetitle: m_options.removetitle,
                         type: m_form.Type,
                         homepage: m_options.homepage,
-                        showtitles: m_options.showtitles
+                        showtitles: m_options.showtitles,
+                        cancelopenonclose: m_options.cancelopenonclose
                     });
                 } else {
 
@@ -434,7 +442,8 @@ Define("PageViewer",
 						removetitle: m_options.removetitle,
                         type: m_form.Type,
                         homepage: m_options.homepage,
-                        showtitles: m_options.showtitles
+                        showtitles: m_options.showtitles,
+                        cancelopenonclose: m_options.cancelopenonclose
                     });
                 }
 				
@@ -787,10 +796,7 @@ Define("PageViewer",
                         UI.WindowManager.Open(_base.ID());
                     } else if (m_options.dialog == true) {
                         _base.Show();
-                    }
-
-                    if (m_customControl)
-                        $("#saveBtn,#saveCloseBtn,#saveNewBtn,#closeBtn").hide();					
+                    }				
 					
 					_self.Resize();
 					
@@ -1233,14 +1239,16 @@ Define("PageViewer",
             } catch (e) {
             }
 
-            if (Application.IsInMobile() && (m_parent == null || _base.Dialog()) && !Application.HasOption(m_form.Options,"hidesave")) {
-
-                $("#saveBtn,#saveCloseBtn").show();
-                if (Application.HasOption("savenew", m_form.Options))
-                    $("#saveNewBtn").show();
-                $("#divMobileFooter,#okBtn,#customBtn1,#customBtn2,#closeBtn").hide();
+            if (Application.IsInMobile() && (m_parent == null || _base.Dialog())) {
+                
+                $("#okbtn"+_base.ID()).hide();
 
                 function ShowTick(){
+
+                    if(Application.HasOption(m_form.Options,"hidesave"))
+                        return;
+
+                    $("#okbtn"+_base.ID()).show();
                     $("#"+_base.ID()+"containertitle").css("width","calc(100vw - 100px)");
                     if(!$("#"+_base.ID()+"containerok").is(":visible")){
                         $("#"+_base.ID()+"containerok").click(function () { 
@@ -1253,11 +1261,10 @@ Define("PageViewer",
                         }).show().ripple(); 
                     }
                 }
+                
                 if (m_form.Type == "Card" && !m_options.homepage && (m_parent == null || _base.Dialog())){
                     ShowTick();
-                }else if (m_form.CloseAction && !m_customControl) {
-                    $("#okBtn").show();
-                    $("#saveBtn,#saveCloseBtn,#saveNewBtn").hide();
+                }else if (m_form.CloseAction && !m_customControl) {                    
                     ShowTick();
                 }
 
@@ -1743,9 +1750,7 @@ Define("PageViewer",
                     if (close)
                         return _self.OnClose(m_okClicked);
 
-                    m_okClicked = true;
-                    //if (!m_form.CloseAction)
-                    //    $("#divMobileFooter").hide();
+                    m_okClicked = true;                    
 
                     if (m_options.mobilegrideditor == null) {
                         return _self.Update();
@@ -2454,18 +2459,12 @@ Define("PageViewer",
 
         //#region Temp Record Functions
 
-        this.TempChanged = function (value, showSave) {
+        this.TempChanged = function (value) {
 
             if (typeof value != "undefined") {
 
                 m_tempChanged = value;
                 m_okClicked = false;
-                showSave = Default(showSave, false);
-                if (m_customControl != null)
-                    showSave = false;
-
-                //if (showSave && m_temp && m_options.mobilegrideditor == null && value)
-                //    $("#divMobileFooter").show();
 
             } else {
 

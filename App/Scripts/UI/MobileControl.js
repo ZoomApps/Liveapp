@@ -22,8 +22,7 @@ Define("Control",
         var m_loaded = false;
         var m_viewer = null; //PageViewer
         var m_invalid = false;
-        var m_notSupported = false;
-        var m_footerVisible = false;
+        var m_notSupported = false;        
 
         //#endregion
 
@@ -68,13 +67,11 @@ Define("Control",
                 if( m_viewer.Dialog && m_viewer.Dialog()){
                     scrollarea = $("#"+m_viewer.ID());
                 }else{
-                    scrollarea = $("#"+m_viewer.ID()+"containerworkspace");
+                    scrollarea = $(".app-main");
                 }
             }
 
-            m_control = $('#ctl' + m_id).focus(function (ev, forced) {				
-
-                m_footerVisible = $("#divMobileFooter").is(":visible");               			
+            m_control = $('#ctl' + m_id).focus(function (ev, forced) {				                         			
 
 				//Scroll the dialog.
 				if(!forced){

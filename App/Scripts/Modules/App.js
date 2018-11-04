@@ -1080,8 +1080,10 @@ DefineModule("App",
                         }
                         _self.LoadExternalPage(m_params["pageid"]);
 
-                        if(window.history && window.history.pushState)
+                        if(window.history && window.history.pushState){
+                            m_params["pageid"] = null;
                             window.history.pushState(null, window.title, "%SERVERADDRESS%"+Application.auth.Instance);
+                        }
 
                     } else if (id != "") {
                         _self.LoadPage(id, null, { homepage: true });
@@ -1756,7 +1758,7 @@ DefineModule("App",
             if ($moduleloaded("FileDownloadManager"))
                 Application.FileDownload.Finish();
 
-            $("#menuToggle,#sideToggle,#lnkActions,#lnkMenu,#lnkLogout,#divMobileFooter,#txtGlobalSearch,#imgProfile,.search-container,#menuMain").hide();
+            $("#menuToggle,#sideToggle,#lnkActions,#lnkMenu,#lnkLogout,#txtGlobalSearch,#imgProfile,.search-container,#menuMain").hide();
             UI.StatusBar(false);
             $("#divSide,#divStatus,#tdImg,#mnuMain").html('');
             m_maintenanceMode = false;

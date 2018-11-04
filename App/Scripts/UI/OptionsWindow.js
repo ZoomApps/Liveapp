@@ -390,17 +390,7 @@ Define("OptionsWindow", null, function (options_) {
      * @memberof! OptionsWindow#
      * @returns {void}
      */
-	this.OnShow = function(){
-		
-		if (Application.IsInMobile()) {
-			
-			$("#okBtn").show();
-			$("#saveBtn,#saveCloseBtn,#saveNewBtn,#customBtn1,#customBtn2,#closeBtn").hide();
-			$("#divMobileFooter").show();
-			
-			if (m_options.showclose) 				
-				$("#closeBtn").show();
-		}
+	this.OnShow = function(){				
 		
 	};
 

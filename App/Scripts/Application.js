@@ -326,7 +326,7 @@ Date.prototype.dst = function() {
 Date.prototype.toJSON = function(){
 	if(!this)
 		return "null";
-    return moment(this).format("%LANG:FORMAT_DATE_JSON%");
+    return moment(this).format()+'Z';
 }
 
 if($.datepicker && $.datepicker._gotoToday){
@@ -3167,7 +3167,7 @@ Application.dateCache = {};
  */
 Application.ConvertDate = function(str,skipTZ) {
     
-    if(str.indexOf && str.indexOf('T') === -1)
+    if(typeof str !== 'string')
         return str;
         
 	if(Application.dateCache[str])
@@ -3676,6 +3676,12 @@ Application.ViewSubstitute = function (view) {
 
     if (view.indexOf("%TODAY") != -1)
         view = view.replace(/%TODAY/g, $.format.date(new Date(), '%LANG:FORMAT_LONGDATE%'));
+
+    if (view.indexOf("%NOW") != -1)
+        view = view.replace(/%NOW/g, $.format.date(new Date(), 'hh:mm a'));
+
+    if (view.indexOf("%RIGHTNOW") != -1)
+        view = view.replace(/%RIGHTNOW/g, $.format.date(new Date(), '%LANG:FORMAT_LONGDATE% hh:mm a'));
 
     if (Application.auth.UserData != "" && view.indexOf("%") != -1) {
         try {

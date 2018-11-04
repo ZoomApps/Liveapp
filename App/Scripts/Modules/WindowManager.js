@@ -156,8 +156,7 @@ DefineModule("WindowManager",
             if (Application.IsInMobile())
                 $("#divSideMenu,#divFactbox").panel("close");
 
-            $("#saveBtn,#saveCloseBtn").show();
-            $("#lnkActions, #divMobileFooter, #okBtn, #customBtn1, #customBtn2").hide();
+            $("#lnkActions").hide();
             $("#btnCloseAll").remove();
             ShowScroll();
 

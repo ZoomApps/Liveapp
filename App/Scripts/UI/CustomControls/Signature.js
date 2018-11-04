@@ -29,7 +29,7 @@ Define("Signature",
         this.CreateMobile = function (window_) {
 
             //Create the control.
-            var container = $('<hr><label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><div id="' + _base.ID() + '" style=""><canvas id="ctl' + _base.ID() + '" style="width: 500; height: 300; border: 1px solid #000;"><b>' + UI.IconImage('warning') + ' This control is unsupported in your browser version. Please upgrade to the latest version.</b></canvas><br/><a id="clear' + _base.ID() + '" type="button" data-inline="true" data-mini="true" data-theme="a">Clear Signature</a></div>');
+            var container = $('<hr><label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><div id="' + _base.ID() + '" style=""><canvas id="ctl' + _base.ID() + '" style="width: 500; height: 300; border: 1px solid #000;background:#FFF;"><b>' + UI.IconImage('warning') + ' This control is unsupported in your browser version. Please upgrade to the latest version.</b></canvas><br/><a id="clear' + _base.ID() + '" type="button" data-inline="true" data-mini="true" data-theme="a">Clear Signature</a></div>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
@@ -37,13 +37,7 @@ Define("Signature",
                 var canvas = $('#ctl' + _base.ID()).get(0);
 
                 m_context = canvas.getContext('2d');
-
-                setTimeout(_self.ClearPad, 1000);
-
-                //$(window).resize(app_debouncer(function () {
-                //    _self.ClearPad()
-                //}));
-
+                
                 // Bind Mouse events
                 $(canvas).on('mousedown', function (e) {
                     if (e.which === 1) {
@@ -115,14 +109,19 @@ Define("Signature",
                 $('#clear' + _base.ID()).bind("click", function () {
 
                     _self.ClearPad();
-                    _self.SaveSignature();
+                    _self.SaveSignature(true);
 
                 }).buttonMarkup({ icon: "delete", mini: Application.MiniMode() });
+               
             });
         };
 
-        this.SaveSignature = function () {
-            try {
+        this.SaveSignature = function (clear) {
+            if(clear){
+                _self.OnValueChange(_base.Field().Name, null);
+                return;
+            }
+            try {                
                 var canvas = $('#ctl' + _base.ID()).get(0);
                 var imgData = canvas.toDataURL();
                 _self.OnValueChange(_base.Field().Name, imgData.split(';')[1].substr(7), null, false);
@@ -136,9 +135,8 @@ Define("Signature",
             m_leftButton = false;
 
             var canvas = $('#ctl' + _base.ID()).get(0);
-            var w = $(window).width() - 40;
-            if(w > 500)
-                w = 500;
+            var w = $(window).width() - 30;
+            
             canvas.width = w;
 
             if (m_context) {
@@ -163,10 +161,12 @@ Define("Signature",
 
             Application.LogInfo("Updating mobile control: " + _base.ID() + ", Caption: " + _base.Field().Caption);
 
-            if (m_loaded) {
+            if (m_loaded) {                
                 _self.Loaded(true);
                 return;
             }
+
+            _self.ClearPad();
 
             var value = rec_[_base.Field().Name];
             if (typeof value == 'undefined') {
@@ -174,9 +174,9 @@ Define("Signature",
                 return;
             }
 
-            if (m_context) {
+            if (m_context && value) {
                 var image = new Image();
-                image.src = "data:image/png;base64," + btoa(value);
+                image.src = "data:image/png;base64," + value;
                 image.onload = function () {
                     m_context.drawImage(image, 0, 0);
                 };

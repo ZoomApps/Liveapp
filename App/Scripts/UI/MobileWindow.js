@@ -194,7 +194,7 @@ Define("Window", null, function () {
                         }
                         Application.RunNext(function () {
                             m_okClicked = false;
-                            return UI.WindowManager.Close(m_id);
+                            return UI.WindowManager.Close(m_id, m_options.cancelopenonclose);
                         });
                         return false;
                     },
@@ -366,7 +366,7 @@ Define("Window", null, function () {
             $('#' + m_id + "container").remove();
             $("#" + m_id + "containeroverlay").remove();
 
-            $("#divFooter,divMobileFooter").hide();
+            $("#divFooter").hide();
             Application.Loading.Hide(m_id);
 
             for (var i = 0; i < m_subWindows.length; i++) {
