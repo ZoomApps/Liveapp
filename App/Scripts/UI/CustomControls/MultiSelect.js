@@ -264,6 +264,42 @@ Define("MultiSelect",
             }
         };
 
+        this.Show = function () {
+
+            _base.Show();
+
+            if (Application.IsInMobile()) {
+                _base.Control().selectmenu();                
+                _base.Control().parent().show();
+            }
+        };
+
+        this.Hide = function () {
+
+            _base.Hide();
+
+            if (Application.IsInMobile()) {
+                _base.Control().selectmenu();                
+                _base.Control().parent().hide();
+            }
+        };
+
+        this.Enabled = function (value_, update_) {
+
+            _base.Enabled(value_, update_);
+
+            if (Application.IsInMobile()) {                
+                _base.Control().selectmenu();
+                if(_base.Field().Editable){
+                    _base.Control().selectmenu('enable');
+                }else{
+                    _base.Control().selectmenu('disable');
+                }
+            }
+
+            return _base.Enabled();
+        }
+
         //#endregion
 
         //#region Overrideable Methods

@@ -329,24 +329,25 @@ Define("Grid",
             var r = $(row);
             r.css(_self.RowTemplateStyle());
 
-            r.bind("tap", function (ev) {
-                if (ev.originalEvent.isDefaultPrevented()) return;
+            if(!Application.HasOption(_base.Viewer().Page().Options,"notap"))
+                r.bind("tap", function (ev) {
+                    if (ev.originalEvent.isDefaultPrevented()) return;
 
-                ev.preventDefault();
+                    ev.preventDefault();
 
-				var lineEditMode = _base.Viewer().LineActions().length > 0;
-				var isRowSelector = false;
-				var isHyperLink = false;
-				try{
-					isRowSelector = ev.target.parentElement.className == "rowselector" || ev.target.className == "rowselector";
-				}catch(e){				
-				}
-				try{
-					isHyperLink = ev.target.style.color == "blue";
-				}catch(e){				
-				}
-				
-                var rowid = parseInt($(this).attr("rid"));
+                    var lineEditMode = _base.Viewer().LineActions().length > 0;
+                    var isRowSelector = false;
+                    var isHyperLink = false;
+                    try{
+                        isRowSelector = ev.target.parentElement.className == "rowselector" || ev.target.className == "rowselector";
+                    }catch(e){				
+                    }
+                    try{
+                        isHyperLink = ev.target.style.color == "blue";
+                    }catch(e){				
+                    }
+                    
+                    var rowid = parseInt($(this).attr("rid"));
 
 				if(lineEditMode && (isRowSelector || isHyperLink || rowtemplatemode)){
 					setTimeout(function(){
@@ -359,38 +360,38 @@ Define("Grid",
                     return false;
                 }
 
-                m_tapped = rid;
+                    m_tapped = rid;
 
-				if(rowid != m_selectedRow){
-					_self.OnRowSelect(rowid);
-				}
-				
-                _self.SelectRow(rowid);
-				_self.OnRowClick(rowid,_self.DataSourceById(rowid),r)				
+                    if(rowid != m_selectedRow){
+                        _self.OnRowSelect(rowid);
+                    }
+                    
+                    _self.SelectRow(rowid);
+                    _self.OnRowClick(rowid,_self.DataSourceById(rowid),r)				
 
-                //Clear old selected rows.
-                if(!rowtemplatemode){
-                    $(".gridrows").css("background-color", "");
-                    $(".rowselector").html("");
-                }
+                    //Clear old selected rows.
+                    if(!rowtemplatemode){
+                        $(".gridrows").css("background-color", "");
+                        $(".rowselector").html("");
+                    }
 
-                for (var i = 0; i < m_dataSource.length; i++) {
-                    _self.OnBindRow(m_dataSource[i].RowId, m_dataSource[i], $('#tbody' + _base.ID()+' > #rid' + m_dataSource[i].RowId));
-                }
+                    for (var i = 0; i < m_dataSource.length; i++) {
+                        _self.OnBindRow(m_dataSource[i].RowId, m_dataSource[i], $('#tbody' + _base.ID()+' > #rid' + m_dataSource[i].RowId));
+                    }
 
-                //Select this row.
-                if(!rowtemplatemode){
-                    $(this).css("background-color", "Gainsboro");
-                    if (img)
-                        $(this).children()[0].innerHTML = img;
-                }
+                    //Select this row.
+                    if(!rowtemplatemode){
+                        $(this).css("background-color", "Gainsboro");
+                        if (img)
+                            $(this).children()[0].innerHTML = img;
+                    }
 
-                setTimeout(function () {
-                    m_tapped = 0;
-                }, 1000);
+                    setTimeout(function () {
+                        m_tapped = 0;
+                    }, 1000);
 
-                return false;				
-            });
+                    return false;				
+                });
 
             //Issue #96 - Add OnBindRow in mobile.
             _self.OnBindRow(rid, data, r);

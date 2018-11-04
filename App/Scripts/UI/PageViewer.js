@@ -194,6 +194,9 @@ Define("PageViewer",
                                 }
                             }
 
+                            if(m_form.Fields[j].OptionCaption)
+                                m_form.Fields[j].OptionCaption = Application.ProcessCaption(m_form.Fields[j].OptionCaption);
+
                             m_form.Fields[j].FlowField = m_table.Columns[i].FlowField;
 
                             if (m_table.Columns[i].Options != null && m_table.Columns[i].Options != '') {
@@ -309,6 +312,9 @@ Define("PageViewer",
                 if (m_form.Option("singleColumn") || Application.IsInMobile())
                     m_options.singleColumn = true;
 
+                if(m_form.Option("cancelopenonclose"))
+                    m_options.cancelopenonclose = true;
+
                 //Tabname
                 if (m_options.tabname == null && Application.IsInMobile())
                     m_options.tabname = "";
@@ -334,7 +340,8 @@ Define("PageViewer",
                         editormode: m_options.editlinemode,
 						removetitle: m_options.removetitle,
                         type: m_form.Type,
-                        homepage: m_options.homepage
+                        homepage: m_options.homepage,
+                        cancelopenonclose: m_options.cancelopenonclose
                     });
                 } else if (m_parent == null) {
                     _base.Create(UI.IconImage(m_form.Icon) + ' ' + m_form.Caption, {
@@ -348,7 +355,8 @@ Define("PageViewer",
                         editormode: m_options.editlinemode,
 						removetitle: m_options.removetitle,
                         type: m_form.Type,
-                        homepage: m_options.homepage
+                        homepage: m_options.homepage,
+                        cancelopenonclose: m_options.cancelopenonclose
                     });
                 } else {
 
@@ -367,7 +375,8 @@ Define("PageViewer",
                         editormode: m_options.editlinemode,
 						removetitle: m_options.removetitle,
                         type: m_form.Type,
-                        homepage: m_options.homepage
+                        homepage: m_options.homepage,
+                        cancelopenonclose: m_options.cancelopenonclose
                     });
                 }
 				

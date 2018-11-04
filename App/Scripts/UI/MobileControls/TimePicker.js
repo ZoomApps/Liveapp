@@ -44,7 +44,8 @@ Define("TimePicker",
                     useClearButton: true,
                     theme: "a",
                     minuteStep: 1,
-                    popupPosition: 'window'
+                    popupPosition: 'window',
+                    useLang: (Application.HasOption(_base.Field().Options,'24hours') ? 'en24' : 'en')
                 });
 
             });
@@ -64,7 +65,11 @@ Define("TimePicker",
                 return;
             }
 
-            _base.Control().val($.format.date(value, 'hh:mm a'));
+            if (value != null) {
+                _base.Control().val(Application.FormatDate(value, Application.HasOption(_base.Field().Options,'24hours') ? 'HH:mm' : 'hh:mm a'));
+            } else {
+                _base.Control().val(null);
+            }
 
             _self.Loaded(true);
         };

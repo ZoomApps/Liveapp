@@ -167,7 +167,7 @@ Define("Window", null, function () {
                         }
                         Application.RunNext(function () {
                             m_okClicked = false;
-                            return UI.WindowManager.Close(m_id);
+                            return UI.WindowManager.Close(m_id, m_options.cancelopenonclose);
                         });
                         return false;
                     },

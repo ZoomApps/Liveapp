@@ -1113,8 +1113,10 @@ DefineModule("App",
                         }
                         _self.LoadExternalPage(m_params["pageid"]);
 
-                        if(window.history && window.history.pushState)
+                        if(window.history && window.history.pushState){
+                            m_params["pageid"] = null;
                             window.history.pushState(null, window.title, "%SERVERADDRESS%"+Application.auth.Instance);
+                        }
 
                     } else if (id != "") {
                         _self.LoadPage(id, null, { homepage: true });
