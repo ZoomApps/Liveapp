@@ -40,6 +40,8 @@ Define("Signature",
                 
                 // Bind Mouse events
                 $(canvas).on('mousedown', function (e) {
+                    if(_base.Viewer && _base.Viewer().FocusControl && _base.Viewer().FocusControl())
+                        _base.Viewer().FocusControl().blur();
                     if (e.which === 1) {
                         m_leftButton = true;
                         m_context.fillStyle = "#000";
@@ -75,6 +77,8 @@ Define("Signature",
 
                 //bind touch events
                 $(canvas).on('touchstart', function (e) {
+                    if(_base.Viewer && _base.Viewer().FocusControl && _base.Viewer().FocusControl())
+                        _base.Viewer().FocusControl().blur();
                     m_leftButton = true;
                     m_context.fillStyle = "#000";
                     var t = e.originalEvent.touches[0];

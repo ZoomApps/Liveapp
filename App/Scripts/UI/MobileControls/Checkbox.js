@@ -33,6 +33,7 @@ Define("Checkbox",
 
                 cont.checkboxradio();                
                 cont.unbind("change");
+                cont.unbind("focus");
                 cont.change(function () {
                     if (_base.Loaded() == false)
                         return;

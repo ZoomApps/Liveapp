@@ -125,6 +125,9 @@ Define("Control",
             }
             m_label.html(m_field.Caption);
 
+            if(m_field.Mandatory)
+                $('<div id="lbldesc'+m_id+'" style="margin-bottom:5px;"><small style="color: #fab1a0;">Mandatory</small></div>').insertAfter(m_label);
+
             //Hookup focus event.
             m_control.focus(function () {
                 if (m_viewer)

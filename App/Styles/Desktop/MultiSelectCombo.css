@@ -1,5 +1,5 @@
-﻿.ui-multiselect { text-align:left; margin-left: 10px; }
-.ui-multiselect span.ui-icon { float:right }
+.ui-multiselect-combo { text-align:left; margin-left: 10px; font-size: 15px; }
+.ui-multiselect-combo span.ui-icon { float:right }
 .ui-multiselect-single .ui-multiselect-checkboxes input { position:absolute !important; top: auto !important; left:-9999px; }
 .ui-multiselect-single .ui-multiselect-checkboxes label { padding:5px !important }
 

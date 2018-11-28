@@ -35,7 +35,7 @@ Define("NotesBox",
             var container = $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr><td id="lbltd' + _base.ID() + '" style="width: 50%; vertical-align: top"><label id="lbl' + _base.ID() + '" id= for="ctl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td><td id="ctltd' + _base.ID() + '" style="width: 50%; padding-right: 10px;"><textarea id="ctl' + _base.ID() + '" style="width: 100%;" rows="' + rows + '"></textarea></td></tr></table></div>');
 
             //Call base method.
-            _base.Create(window_, container, _self.OnValueChange, function (cont) {
+            _base.Create(window_, container, _self.FixValue, function (cont) {
 
                 if (showlabel == false) {
                     $("#lbltd" + _base.ID()).hide();                    
@@ -54,7 +54,8 @@ Define("NotesBox",
         this.CreateMobile = function (window_) {
 
             //Create the control.
-            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><textarea cols="40" rows="8" id="ctl' + _base.ID() + '"></textarea>');
+            var rows = Default(Application.OptionValue(_base.Field().Options, "rows"), 1);
+            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><textarea cols="40" rows="'+rows+'" id="ctl' + _base.ID() + '"></textarea>');
 
             //Call base method.
             _base.Create(window_, container, _self.FixValue, function (cont) {
@@ -165,33 +166,31 @@ Define("NotesBox",
         //#region Overrideable Methods
 
         this.Update = function (rec_) {
-				
-			if(rec_[_base.Field().Name] && Application.HasOption(_base.Field().Options,"hashtml"))
-				rec_[_base.Field().Name] = Application.DecodeHTML(rec_[_base.Field().Name]);
-		
-            if (!Application.IsInMobile())
-                return _base.Update(rec_);
-
+                
             Application.LogInfo("Updating control: " + _base.ID() + ", Caption: " + _base.Field().Caption);
-            
-			var value = rec_[_base.Field().Name];
+
+            var value = rec_[_base.Field().Name];
             if (typeof value == 'undefined') {
                 _self.Loaded(true);
                 return;
-            }					
-
-            if (value != null && Application.IsInMobile())
+            }	
+            
+			if(rec_[_base.Field().Name] && Application.HasOption(_base.Field().Options,"hashtml"))
+				rec_[_base.Field().Name] = Application.DecodeHTML(rec_[_base.Field().Name]);
+        
+            if (value != null){
                 value = value.replace(/\<br\>/g, '\r\n');
+                if (!Application.IsInMobile()){
+                    _base.Control().val($.fn.fmatter(_base.Field().Mask, value));
+                }else{
+                    _base.Control().val(value);
+                }
+            }
 
-			if (!Application.IsInMobile()){
-				_base.Control().val($.fn.fmatter(_base.Field().Mask, value));
-			}else{
-				_base.Control().val(value);
-			}
-			
-            Application.RunNext(function () {
-                _base.Control().keyup();
-            });
+            if (Application.IsInMobile())
+                Application.RunNext(function () {
+                    _base.Control().keyup();
+                });                                             							            						            
 
             _self.Loaded(true);
         };

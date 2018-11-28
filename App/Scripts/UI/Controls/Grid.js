@@ -243,6 +243,10 @@ Define("Grid",
 
             if (field.CustomControl != "") {
 
+                var align = "left";
+                if (field.Type == "Integer" || field.Type == "Decimal")
+                    align = "right";
+
                 m_cols.push({
                     name: field.Name,
                     index: field.Name,
@@ -251,6 +255,7 @@ Define("Grid",
                     hidden: false,
                     sortable: true,
                     edittype: 'custom',
+                    align: align,
                     summaryType: sumtype,
 					skipsanitize: Application.HasOption(field.Options,"skipsanitize"),
                     formatter: function (cellvalue, options, rowObject) {

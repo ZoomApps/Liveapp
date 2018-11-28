@@ -57,7 +57,7 @@
             this._namespaceID = this.eventNamespace || ('multiselectcombo' + multiselectID);
 
             var button = (this.button = $('<button type="button"><span class="ui-icon ui-icon-triangle-1-s"></span></button>'))
-        .addClass('ui-multiselect ui-widget ui-state-default ui-corner-all')
+        .addClass('ui-multiselect-combo ui-widget ui-state-default ui-corner-all')
         .addClass(o.classes)
         .attr({ 'title': el.attr('title'), 'aria-haspopup': true, 'tabIndex': el.attr('tabIndex') })
         .insertAfter(el),

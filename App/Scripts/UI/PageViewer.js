@@ -1135,6 +1135,8 @@ Define("PageViewer",
 									return;
 							                                
                                 var v = Application.MergeView(page.FormView(), m_record);
+                                if(page.View())
+                                    v = Application.CombineViews(v, page.View(),false);
                                 page.View(v);
                                 	return page.Update(first_, showProgress_, skipOpenFunc_);
                             },
@@ -3032,9 +3034,11 @@ Define("PageViewer",
         this.GridRowSelect = function (rowid) {
             setTimeout(function () {
                 Application.RunNext(function () {
-                    _self.GetRecordByRowId(rowid);
-                    if (m_subPages.length > 0) {
-                        return _self.UpdateSubPages(true, false);
+                    if(_self){
+                        _self.GetRecordByRowId(rowid);
+                        if (m_subPages.length > 0) {
+                            return _self.UpdateSubPages(true, false);
+                        }
                     }
                 });
             }, 500);
@@ -3615,8 +3619,12 @@ Define("PageViewer",
             return m_lineEditor;
         };
 
-        this.FocusControl = function (cont) {
-            m_focusControl = cont;
+        this.FocusControl = function (cont) {             
+            if (cont !== undefined) {
+                m_focusControl = cont;
+            } else {
+                return m_focusControl;
+            }
         };
 
         this.XFocusControl = function (cont) {

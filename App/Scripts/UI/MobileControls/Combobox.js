@@ -395,7 +395,11 @@ Define("Combobox",
 
                 var cont = _base.Control().parent().detach();
 
-                $("#lbl" + _base.ID()).after(cont);
+                if(_base.Field().Mandatory){
+                    $("#lbldesc" + _base.ID()).after(cont);
+                }else{
+                    $("#lbl" + _base.ID()).after(cont);
+                }                
 
                 cont.css({
                     width: '', //Issue #17 - Change width
