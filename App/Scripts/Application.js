@@ -325,7 +325,9 @@ Date.prototype.dst = function() {
 
 Date.prototype.toJSON = function(){
 	if(!this)
-		return "null";
+        return "null";
+    if(this.getFullYear && this.getFullYear() === 1900)
+        return moment(this).format("%LANG:FORMAT_DATE_JSON%");
     return moment(this).format()+'Z';
 }
 
@@ -4200,7 +4202,7 @@ Application.GenerateView = function(filters){
  * Opens a page
  * @global
  * @param {string} id The page id to open
- * @param {Object} filters The filters to apply to the page
+ * @param {string|Object} filters The filters to apply to the page
  * @param {Object} [options] The options for the page
  * @param {number} [parent] The id of the parent page
  * @param {boolean} [singleThread] Not used
@@ -4210,18 +4212,25 @@ Application.GenerateView = function(filters){
 OPENPAGE = function (id, filters, options, parent, singleThread, sorting){    
     if(ThisWindow())
         parent = Default(parent,ThisWindow().ID());
+
     var f = "";
-    for (var i in filters) {
-        if(f.length == 0){
-            f += i + "=FILTER("+filters[i]+")";
+    if(filters){
+        if (typeof filters === 'string') {
+            f = filters;
         }else{
-            f += ", "+ i + "=FILTER("+filters[i]+")";
+            for (var i in filters) {
+                if(f.length == 0){
+                    f += i + "=FILTER("+filters[i]+")";
+                }else{
+                    f += ", "+ i + "=FILTER("+filters[i]+")";
+                }
+            }
+            if(f.length > 0)
+                f = "WHERE ("+f+")";
+            if(sorting)
+                f = sorting + f;
         }
-    }
-    if(f.length > 0)
-        f = "WHERE ("+f+")";
-	if(sorting)
-		f = sorting + f;
+    }        
     Application.App.LoadPage(id,f,options,parent,singleThread);
 };
 

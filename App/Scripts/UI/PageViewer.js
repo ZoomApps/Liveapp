@@ -569,7 +569,7 @@ Define("PageViewer",
                 _base.Progress(0);
 
                 //Form actions.                
-                var added = false;
+                var added = false;                
                 for (var i = 0; i < m_form.Actions.length; i++) {
 
                     var action = m_form.Actions[i];
@@ -615,8 +615,8 @@ Define("PageViewer",
 							
 						}else{
 						
-							var btn = _base.AddButton(action.Name, action.Image, Application.ProcessCaption(action.Name), func);
-							m_buttons[action.Name] = btn;
+                            var btn = _base.AddButton(action.Name, action.Image, Application.ProcessCaption(action.Name), func);                            
+                            m_buttons[action.Name] = btn;                            
 							added = true;
 						
 						}
@@ -625,7 +625,12 @@ Define("PageViewer",
 
                 if (Application.IsInMobile()) {
                     _base.LoadedActions();
-                }
+                    var children = $('#'+_base.ID()+'actions').children();
+                    if(children.length <= 3)
+                        $.each(children,function(index,val){
+                            $(val).css('width',children.length <= 2 ? '50vw' : '32vw');
+                        });
+                }                
 
                 //Add special mobile actions.
                 if (!m_form.CustomControl || m_form.CustomControl == "") {
@@ -1200,8 +1205,10 @@ Define("PageViewer",
 									return;
 							                                
                                 var v = Application.MergeView(page.FormView(), m_record);
+                                if(page.View())
+                                    v = Application.CombineViews(v, page.View(),false);
                                 page.View(v);
-                                	return page.Update(first_, showProgress_, skipOpenFunc_);
+                                return page.Update(first_, showProgress_, skipOpenFunc_);
                             },
 
                             function () {
@@ -3108,11 +3115,13 @@ Define("PageViewer",
         };
 
         this.GridRowSelect = function (rowid) {
-            setTimeout(function () {
+            setTimeout(function () {                
                 Application.RunNext(function () {
-                    _self.GetRecordByRowId(rowid);
-                    if (m_subPages.length > 0) {
-                        return _self.UpdateSubPages(true, false);
+                    if(_self){
+                        _self.GetRecordByRowId(rowid);
+                        if (m_subPages.length > 0) {
+                            return _self.UpdateSubPages(true, false);
+                        }
                     }
                 });
             }, 500);
@@ -3711,8 +3720,12 @@ Define("PageViewer",
             return m_lineEditor;
         };
 
-        this.FocusControl = function (cont) {
-            m_focusControl = cont;
+        this.FocusControl = function (cont) {             
+            if (cont !== undefined) {
+                m_focusControl = cont;
+            } else {
+                return m_focusControl;
+            }
         };
 
         this.XFocusControl = function (cont) {
@@ -3988,7 +4001,7 @@ Define("PageViewer",
 
                     //Rollback record.
                     if (!m_temp && !m_record.UnsavedChanges())
-                    m_record.RollBack();
+                        m_record.RollBack();
 
                     if (m_form.Type == "List") {
 

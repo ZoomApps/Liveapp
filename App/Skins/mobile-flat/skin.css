@@ -4344,6 +4344,15 @@ body {
 	font-weight: Normal;
 }
 
+.app-button{
+	border-radius: 5px;
+	background: gainsboro;
+	width: fit-content;
+	padding: 10px;
+	display: inline-block;
+	margin: 5px;
+}
+
 .app-boxy-wrapper{
     border: 0px;
 }

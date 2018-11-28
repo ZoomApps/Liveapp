@@ -1,3 +1,53 @@
+<a name="5.11"></a>
+# Liveapp v5.11 (November 2018)
+
+## Bug Fixes
+
+  - **app**
+    - fix styling of login button in mobile mode (v5.x)
+
+  - **application**
+    - don't send timezone with dates if the year is 1900
+
+  - **checkbox**
+    - fix scrolling issue in mobile
+
+  - **grid**
+    - number columns with a custom control not aligned correctly
+    - use lookup display value in row template fields (v5.x)
+
+  - **multicombo**
+    - fix style in desktop mode
+
+  - **notesbox**
+    - displays `<br>` instead of new lines in desktop card mode
+
+  - **pageviewer**
+    - grid error when closing page
+    - remember sub page filters on refresh
+
+  - **server**
+    - add more info to the `Extension not found` error
+
+  - **signature**
+    - clicking in signature field stops the last field from validating
+
+## Features
+
+  - **app**
+    - show a `Mandatory` label for mandatory fields in mobile mode
+
+  - **application**
+    - allow a `string` filter view in the `OPENPAGE` function for the second param
+
+  - **pageviewer**
+    - allow the current focus control to be retreived
+    - spread out action button width in mobile mode if the are less than 4 buttons (v5.x)
+
+  - **server**
+    - add `checknull` column option to flowfield columns
+
+
 <a name="5.10"></a>
 # Liveapp v5.10 (October 2018)
 

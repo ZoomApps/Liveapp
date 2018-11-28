@@ -730,12 +730,12 @@ Define("Grid",
                     for (var j = 0; j < viewer.Page().Fields.length; j++) {
                         var field = viewer.Page().Fields[j];
                         if(Application.HasOption(field.Options,"primary"))
-                            html += '<h3 style="margin: '+ (secondary ? '10px':'20px') +' 0 0 0">'+FormatData(data[field.Name],field)+'</h3>';
+                            html += '<h3 style="margin: '+ (secondary ? '10px':'20px') +' 0 0 0">'+FormatData(data['FF$'+field.Name] || data[field.Name],field)+'</h3>';
                     }
                     for (var j = 0; j < viewer.Page().Fields.length; j++) {
                         var field = viewer.Page().Fields[j];
                         if(Application.HasOption(field.Options,"secondary")){
-                            var val = FormatData(data[field.Name],field);
+                            var val = FormatData(data['FF$'+field.Name] || data[field.Name],field);
                             if(val)
                                 html += field.Caption + ': '+ val +'<br>';
                         }

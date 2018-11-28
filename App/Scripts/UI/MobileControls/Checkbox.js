@@ -32,6 +32,7 @@ Define("Checkbox",
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
                 cont.unbind("change");
+                cont.unbind("focus");
                 cont.change(function () {
                     if (_base.Loaded() == false)
                         return;
@@ -56,7 +57,8 @@ Define("Checkbox",
                 return;
             }
             
-            _base.Control()[0].checked = value;
+            if(_base.Control().length > 0)
+                _base.Control()[0].checked = value;
 
             _self.Loaded(true);
         };

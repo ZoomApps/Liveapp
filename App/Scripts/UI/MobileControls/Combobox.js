@@ -405,7 +405,11 @@ Define("Combobox",
                 if(m_dd) m_dd.show();
                 if(m_clearbtn) m_clearbtn.hide();
 
-                $("#lbl" + _base.ID()).after(cont);
+                if(_base.Field().Mandatory){
+                    $("#lbldesc" + _base.ID()).after(cont);
+                }else{
+                    $("#lbl" + _base.ID()).after(cont);
+                }                
 
                 cont.css({
                     width: '', //Issue #17 - Change width
