@@ -67,11 +67,16 @@ Define("Control",
                 if( m_viewer.Dialog && m_viewer.Dialog()){
                     scrollarea = $("#"+m_viewer.ID());
                 }else{
-                    scrollarea = $(".app-main");
+                    scrollarea = $("#"+m_viewer.ID()+"containerworkspace");
+                    if(scrollarea.length === 0)
+                        scrollarea = $(".app-main");
                 }
             }
 
             m_control = $('#ctl' + m_id).focus(function (ev, forced) {				                         			
+                                
+                if(!Application.IsAndroid())
+                    return;
 
 				//Scroll the dialog.
 				if(!forced){

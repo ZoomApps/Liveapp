@@ -13,7 +13,9 @@ var ics = function () {
     var calendarEvents = [];
     var calendarStart = [
         'BEGIN:VCALENDAR',
-        'VERSION:2.0'
+        'VERSION:2.0',
+        'X-WR-CALNAME:no-reply@zoomapps.com.au',
+        'X-WR-TIMEZONE:Australia/Sydney'
     ].join(SEPARATOR);
     var calendarEnd = SEPARATOR + 'END:VCALENDAR';
 
@@ -42,20 +44,16 @@ var ics = function () {
          * @param  {string} begin       Beginning date of event
          * @param  {string} stop        Ending date of event
          */
-        'addEvent': function (subject, description, location, begin, stop) {
+        'addEvent': function (subject, description, location, start_date, end_date) {
             // I'm not in the mood to make these optional... So they are all required
             if (typeof subject === 'undefined' ||
                 typeof description === 'undefined' ||
                 typeof location === 'undefined' ||
-                typeof begin === 'undefined' ||
-                typeof stop === 'undefined'
+                typeof start_date === 'undefined' ||
+                typeof end_date === 'undefined'
             ) {
                 return false;
             };
-
-            //TODO add time and time zone? use moment to format?
-            var start_date = new Date(begin);
-            var end_date = new Date(stop);
 
             var start_year = ("0000" + (start_date.getFullYear().toString())).slice(-4);
             var start_month = ("00" + ((start_date.getMonth() + 1).toString())).slice(-2);
@@ -74,10 +72,8 @@ var ics = function () {
             // Since some calendars don't add 0 second events, we need to remove time if there is none...
             var start_time = '';
             var end_time = '';
-            if (start_minutes + start_seconds + end_minutes + end_seconds != 0) {
-                start_time = 'T' + start_hours + start_minutes + start_seconds;
-                end_time = 'T' + end_hours + end_minutes + end_seconds;
-            }
+            start_time = 'T' + start_hours + start_minutes + start_seconds + 'Z';
+            end_time = 'T' + end_hours + end_minutes + end_seconds + 'Z';            
 
             var start = start_year + start_month + start_day + start_time;
             var end = end_year + end_month + end_day + end_time;
@@ -86,8 +82,8 @@ var ics = function () {
                 'BEGIN:VEVENT',
                 'CLASS:PUBLIC',
                 'DESCRIPTION:' + description,
-                'DTSTART;VALUE=DATE:' + start,
-                'DTEND;VALUE=DATE:' + end,
+                'DTSTART:' + start,
+                'DTEND:' + end,
                 'LOCATION:' + location,
                 'SUMMARY;LANGUAGE=en-us:' + subject,
                 'TRANSP:TRANSPARENT',
@@ -122,6 +118,14 @@ var ics = function () {
             }
             saveAs(blob, filename + ext);
             return calendar;
+        },
+        
+        'toBase64': function () {
+            if (calendarEvents.length < 1) {
+                return '';
+            }
+            var calendar = calendarStart + SEPARATOR + calendarEvents.join(SEPARATOR) + calendarEnd;           
+            return btoa(calendar);
         }
     };
 };

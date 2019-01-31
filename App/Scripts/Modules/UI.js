@@ -434,7 +434,7 @@ DefineModule("AppUI",
         this.FindEditorInput = function (elem) {
 
             for (var i = 0; i < elem.children().length; i++) {
-                if (elem.children()[i].nodeName == "INPUT" || elem.children()[i].nodeName == "TEXTAREA") {
+                if (elem.children()[i].nodeName == "INPUT" || elem.children()[i].nodeName == "TEXTAREA" || elem.children()[i].nodeName == "SELECT") {
                     if (elem.children()[i].className != 'noinput')
                         return $(elem.children()[i]);
                 }

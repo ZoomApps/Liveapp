@@ -117,6 +117,51 @@ Define("MultiCombobox",
             });
         };
 
+        this.CreateList = function (value_) {
+
+            //Create the control.
+            var container = $('<span>')
+            .addClass("ui-combobox")
+            .css("width", "100%");
+
+            var filters = _base.Field().LookupFilters;
+			if(typeof filters == "function")
+                filters = _base.Field().LookupFilters();
+                
+            var cont = $('<select class="multiselector" multiple="multiple">')
+            .appendTo(container)
+            .multiselectcombo({
+                classes: "app-control",
+                selectedList: parseInt(Default(Application.OptionValue(_base.Field().Options, "selectedlist"),"1")),
+                height: 175,
+                drilldown: _base.Field().LookupAdvanced,
+                drilldownview: filters,
+                header: !Application.HasOption(_base.Field().Options, "hideselectall")
+            })
+            .addClass("ui-widget ui-widget-content ui-corner-left")	        
+            .css("width", "calc(100% - 2px)");       
+            
+            if(_base.Viewer() && _base.Viewer().ParseComboCell)
+                value_ = _base.Viewer().ParseComboCell(value_,_base.Field());
+
+            if (value_ != null) {
+                value_ = value_.toString().split(",");
+            }
+
+            Application.RunNext(function(){
+                return _self.GenerateData(value_);
+            });
+
+            //Call base method.
+            return _base.CreateList(container, cont, value_);
+        };
+
+        this.FormatValue = function(cellvalue, rowObject){
+            if(_base.Viewer() && _base.Viewer().FormatComboCell)
+                return _base.Viewer().FormatComboCell(cellvalue,_base.Field());
+            return cellvalue;
+        };
+
         this.GenerateData = function (value) {
 
             var viewer = _base.Viewer();

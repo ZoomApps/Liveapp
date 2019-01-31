@@ -1,3 +1,47 @@
+<a name="5.12"></a>
+# Liveapp v5.12 (December 2018/January 2019)
+
+## Bug Fixes
+
+  - **control**
+    - don't auto scroll when focusing in a control in iOS
+
+  - **ics**
+    - fix errors in `.ics` file output
+
+  - **notesbox**
+    - notes box not showing a value on update
+
+  - **pageviewer**
+    - strip dollar signs `$` from integers and decimals before modifying the record
+
+  - **server**
+    - if a `code` field has a lookup display, don't uppercase the value
+    - commit changes to `pending` emails after each individual email
+
+## Features
+
+  - **application**
+    - add new method `Application.Base64Encode`
+
+  - **cameramanager**
+    - allow multiselect of files on the device
+
+  - **multicombobox**
+    - add list version of multicombo box
+
+  - **pageviewer**
+    - add new field option `nonull`
+    - add new page option `noupdatetrans`
+
+  - **queueitem**
+    - increase height of queue item
+
+  - **server**
+    - don't use `smart shrink` when generating a PDF to be emailed
+    - add new type of URL for ical sync
+
+
 <a name="5.11"></a>
 # Liveapp v5.11 (November 2018)
 

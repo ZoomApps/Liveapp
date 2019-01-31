@@ -904,7 +904,10 @@ Define("PageViewer",
 
             $code(
 
-            Application.BeginTransaction,
+            function () {                
+                if (!Application.HasOption(m_form.Options,"noupdatetrans"))
+                    return Application.BeginTransaction();
+            },
 
             function () {
 
@@ -1104,7 +1107,10 @@ Define("PageViewer",
                 return _self.UpdateSubPages(true, showProgress_,skipOpenFunc_);
             },
 
-            Application.CommitTransaction,
+            function () {                
+                if (!Application.HasOption(m_form.Options,"noupdatetrans"))
+                    return Application.CommitTransaction();
+            },
 
             function () {
 				
@@ -2068,20 +2074,24 @@ Define("PageViewer",
                 } else if (field.Type == "Integer") {
 
                     if(value_ && value_.replace)
-                        value_ = value_.replace(/\,/g,'');
+                        value_ = value_.replace(/\,/g,'').replace(/\$/g,'');
                     var i = parseInt(value_);
                     if (isNaN(i))
                         Application.Error("Invalid integer: " + value_);
                     value_ = (i === 0 ? null : i);
+                    if(Application.HasOption(field.Options,'nonull') && !value_)
+                        value_ = 0;
 
                 } else if (field.Type == "Decimal") {
 
                     if(value_ && value_.replace)
-                        value_ = value_.replace(/\,/g,'');
+                        value_ = value_.replace(/\,/g,'').replace(/\$/g,'');
                     var i = parseFloat(value_);
                     if (isNaN(i))
                         Application.Error("Invalid decimal: " + value_);
                     value_ = (i === 0 ? null : i);
+                    if(Application.HasOption(field.Options,'nonull') && !value_)
+                        value_ = 0;
 
                 } else if (field.Type == "Code") {
 

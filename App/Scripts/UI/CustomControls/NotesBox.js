@@ -35,7 +35,7 @@ Define("NotesBox",
             var container = $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr><td id="lbltd' + _base.ID() + '" style="width: 50%; vertical-align: top"><label id="lbl' + _base.ID() + '" id= for="ctl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td><td id="ctltd' + _base.ID() + '" style="width: 50%; padding-right: 10px;"><textarea id="ctl' + _base.ID() + '" style="width: 100%;" rows="' + rows + '"></textarea></td></tr></table></div>');
 
             //Call base method.
-            _base.Create(window_, container, _self.FixValue, function (cont) {
+            _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
                 if (showlabel == false) {
                     $("#lbltd" + _base.ID()).hide();                    
@@ -185,6 +185,8 @@ Define("NotesBox",
                 }else{
                     _base.Control().val(value);
                 }
+            }else{
+                _base.Control().val(value);
             }
 
             if (Application.IsInMobile())

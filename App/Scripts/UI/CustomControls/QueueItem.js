@@ -31,7 +31,7 @@ Define("QueueItem",
         this.CreateDesktop = function (window_) {
 
             //Create the control.
-            var container = $('<table id="' + _base.ID() + '" style="width: 120px; max-width: 210px; display: inline-block; margin: 10px; height: 120px;"><tbody>'+
+            var container = $('<table id="' + _base.ID() + '" style="width: 120px; max-width: 210px; display: inline-block; margin: 10px; height: 130px;"><tbody>'+
             '<tr><td><div id="bg'+_base.ID()+'" data-ripple style="padding: 4px; text-align: center; width: 100px; height: 100px; border: 0px; border-radius: 50%; cursor: pointer; background-color: whitesmoke; line-height: 100px;">'+
             '<i id="img' + _base.ID() + '" class="mdi mdi-format-vanish" style="font-size: 50px"></i></div>'+
             '<div id="ctl' + _base.ID() + '" style="font-size: 20px; width: 40px; height: 40px; border-radius: 50%; color: white; background-color: transparent;text-align: center;line-height: 40px;margin-top: -38px;position: relative;"></div>'+

@@ -983,7 +983,10 @@ Define("Grid",
             }
             if (!editor)
                 return null;
-            return editor.val();
+            var val = editor.val();
+            if (val != null && val.list)
+                val = val.list();
+            return val;
         };
 
         function GetData(offset, load) {
@@ -1035,8 +1038,16 @@ Define("Grid",
                     var rowid = _self.GetRowID(m_selected[i]);
                     if (rowid) {
                         var ind = m_grid[0].rows.namedItem(rowid);
-                        $(ind).addClass("multiselect");
-                        $(ind).children().first().children().first()[0].checked = true;
+                        if($(ind).length > 0){
+                            $(ind).addClass("multiselect");
+                            $(ind).children().first().children().first()[0].checked = true;
+                        }else{
+                            m_selected.splice(i,1);
+                            i -= 1;
+                        }
+                    }else{
+                        m_selected.splice(i,1);
+                        i -= 1;
                     }
                 });
             }
