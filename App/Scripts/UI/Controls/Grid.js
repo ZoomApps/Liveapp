@@ -970,7 +970,10 @@ Define("Grid",
             }
             if (!editor)
                 return null;
-            return editor.val();
+            var val = editor.val();
+            if (val != null && val.list)
+                val = val.list();
+            return val;
         };
 
         function GetData(offset, load) {

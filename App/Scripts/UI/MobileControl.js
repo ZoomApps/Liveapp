@@ -72,6 +72,9 @@ Define("Control",
 
             m_control = $('#ctl' + m_id).focus(function (ev, forced) {				
 
+                if(!Application.IsAndroid())
+                    return;
+                    
                 m_footerVisible = $("#divMobileFooter").is(":visible");               			
 
 				//Scroll the dialog.

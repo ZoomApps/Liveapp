@@ -40,7 +40,7 @@ DefineModule("CameraManager",
 
             var id = $id();
 
-            $("body").append('<input id="file' + id + '" type="file" style="display:none;" />');
+            $("body").append('<input id="file' + id + '" type="file" style="display:none;" multiple />');
             
             $('#file' + id).fileReaderJS({
                 on: {
