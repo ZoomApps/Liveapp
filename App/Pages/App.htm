@@ -88,7 +88,7 @@
                                     <tr>
                                         <td id="tdTop" style="width: 100%; text-align: right">
 											<img id="imgGlobalSearch" src='%SERVERADDRESS%Images/loader.gif' style="display: none;" /> 
-                                            <input id="txtGlobalSearch" class="search-box" placeholder="Search">
+                                            <input id="txtGlobalSearch" autocomplete="new-password" class="search-box" placeholder="Search">
                                         </td>  
                                             <td id="tdImg"></td>
                                         <td id="lnkLogout" class="top-link ui-widget-header" style="display: none; font-weight: bold;" onclick="javascript:Application.App.Logout()"
@@ -136,8 +136,8 @@
                         style="text-align: left; width: 400px; display: none; margin-top: 50px; background-color: #FBFBFF; padding: 10px;">                        
                         <h1 id="hdrLogin">%LANG:S_LOGINPROMPT%</h1>                     
                         <fieldset>                
-                            <input type="text" id="txtUsername" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="1" placeholder="Username" />
-                            <input type="password" id="txtPassword" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="2" placeholder="Password" />
+                            <input type="text" id="txtUsername" autocomplete="username" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="1" placeholder="Username" />
+                            <input type="password" id="txtPassword" autocomplete="password" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="2" placeholder="Password" />
                             <br />
                             <span id="spanRemember"><input type="checkbox" id="chkRemember" onclick="Application.App.RememberOnClick();" tabindex="3">%LANG:S_REMEMBER%</value></span>
                         </fieldset>                        

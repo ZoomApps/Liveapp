@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("MultiCombobox",
 
@@ -139,7 +139,12 @@ Define("MultiCombobox",
                 header: !Application.HasOption(_base.Field().Options, "hideselectall")
             })
             .addClass("ui-widget ui-widget-content ui-corner-left")	        
-            .css("width", "calc(100% - 2px)");       
+            .css("width", "calc(100% - 25px)"); 
+
+            cont.next().css({
+                margin: '0',
+                width: 'calc(100% - 25px)'
+            });
             
             if(_base.Viewer() && _base.Viewer().ParseComboCell)
                 value_ = _base.Viewer().ParseComboCell(value_,_base.Field());

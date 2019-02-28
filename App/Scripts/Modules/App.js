@@ -1420,6 +1420,12 @@ DefineModule("App",
 
             $("#txtUsername, #txtPassword, #chkRemember").unbind("keyup", _self.LoginClick);
             $("#txtUsername, #txtPassword, #chkRemember").keyup(_self.LoginClick);
+
+            //Damn you lastpass...
+            setTimeout(function(){
+                $("#txtUsername").attr('autocomplete','username');
+                $("#txtPassword").attr('autocomplete','password');
+            },2000);
             
 			if(!skipFocus_)
 				$("#txtUsername").focus();

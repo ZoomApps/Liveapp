@@ -1,4 +1,4 @@
-﻿(function (root, factory) {
+(function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module unless amdModuleId is set
         define('Chartist', [], function () {
@@ -3415,7 +3415,7 @@
                         value: value,
                         valueIndex: valueIndex,
                         meta: Chartist.getMetaData(series, valueIndex),
-                        link: data.raw.links[seriesIndex][valueIndex] //Liveapp v5
+                        link: data.raw.links ? data.raw.links[seriesIndex][valueIndex] : null //Liveapp v5
                     });
                 }.bind(this));
 
@@ -4012,7 +4012,7 @@
                     bar = seriesElement.elem('line', positions, options.classNames.bar).attr({
                         'ct:value': [value.x, value.y].filter(Chartist.isNumeric).join(','),
                         'ct:meta': Chartist.serialize(metaData),
-                        'ct:link': data.raw.links[seriesIndex][valueIndex] //Liveapp v5
+                        'ct:link': data.raw.links ? data.raw.links[seriesIndex][valueIndex] : null //Liveapp v5
                     });
 
                     this.eventEmitter.emit('draw', Chartist.extend({

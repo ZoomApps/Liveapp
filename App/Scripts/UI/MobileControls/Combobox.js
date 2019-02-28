@@ -79,7 +79,7 @@ Define("Combobox",
         this.Create = function (window_) {
 
             //Create the control.
-            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><input type="text" id="ctl' + _base.ID() + '" data-theme="a" data-clear-btn="true"></input>');
+            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><input type="text" placeholder="Select or Search" id="ctl' + _base.ID() + '" data-theme="a" data-clear-btn="true"></input>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {

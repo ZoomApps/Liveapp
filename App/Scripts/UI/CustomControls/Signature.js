@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Signature",
 
@@ -26,18 +26,22 @@ Define("Signature",
             _base = Base("Signature");
         };
 
+        this.CreateDesktop = function (window_) {
+            this.CreateMobile(window_); 
+        }
+
         this.CreateMobile = function (window_) {
 
             //Create the control.
-            var container = $('<hr><label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><div id="' + _base.ID() + '" style=""><canvas id="ctl' + _base.ID() + '" style="width: 500; height: 300; border: 1px solid #000;background:#FFF;"><b>' + UI.IconImage('warning') + ' This control is unsupported in your browser version. Please upgrade to the latest version.</b></canvas><br/><a id="clear' + _base.ID() + '" type="button" data-inline="true" data-mini="true" data-theme="a">Clear Signature</a></div>');
+            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><div id="' + _base.ID() + '" style=""><canvas id="ctl' + _base.ID() + '" style="width: 300px; height: 300px; border: 1px solid #000;background:#FFF;"><b>' + UI.IconImage('warning') + ' This control is unsupported in your browser version. Please upgrade to the latest version.</b></canvas><br/><a id="clear' + _base.ID() + '" type="button" data-inline="true" data-mini="true" data-theme="a">Clear Signature</a></div>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
 
                 var canvas = $('#ctl' + _base.ID()).get(0);
 
-                m_context = canvas.getContext('2d');
-                
+                m_context = canvas.getContext('2d');                                
+            
                 // Bind Mouse events
                 $(canvas).on('mousedown', function (e) {
                     if(_base.Viewer && _base.Viewer().FocusControl && _base.Viewer().FocusControl())
@@ -75,47 +79,57 @@ Define("Signature",
                     return false;
                 });
 
-                //bind touch events
-                $(canvas).on('touchstart', function (e) {
-                    if(_base.Viewer && _base.Viewer().FocusControl && _base.Viewer().FocusControl())
-                        _base.Viewer().FocusControl().blur();
-                    m_leftButton = true;
-                    m_context.fillStyle = "#000";
-                    var t = e.originalEvent.touches[0];
-                    var x = t.pageX - $(e.target).offset().left;
-                    var y = t.pageY - $(e.target).offset().top;
-                    m_context.moveTo(x, y);
+                if(Application.IsInMobile()){
 
-                    e.preventDefault();
-                    return false;
-                });
+                    //bind touch events
+                    $(canvas).on('touchstart', function (e) {
+                        if(_base.Viewer && _base.Viewer().FocusControl && _base.Viewer().FocusControl())
+                            _base.Viewer().FocusControl().blur();
+                        m_leftButton = true;
+                        m_context.fillStyle = "#000";
+                        var t = e.originalEvent.touches[0];
+                        var x = t.pageX - $(e.target).offset().left;
+                        var y = t.pageY - $(e.target).offset().top;
+                        m_context.moveTo(x, y);
 
-                $(canvas).on('touchmove', function (e) {
-                    m_context.fillStyle = "#000";
-                    var t = e.originalEvent.touches[0];
-                    var x = t.pageX - $(e.target).offset().left;
-                    var y = t.pageY - $(e.target).offset().top;
-                    m_context.lineTo(x, y);
-                    m_context.stroke();
+                        e.preventDefault();
+                        return false;
+                    });
 
-                    e.preventDefault();
-                    return false;
-                });
+                    $(canvas).on('touchmove', function (e) {
+                        m_context.fillStyle = "#000";
+                        var t = e.originalEvent.touches[0];
+                        var x = t.pageX - $(e.target).offset().left;
+                        var y = t.pageY - $(e.target).offset().top;
+                        m_context.lineTo(x, y);
+                        m_context.stroke();
 
-                $(canvas).on('touchend', function (e) {
-                    if (m_leftButton) {
-                        m_leftButton = false;
-                        _self.SaveSignature();
-                    }
+                        e.preventDefault();
+                        return false;
+                    });
 
-                });
+                    $(canvas).on('touchend', function (e) {
+                        if (m_leftButton) {
+                            m_leftButton = false;
+                            _self.SaveSignature();
+                        }
+
+                    });
+
+                }
 
                 $('#clear' + _base.ID()).bind("click", function () {
 
                     _self.ClearPad();
                     _self.SaveSignature(true);
 
-                }).buttonMarkup({ icon: "delete", mini: Application.MiniMode() });
+                });
+
+                if(Application.IsInMobile()){
+                    $('#clear' + _base.ID()).buttonMarkup({ icon: "delete", mini: Application.MiniMode() });
+                }else{
+                    $('#clear' + _base.ID()).button();
+                }
                
             });
         };
@@ -139,9 +153,13 @@ Define("Signature",
             m_leftButton = false;
 
             var canvas = $('#ctl' + _base.ID()).get(0);
-            var w = $(window).width() - 30;
-            
-            canvas.width = w;
+            var w = $(window).width() - 30;      
+               
+            if(!canvas)
+                return;
+                        
+            canvas.width = 300;
+            canvas.height = 300;            
 
             if (m_context) {
 
@@ -160,6 +178,12 @@ Define("Signature",
                 //m_context.fillText("x", 40, 155);
             }
         };
+
+        this.Height = function (h) {
+        };
+
+        this.Width = function (w) {
+        };        
 
         this.Update = function (rec_) {
 

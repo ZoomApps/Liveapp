@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Control",
 
@@ -69,9 +69,13 @@ Define("Control",
             //Set the tab index.
             m_control.attr("tabindex", (m_viewer && m_viewer.ID ? m_viewer.ID()+'' : '')+m_field.TabIndex);
             m_control.addClass("app-control");
+            m_control.attr("autocomplete", "new-password");
 			
-			if(m_field.Mandatory)	
-				m_control.attr("placeholder","Mandatory").addClass("app-placeholder-mandatory");
+			if(m_field.Mandatory){       
+                var ph = m_control.attr("placeholder");         
+                m_control.attr("placeholder", (ph ? ph + ' - ' : '') + "Mandatory");
+                m_control.addClass("app-placeholder-mandatory");
+            }
 
             //Set the editable property.
             if (m_field.Editable == false) {

@@ -1304,10 +1304,22 @@ Application.MiniMode = function () {
     return Application.IsMobileDisplay();
 };
 
-Application.IsIE = memoize(function () {
-    return $.browser.msie == true;
-});
-Application.IsSafari = memoize(function () {
+Application.IsIE = function () {
+    if (/MSIE 10/i.test(navigator.userAgent)) 
+        return true;
+    if (/MSIE 9/i.test(navigator.userAgent) || /rv:11.0/i.test(navigator.userAgent))
+        return true;
+    if (/Edge\/\d./i.test(navigator.userAgent))
+        return true;
+    return false;
+};
+
+/**
+ * Determines if the current browser is `Safari`.
+ * @memberof module:Application
+ * @returns {boolean} Returns `true` if the current browser is `Safari`.
+ */
+Application.IsSafari = function () {
     return $.browser.safari == true;
 });
 Application.IsOpera = memoize(function () {
@@ -1618,8 +1630,11 @@ Application.ConvertDate = function(str,skipTZ) {
         
 	if(Application.dateCache[str])
         return new Date(Application.dateCache[str]);
-	
-    var m = moment(str);
+    
+    var frmt = "%LANG:FORMAT_LONGDATE%".toUpperCase();
+    if(str.indexOf('T') !== -1)
+        frmt = null;
+    var m = moment(str,frmt);
    
     var server_tz = 0;
     var local_tz = 0;    
