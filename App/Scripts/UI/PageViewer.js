@@ -1531,11 +1531,13 @@ Define("PageViewer",
 
 			if (Application.IsInMobile() || Application.HasOption(m_form.Options,"nolayout"))
                 return;
+
+            var uidlayout = Application.HasOption(m_form.Options,"uidlayout");
 			
             return $codeblock(
 
                 function () {
-                    return Application.GetUserLayout(Application.auth.Username, m_id);
+                    return Application.GetUserLayout(Application.auth.Username, uidlayout ? m_uid : m_id);
                 },
 
                 function (layout) {
@@ -1555,6 +1557,7 @@ Define("PageViewer",
 
             if (Application.IsInMobile() || Application.HasOption(m_form.Options,"nolayout"))
                 return;
+            var uidlayout = Application.HasOption(m_form.Options,"uidlayout");
 
             Application.RunNext(function () {
 
@@ -1590,7 +1593,7 @@ Define("PageViewer",
 					m_layout.tabs.push(m_tabs[i].State());
 				}
 				
-                return Application.SaveUserLayout(Application.auth.Username, m_id, $.toJSON(m_layout));                 
+                return Application.SaveUserLayout(Application.auth.Username, uidlayout ? m_uid : m_id, $.toJSON(m_layout));                 
 
             },null,null,true);
         };
@@ -1598,6 +1601,7 @@ Define("PageViewer",
         this.ClearLayout = function () {
 
             m_layout = null;
+            var uidlayout = Application.HasOption(m_form.Options,"uidlayout");
 
             Application.RunNext(function () {
 
@@ -1606,7 +1610,7 @@ Define("PageViewer",
                     Application.BeginTransaction,
 
                     function () {
-                        return Application.DeleteUserLayout(Application.auth.Username, m_id)
+                        return Application.DeleteUserLayout(Application.auth.Username, uidlayout ? m_uid : m_id)
                     },
 
                     Application.CommitTransaction,
@@ -2061,7 +2065,10 @@ Define("PageViewer",
                     if(Application.HasOption(field.Options,'24hours') && typeof value_ === 'string'){
                         value_ = moment('1900/01/01 '+value_,'YYYY-MM-DD HH:mm').toDate();
                     }else{
-                        value_ = Application.ParseTime(value_);
+                        var tme = Application.ParseTime(value_);
+                        if (tme == null)
+                            Application.Error("Invalid time: " + value_);
+                        value_ = tme;
                     }
 
                 } else if (field.Type == "DateTime") {

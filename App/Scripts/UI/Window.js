@@ -65,7 +65,7 @@ Define("Window", null, function () {
 		
                 var closebtn = "";
                 if (m_options.closebutton == true && m_options.shortcutWorkspace && m_options.shortcutWorkspace.length > 0) {
-                    closebtn = "<i class='mdi mdi-close unselectable closebutton" + m_id + "' style='cursor: pointer;float:right; margin: 3px;'></i>";
+                    closebtn = "<i class='mdi mdi-close unselectable closebutton" + m_id + "' title='Close Page' style='cursor: pointer;float:right; margin: 3px;'></i>";
                 }
 
                 var pos = 5;
@@ -75,25 +75,25 @@ Define("Window", null, function () {
 
                 var maxbtn = "";
 
-                var editpge = GenerateIcon("editpge" + m_id, "mdi-pencil");
+                var editpge = GenerateIcon("editpge" + m_id, "mdi-pencil", "Edit Design");
                 if (!m_options.editpage)
                     editpge = "";
 
                 if (editpge != "")
                     pos += 25;
 
-                var refreshpge = GenerateIcon("refreshpge" + m_id, "mdi-refresh");
+                var refreshpge = GenerateIcon("refreshpge" + m_id, "mdi-refresh", "Refresh Page");
 
                 pos += 25;
 				
-                var export_csv = GenerateIcon("exportcsv" + m_id, "mdi-export");
+                var export_csv = GenerateIcon("exportcsv" + m_id, "mdi-export", "Export to CSV");
                 if (m_options.type == "List") {
                     pos += 25;
                 } else {
                     export_csv = "";
                 }
 
-                var helppge = GenerateIcon("helppge" + m_id, "mdi-help");				
+                var helppge = GenerateIcon("helppge" + m_id, "mdi-help", "Show Help");				
 				
                 if (Application.restrictedMode) {
                     export_csv = "";
@@ -209,16 +209,8 @@ Define("Window", null, function () {
             });
 
             //Min/Max Button
-            $('.maxbutton' + m_id).on("click", function () {
-                _self.ToggleState();
-            });
             $('.title' + m_id).on("dblclick", function () {
                 _self.ToggleState();
-            });
-            $('.maxbutton' + m_id).qtip({
-                position: { at: 'bottom right' },
-                content: 'Minimize/Maximize the Tab',
-                style: { tip: { corner: false } }
             });
 
             $('#' + m_id).on("click", function () {
@@ -226,11 +218,6 @@ Define("Window", null, function () {
             });
 
             if (m_options.editpage) {
-
-                $('.editpge' + m_id).qtip({ position: { at: 'bottom right' },
-                    content: 'Design ' + m_options.editpage.type.replace("Custom",""),
-                    style: { tip: { corner: false} }
-                });
 
                 $('.editpge' + m_id).on("click", function () {
                     if (m_options.editpage.type == "Page")
@@ -242,31 +229,16 @@ Define("Window", null, function () {
                 });
             
             }
-        
-            $('.refreshpge' + m_id).qtip({ position: { at: 'bottom right' },
-                content: 'Refresh Page',
-                style: { tip: { corner: false} }
-            });
 
             $('.refreshpge' + m_id).on("click", function () {
                 UI.WindowManager.UpdateWindow(m_id);
             });
 
             _self.HideHelp();
-            $('.helppge' + m_id).qtip({
-                position: { at: 'bottom right' },
-                content: 'Start a Page Tour',
-                style: { tip: { corner: false } }
-            });
 
             //Export csv button.      
             if (m_options.type == "List") {
                 _self.HideExportCSV();
-                $('.exportcsv' + m_id).qtip({
-                    position: { at: 'bottom right' },
-                    content: 'Export to CSV',
-                    style: { tip: { corner: false } }
-                });
             }
         }
 
@@ -503,13 +475,9 @@ Define("Window", null, function () {
 
     this.ToggleState = function (skipevent) {
         if (m_state == 0) {            
-			$('.maxbutton' + m_id).children(0).removeClass("ui-icon-carat-1-n");
-			$('.maxbutton' + m_id).children(0).addClass("ui-icon-carat-1-s");
             $("#" + m_id + "main,#" + m_id + "actions,#" + m_id + "toolbar2,#" + m_id + "toolbar3").hide();
             m_state = 1;
-        } else {            
-			$('.maxbutton' + m_id).children(0).addClass("ui-icon-carat-1-n");
-			$('.maxbutton' + m_id).children(0).removeClass("ui-icon-carat-1-s");
+        } else {   
             $("#" + m_id + "main,#" + m_id + "actions,#" + m_id + "toolbar2,#" + m_id + "toolbar3").show();
 
             //Scroll into view.
@@ -878,8 +846,8 @@ Define("Window", null, function () {
 
     //#region Private Methods
 
-    function GenerateIcon(id, icon) {
-        return "<i class='mdi "+icon+" unselectable " + id + "' style='cursor: pointer;float: right; margin: 3px;'></i>";
+    function GenerateIcon(id, icon, title) {
+        return "<i class='mdi "+icon+" unselectable " + id + "' title='"+title+"' style='cursor: pointer;float: right; margin: 3px;'></i>";
     };
 
     //#endregion

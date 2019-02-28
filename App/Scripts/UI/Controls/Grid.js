@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Grid",
 
@@ -246,6 +246,8 @@ Define("Grid",
             if (!field.Totals)
                 sumtype = null;
 
+            var colalign = Application.OptionValue(field.Options, "align");            
+
             if (field.CustomControl != "") {
 
                 var align = "left";
@@ -260,7 +262,7 @@ Define("Grid",
                     hidden: false,
                     sortable: true,
                     edittype: 'custom',
-                    align: align,
+                    align: colalign || align,
                     summaryType: sumtype,
 					skipsanitize: Application.HasOption(field.Options,"skipsanitize"),
                     formatter: function (cellvalue, options, rowObject) {
@@ -311,7 +313,7 @@ Define("Grid",
                     hidden: false,
                     sortable: true,                    
                     edittype: 'custom',
-                    align: 'center',					
+                    align: colalign || 'center',					
 					formatter: function (cellvalue, options, rowObject) {						
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
@@ -353,7 +355,7 @@ Define("Grid",
                     hidden: false,
                     sortable: true,
                     edittype: 'custom',
-                    align: 'center',
+                    align: colalign || 'center',
                     formatter: function (cellvalue, options, rowObject) {
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
@@ -389,7 +391,7 @@ Define("Grid",
                     hidden: false,
                     sortable: true,                    
                     edittype: 'custom',
-                    align: 'center',
+                    align: colalign || 'center',
 					formatter: function (cellvalue, options, rowObject) {
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
@@ -398,7 +400,7 @@ Define("Grid",
 							return cellvalue;
 						if(typeof cellvalue === "string")
 							cellvalue = Application.ParseTime(cellvalue);
-                        return $.format.date(cellvalue, "hh:mm a");
+                        return $.format.date(cellvalue, Application.HasOption(field.Options,'24hours') ? 'HH:mm' : 'hh:mm a');
                     },
                     editoptions: {
                         custom_element: function (value, options) {
@@ -431,6 +433,7 @@ Define("Grid",
 						return UpdateComboCell(field, cellvalue, rowObject);
 					},
                     edittype: 'custom',
+                    align: colalign || 'left',
 					skipsanitize: Application.HasOption(field.Options,"skipsanitize"),
                     formatter: function (cellvalue, options, rowObject) {
 						return UpdateComboCell(field, cellvalue, rowObject);                        
@@ -471,7 +474,7 @@ Define("Grid",
 						return cell;
 					},
                     edittype: 'custom',
-                    align: 'right',
+                    align: colalign || 'right',
                     summaryType: sumtype,
                     editoptions: {
                         custom_element: function (value, options) {
@@ -500,7 +503,7 @@ Define("Grid",
                     hidden: false,
                     sortable: true,
                     edittype: 'custom',
-                    align: 'center',
+                    align: colalign || 'center',
                     formatter: function (cellvalue, options, rowObject) {
 
                         var checked = '';
@@ -544,7 +547,7 @@ Define("Grid",
 						return cell;
 					},
                     edittype: 'custom',
-                    align: align,
+                    align: colalign || align,
                     summaryType: sumtype,
 					skipsanitize: Application.HasOption(field.Options,"skipsanitize"),					
                     formatter: function (cellvalue, options, rowObject) {

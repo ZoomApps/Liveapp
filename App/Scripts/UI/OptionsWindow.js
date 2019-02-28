@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @typedef OptionsWindowSettings
  * @type {object}
  * @property {string} [caption=Options] Options window caption.
@@ -710,7 +710,10 @@ Define("OptionsWindow", null, function (options_) {
                 if(Application.HasOption(field.Options,'24hours') && typeof value_ === 'string'){
                     value_ = moment('1900/01/01 '+value_,'YYYY-MM-DD HH:mm').toDate();
                 }else{
-                    value_ = Application.ParseTime(value_);
+                    var tme = Application.ParseTime(value_);
+                    if (tme == null)
+                        Application.Error("Invalid time: " + value_);
+                    value_ = tme;
                 }
 
 			} else if (field.Type == "DateTime") {

@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("MultiDatePicker",
 
@@ -126,11 +126,24 @@ Define("MultiDatePicker",
                 return;
             }
 
-            if(Application.IsInMobile()){
-                _base.Control().val(value);
-            }else{
-                value = Default(value, "");            
-                _base.Control().multiDatesPicker("value", value);
+            try{
+                if(Application.IsInMobile()){
+                    _base.Control().val(value);
+                }else{
+                    value = Default(value, "");                                
+                    _base.Control().multiDatesPicker("value", value);
+                }
+            }catch(e){
+                rec_[_base.Field().Name] = null;
+                rec_.xRec[_base.Field().Name] = null;
+                rec_.SaveCurrent();
+                if(Application.IsInMobile()){
+                    _base.Control().val(null);
+                }else{                         
+                    _base.Control().val(null);  
+                    _base.Control().multiDatesPicker("value", "");
+                }
+                Application.Error('Invalid date: '+ value);
             }
             _self.Loaded(true);
         };

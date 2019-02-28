@@ -738,24 +738,32 @@ Define("Record", null, function (name_) {
 			
 			var hasView = m_table.HasView();
 			for(var i = 0; i < o.Record.Fields.length; i++){
-				var col = m_table.Column(o.Record.Fields[i].Name);
+                
+                var col = m_table.Column(o.Record.Fields[i].Name);
+                
+                if(col){
+                    o[col.Name] = null;
+                    delete o[col.Name];
+                    o.xRec[col.Name] = null;
+                    delete o.xRec[col.Name];
+                }
+
 				if(col && col.FlowField && col.FlowField != "" && !Application.IsOffline()){
 					o.Record.Fields[i].Value = null;
 					o.xRecord.Fields[i].Value = null;
-					o[col.Name] = null;
                 }
                 if (func_ == "RecordDelete" && col && col.PrimaryKey == false){
 					o.Record.Fields[i].Value = null;
 					o.xRecord.Fields[i].Value = null;
 				}			
 				if(hasView && col && col.PrimaryKey == false && (col.Type == "Image" || col.Type == "Blob" || col.Type == "BigBlob") && !Application.IsOffline()){
-					if(o.Record.Fields[i].Value == o.xRecord.Fields[i].Value){					
-						o[col.Name] = null;
-						o.xRec[col.Name] = null;
+					if(o.Record.Fields[i].Value == o.xRecord.Fields[i].Value){											
 						o.Record.Fields.splice(i,1);
 						o.xRecord.Fields.splice(i,1);
 						i -= 1;
-					}						
+                    }else if(o.Record.Fields[i].Value == null && o.xRecord.Fields[i].Value !== null){
+                        o.xRecord.Fields[i].Value = '1';
+                    }						
 				}								
 			}
 			o.Functions = [];			
@@ -1968,6 +1976,25 @@ Define("Record", null, function (name_) {
 
         return _self;
     };
+
+    /**
+     * Convert the record set to an array.
+     * @memberof! Record#
+     * @returns {Record[]} Returns the `Record` set as an array.
+     */
+    this.toArray = function() {
+        return m_records.map(function(rec){
+            var r = {};
+            rec.Fields.forEach(function(f){     
+                if (typeof f.Value == "string" && f.Type == "Date" || f.Type == "Time" || f.Type == "DateTime"){
+                    r[f.Name] = Application.ConvertDate(f.Value);       
+                }else{
+                    r[f.Name] = f.Value;
+                }
+            });
+            return r;
+        });
+    }
 
     //#endregion
 

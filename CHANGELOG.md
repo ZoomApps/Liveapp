@@ -1,3 +1,63 @@
+<a name="5.13"></a>
+# Liveapp v5.13 (February 2019)
+
+## Bug Fixes
+
+  - disable auto complete in chrome #1655 ([#90](https://github.com/ZoomApps/Liveapp/issues/90))
+
+  - **application**
+    - date cache saving invalid dates
+    - `IsIE` function returns the wrong result
+
+  - **chartist**
+    - fix error when not using chart links
+
+  - **multicombobox**
+    - layout fix for grid cells
+
+  - **multidatepicker**
+    - error if an invalid date is entered
+
+  - **record**
+    - speed fix when sending data to the server
+
+  - **report**
+    - booleans not displayed correctly (v5.x)
+
+  - **server**
+    - speed fix for `EXISTS` flowfields
+    - `OR` filters error when combined with `|` filters
+
+  - **time**
+    - error if an invalid time is entered
+
+## Features
+
+  - **combobox**
+    - add placeholder to comboboxes
+
+  - **grid**
+    - add new field option `align`
+
+  - **idengine**
+    - seed IDs with the current time
+
+  - **pageviewer**
+    - add new page option `uidlayout`
+
+  - **photogallery**
+    - add image captions when in fullscreen mode
+
+  - **record**
+    - add new function `toArray`
+
+  - **signature**
+    - add desktop version
+
+  - **window**
+    - use built-in tooltips for window icons
+
+
 <a name="5.12"></a>
 # Liveapp v5.12 (December 2018/January 2019)
 

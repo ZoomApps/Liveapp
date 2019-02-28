@@ -980,7 +980,7 @@ Define("Report",
 
 			if (field_.Type == "Boolean" && !export_) {
 				if(value_ == true){
-					return UI.IconImage("check2");
+					return UI.IconImage("mdi-check");
 				}else{
 					return "";
 				}

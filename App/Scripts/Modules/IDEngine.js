@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 //27/01/15      Issue #11       PF      Removed old code.
 
@@ -22,7 +22,7 @@ DefineModule("IDEngine",
         //#region Members
 
         var _self = this;
-        var m_lastID = 0;
+        var m_lastID = (new Date()).getTime();
 
         //#endregion
 
