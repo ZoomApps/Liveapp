@@ -289,7 +289,7 @@ DefineModule("WindowManager",
             return true;
         };
 
-        this.Close = function (id_, skipOpen_, skipFunc_) {
+        this.Close = function (id_, skipOpen_, skipFunc_, okClicked_) {
 
 			if($("#powertour-mask").is(":visible"))
 				return;
@@ -315,7 +315,7 @@ DefineModule("WindowManager",
 						return;
 				
                     if (win && win.Dialog() && win.OnSave)
-                        return win.OnSave(true, true);
+                        return win.OnSave(true, true, okClicked_);
 
                     //Run on close?
                     if (win && win.OnClose) {

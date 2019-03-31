@@ -30,7 +30,7 @@ Define("ColorPicker",
 
             var colours;
             var colcount;
-            if (Application.HasOption("ColorPicker_Dark", _base.Field().Options)) {
+            if (Application.HasOption(_base.Field().Options,"ColorPicker_Dark")) {
                 colours = darkcolours();
                 colcount = 8;
             }
@@ -57,7 +57,7 @@ Define("ColorPicker",
 
             var colours;
             var colcount;
-            if (Application.HasOption("ColorPicker_Dark", _base.Field().Options)) {
+            if (Application.HasOption(_base.Field().Options,"ColorPicker_Dark")) {
                 colours = darkcolours();
                 colcount = 8;
             }

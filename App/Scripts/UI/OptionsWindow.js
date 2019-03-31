@@ -263,8 +263,10 @@ Define("OptionsWindow", null, function (options_) {
 						if(typeof m_record[f2.Name] == "undefined")
 							m_record[f2.Name] = null;
 
-						//Fix dates.
-						if(m_record[f2.Name] && typeof m_record[f2.Name] == "string" && (f2.Type == "Date" || f2.Type == "Time" || f2.Type == "DateTime"))
+                        //Fix dates.
+                        if(m_record[f2.Name] && typeof m_record[f2.Name] == "string" && f2.Type == "Time")
+							m_record[f2.Name] = moment(m_record[f2.Name],'YYYY/MM/DD HH:mm').toDate();
+						if(m_record[f2.Name] && typeof m_record[f2.Name] == "string" && (f2.Type == "Date" || f2.Type == "DateTime"))
 							m_record[f2.Name] = Application.ConvertDate(m_record[f2.Name]);
 						
                         var field = Extend(f2, Application.Objects.PageFieldInfo());

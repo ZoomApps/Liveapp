@@ -169,6 +169,7 @@ Define("PhotoGallery",
             var li = $('<li data-sub-html="'+(m_form.Fields.length > 1 ? Default(rec[m_form.Fields[1].Name],'') : '')+'" data-src="data:image/jpeg;base64,' + photo + '" style="padding-left: 0; list-style: none; display: inline-block; padding: -3px; height: 190px; vertical-align: top;">'+
 			'<img id="img'+id+'" src="data:image/jpeg;base64,' + photo + '" style="margin-right: 20px; margin-bottom:-30px; display: inline-block; height: 100px;" />'+
 			(m_form.Fields[0].Editable ? ('<div id="clear' + id + '" rid="' + m_record.Position + '" style="font-size: 18px; width: 30px; height: 30px; border-radius: 50%; color: white; background-color: Gainsboro; text-align: center; line-height: 25px; position: relative; top: 0px; left: -10px; cursor: pointer;">'+UI.Icon("pencil")+'</div>') : '<div id="blank' + id + '" rid="' + m_record.Position + '" style="width: 30px; height: 30px; line-height: 25px; position: relative; top: 0px; left: -10px;"></div>')+
+            (m_form.Fields.length > 1 ? '<div style="padding: 4px;box-sizing: border-box;max-width: 120px;text-overflow: ellipsis;white-space: nowrap;overflow-x: hidden;overflow-y: hidden;">'+Default(rec[m_form.Fields[1].Name],'')+'</div>' : '') +
             '</li>');
 
             if(Application.OptionValue(m_form.Options,"tags")){

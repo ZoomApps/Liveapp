@@ -1,3 +1,53 @@
+
+<a name="5.14"></a>
+# Liveapp v5.14 (March 2019)
+
+## Bug Fixes
+
+  - **app**
+    - report and color picker options not working
+
+  - **combobox**
+    - return to parent window after using the `Add New` dialog
+
+  - **control**
+    - when hiding a control in mobile mode, hide the `mandatory` label
+
+  - **grid**
+    - allow any column type to have a summary
+
+  - **optionswindow**
+    - time fields display incorrectly when the values come from the user layout
+
+  - **pageviewer**
+    - skip record load when opening a table viewer
+    - dont create a transaction on validate if in temp mode and the page has the `noupdatetrans` option
+    - temporary grid rows do not rollback after an error
+
+  - **server**
+    - fix process email queue error
+    - fix error when using a `<>null` filter on dates
+
+  - **window**
+    - dialog onclose code doesn't execute
+
+## Features
+
+  - **photogallery**
+    - add photo description under photos
+
+  - **report**
+    - add new field option `align`
+
+  - **signature**
+    - make signature width 100%
+
+## Documentation
+
+  - **pageviewer**
+    - add docs for `pageviewer`
+    
+    
 <a name="5.13"></a>
 # Liveapp v5.13 (February 2019)
 

@@ -188,7 +188,8 @@ Define("Combobox",
                                             id: newpage,
                                             view: Application.MergeView(field.LookupFilters,_base.Viewer().Record()),
                                             mode: "New",
-                                            dialog: true
+                                            dialog: true,
+                                            parentwin: viewer
                                         });                            
                                         form.CloseFunction(function () {                                            
                                             var rec = form.Record();

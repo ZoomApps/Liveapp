@@ -75,7 +75,7 @@ Define("Report",
             window_.AddControl("<a id='btnPrint" + _base.ID() + "'>" + UI.IconImage("mdi-printer") + " Print</a>");
             $("#btnPrint" + _base.ID()).button().hide().click(function () {
 				
-				var landscape = Application.HasOption("landscape",m_form.Options);
+				var landscape = Application.HasOption(m_form.Options,"landscape");
 				
 				var printfunc = function(){
 					var w = 800;
@@ -304,10 +304,11 @@ Define("Report",
 					align = "left";
 				if(Application.HasOption(f.Options,"rightalign"))
 					align = "right";
+				var colalign = Application.OptionValue(f.Options, "align");
                 cols += m_mergeFields["%columns"]
                     .replace(/%columncaption/g, m_form.Fields[i].Caption)
                     .replace(/%columnwidth/g, m_form.Fields[i].Width)
-                    .replace(/%colalign/g, align);
+                    .replace(/%colalign/g, colalign || align);
             }
 
             //Grouping.
@@ -615,7 +616,7 @@ Define("Report",
 									from_:m_emailOptions.From,
 									cc_:"",
 									bcc_ :"",
-									landscape_:Application.HasOption("landscape",m_form.Options),
+									landscape_:Application.HasOption(m_form.Options,"landscape"),
 									receipt_: false
 								});
 							 }

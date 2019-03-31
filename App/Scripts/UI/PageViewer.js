@@ -1,6 +1,60 @@
-/// <reference path="../Application.js" />
+/**
+ * @typedef PageViewerSettings
+ * @type {object}
+ * @property {string} [id] Page id to open. 
+ * @property {string} [caption] Page viewer caption.
+ * @property {string} [view] Default filters. 
+ * @property {boolean} [dialog] If `true` opens the page in a dialog window.
+ * @property {string} [mode] Open the page in a different mode (ie. New). 
+ * @property {number} [height] Set the height of the page in pixels.
+ * @property {PageViewer} [parent] Parent page. 
+ * @property {PageViewer} [parentwin] Parent window. 
+ * @property {Page} [page] Sets the page definition.
+ * @property {Table} [table] Sets the table definition.
+ * @property {Record} [record] Sets the page record.
+ * @property {boolean} [singleColumn] If `true` makes the card page, single column only.
+ * @property {boolean} [factbox] Adds the page to the factbox section.
+ * @property {boolean} [block] Makes the page half the width of the window.
+ * @property {boolean} [cancelopenonclose] Cancel the opening of the parent page after closing this page.
+ * @property {Application.position} [position] Set the window position.
+ * @property {boolean} [closebutton] If `true` adds a close button to the page.
+ * @property {boolean} [homepage] If `true` sets the page to dashboard mode.
+ * @property {string} [workspace] Workspace to add the page to.
+ * @property {boolean} [editlinemode] If `true` allow row edits in mobile mode.
+ * @property {boolean} [removetitle] Removes the page caption.
+ * @property {string} [tableid] Table id to open (table viewer only).
+ * @property {boolean} [mobilegrideditor] If `true` sets the page to grid editor mode.
+ */
 
-Define("PageViewer",
+/**
+ * @description
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * **CONTENTS**
+ * - [Description](#description)
+ * - [Constructor](#constructor)
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Description
+ * 
+ * PageViewer Class. 
+ * 
+ * Open a page to view.
+ * 
+ * <div style='background: #f9f2f4; padding: 5px'>**NOTE: Methods that return a `JQueryPromise` should be returned into a {@link $codeblock}**</div>
+ * 
+ * <hr style='border-color: rgb(200, 201, 204)' />
+ * 
+ * ## Constructor
+ * 
+ * Params:
+ * @class PageViewer
+ * @global
+ * @param {PageViewerSettings} [options_] Page viewer settings.
+ * @returns {PageViewer} Returns a new `PageViewer` object.
+ */
+ Define("PageViewer",
 
     function (options_) {
         return new Window();
@@ -73,6 +127,11 @@ Define("PageViewer",
             m_options.tableid = Default(m_options.tableid, null);
         };
 
+        /**
+         * Open the page viewer.
+         * @memberof! PageViewer#
+         * @returns {JQueryPromise<PageViewer>} Promises to open the page viewer.
+         */
         this.Open = function () {
 
             Application.LogDebug("%LANG:S_OPENPAGEVIEWER%: " + m_id);
@@ -118,6 +177,7 @@ Define("PageViewer",
                     m_form.Type = "List";
                     m_form.InsertAllowed = true;
                     m_form.DeleteAllowed = true;
+                    m_form.SkipRecordLoad = true;
 
                     var act1 = Application.Objects.PageActionInfo();
                     act1.Name = "New";
@@ -693,6 +753,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Load the page viewer.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {JQueryPromise} Promises to load the page viewer.
+         */
         this.Load = function () {
 
             Application.LogDebug("%LANG:S_LOADINGPAGE%: " + m_id);
@@ -817,7 +883,13 @@ Define("PageViewer",
             return w.promise();
 
         };
-		
+        
+        /**
+         * Detect if a page refresh should occur.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {boolean} Returns `true` if a page refresh should not occur.
+         */
 		this.SkipPageRefresh = function(){
 			
 			var skipupdate = false;
@@ -882,6 +954,14 @@ Define("PageViewer",
 			
         };		
         
+        /**
+         * Update the page viewer.
+         * @memberof! PageViewer#
+         * @param {boolean} [first_=false] Pass `true` if this is the first update.
+         * @param {boolean} [showProgress_=true] If `true`, shows the progress bar.
+         * @param {boolean} [skipOpenFunc_=true] If `true`, skips the open page trigger.
+         * @returns {JQueryPromise} Promises to return after updating the page.
+         */
         this.Update = function (first_, showProgress_, skipOpenFunc_) {
 
             _base.SetStatus("");
@@ -1165,6 +1245,15 @@ Define("PageViewer",
             return w2.promise();
         };
 
+        /**
+         * Update the page viewer's sub pages.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {boolean} [first_] Pass `true` if this is the first update.
+         * @param {boolean} [showProgress_] If `true`, shows the progress bar.
+         * @param {boolean} [skipOpenFunc_] If `true`, skips the open page trigger.
+         * @returns {JQueryPromise} Promises to return after updating the sub pages.
+         */
         this.UpdateSubPages = function (first_, showProgress_, skipOpenFunc_) {
 
 			first_ = Default(first_, true);
@@ -1229,6 +1318,11 @@ Define("PageViewer",
                 });
         };
 
+        /**
+         * Function that runs when showing the page viewer.
+         * @memberof! PageViewer#
+         * @returns {void}
+         */
         this.OnShow = function () {
 
             var grd = _self.GetPageGrid();
@@ -1288,27 +1382,40 @@ Define("PageViewer",
 
         };
 
+        /**
+         * @deprecated Since v5.0.0
+         * @memberof! PageViewer#
+         * @param {string} tabName_ Tab to open.
+         * @returns {JQueryPromise<PageViewer>} Promises to return after opening the tab.
+         */
         this.OpenPageTab = function (tabname_) {
 
+            Application.LogWarn('PageViewer.OpenPageTab has been deprecated since v5.0.0');
+
             return $codeblock(
-            function () {
+                function () {
 
-                var rec = new Record();
-                rec.Copy(m_record);
+                    var rec = new Record();
+                    rec.Copy(m_record);
 
-                var page = new PageViewer({ id: m_id, view: m_view, record: rec, tabname: tabname_ });
+                    var page = new PageViewer({ id: m_id, view: m_view, record: rec, tabname: tabname_ });
 
-                page.CloseFunction(function () {
-                    var w = $wait();
-                    $code(_self.Update);
-                    return w.promise();
-                });
+                    page.CloseFunction(function () {
+                        var w = $wait();
+                        $code(_self.Update);
+                        return w.promise();
+                    });
 
-                return page.Open();
-            }
-        );
+                    return page.Open();
+                }
+            );
         };
 
+        /**
+         * Get page viewer information.
+         * @memberof! PageViewer#
+         * @returns {object} Returns the page viewer information (like ID and view).
+         */
         this.GetInfo = function () {
 
             if (m_form == null) {
@@ -1325,11 +1432,24 @@ Define("PageViewer",
             };
         };
 
+        /**
+         * Set the page caption.
+         * @memberof! PageViewer#
+         * @param {string} caption New page caption.
+         * @returns {void}
+         */
         this.Caption = function (caption) {
             m_options.caption = caption;
             _self.UpdateCaption();
         };
 
+        /**
+         * Update the page caption from the page options.         
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} [extra] Extra string to append to the end of the caption.
+         * @returns {void}
+         */
         this.UpdateCaption = function (extra) {
 
             extra = Default(extra, "");
@@ -1378,6 +1498,13 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Update the page controls.
+         * @memberof! PageViewer#
+         * @param {boolean} [first_] Pass `true` if this is the first update. 
+         * @param {boolean} [showProgress_] If `true`, shows the progress bar.
+         * @returns {JQueryPromise} Promises to return after updating the controls. 
+         */
         this.UpdateControls = function (first_, showProgress_) {
 
             Application.LogDebug("Updating Controls.");
@@ -1427,6 +1554,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Set the page controls as loaded/unloaded.
+         * @memberof! PageViewer#
+         * @param {boolean} loaded_ If `true`, marks the page controls as loaded.
+         * @returns {void}
+         */
         this.LoadControls = function (loaded_) {
 
             for (var i = 0; i < m_controls.length; i++) {
@@ -1434,6 +1567,13 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Hide additional fields on a tab.
+         * @memberof! PageViewer#
+         * @param {boolean} hide_ If `true` hides the additional fields, else show the fields.
+         * @param {string} [tab_] Name of the tab.
+         * @returns {void}
+         */
         this.HideAdditonal = function (hide_, tab_) {
 
             tab_ = Default(tab_, null);
@@ -1449,6 +1589,12 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Set the page controls as enabled/disabled.
+         * @memberof! PageViewer#
+         * @param {boolean} enable_ If `true`, marks the page controls as enabled.
+         * @returns {void}
+         */
         this.EnableControls = function (enable_) {
 
             for (var i = 0; i < m_controls.length; i++) {
@@ -1456,6 +1602,12 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Hide dropdowns from combos.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void}
+         */
         this.HideDropdowns = function () {
 
             for (var i = 0; i < m_controls.length; i++) {
@@ -1465,6 +1617,13 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Disable/enable key presses on the page.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {boolean} value If `true` disables key presses.
+         * @returns {void}
+         */
         this.DisableKeys = function (value) {
 
             if (Application.IsInMobile())
@@ -1476,6 +1635,11 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Show the page load overlay.
+         * @memberof! PageViewer#
+         * @returns {void}
+         */
         this.ShowLoad = function () {
 
             _base.ShowLoad();            
@@ -1492,6 +1656,11 @@ Define("PageViewer",
             }					
         };
 
+        /**
+         * Hide the page load overlay.
+         * @memberof! PageViewer#
+         * @returns {void}
+         */
         this.HideLoad = function (all) {
 
             _base.HideLoad(all);
@@ -1503,6 +1672,12 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Trigger a resize of the parent page.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void}
+         */
         this.ResizeParent = function () {
             if (m_parent) {
                 m_parent.Resize();
@@ -1511,20 +1686,43 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Set outer height of the page.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} height Height in pixels.
+         * @returns {void}
+         */
         this.SetOuterHeight = function (height) {
             _base.SetOuterHeight(height);
         };
 
+        /**
+         * Close the page.
+         * @memberof! PageViewer#         
+         * @returns {JQueryPromise} Promises to return after closing the page.
+         */
         this.Close = function () {
             if (m_options.closebutton == false) return;
             return UI.WindowManager.Close(_base.ID());
         };
-		
+        
+        /**
+         * Close the page and skip any errors.
+         * @memberof! PageViewer#         
+         * @returns {JQueryPromise} Promises to return after closing the page.
+         */
 		this.CloseSilent = function () {
             if (m_options.closebutton == false) return;
             return UI.WindowManager.Close(_base.ID(), true, true);
         };
 
+        /**
+         * Load the page layout (desktop only).
+         * @memberof! PageViewer#         
+         * @protected
+         * @returns {JQueryPromise} Promises to return after loading the layout.
+         */
         this.LoadLayout = function () {
 
             m_layout = null;
@@ -1553,6 +1751,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Save the page layout (desktop only).
+         * @memberof! PageViewer#         
+         * @protected
+         * @returns {JQueryPromise} Promises to return after saving the layout.
+         */
         this.SaveLayout = function () {
 
             if (Application.IsInMobile() || Application.HasOption(m_form.Options,"nolayout"))
@@ -1598,6 +1802,12 @@ Define("PageViewer",
             },null,null,true);
         };
 
+        /**
+         * Clear the page layout.
+         * @memberof! PageViewer#         
+         * @protected
+         * @returns {void}
+         */
         this.ClearLayout = function () {
 
             m_layout = null;
@@ -1625,6 +1835,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Add an OK button to the page.
+         * @memberof! PageViewer#         
+         * @protected
+         * @returns {void}
+         */
         this.CreateOKButton = function () {
 
             if (!Application.IsInMobile()) {
@@ -1657,6 +1873,15 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Function that runs on save of the page (temp pages only).
+         * @memberof! PageViewer#         
+         * @protected
+         * @param {boolean} [close=false] Close the page after saving.
+         * @param {boolean} [skipcheck=false] Skip the before close check.
+         * @param {boolean} [okclicked=false] If `true` the OK button was clicked.
+         * @returns {JQueryPromise} Promises to return after saving the page.
+         */
         this.OnSave = function (close, skipcheck, okclicked) {
 
             close = Default(close, false);
@@ -1780,6 +2005,12 @@ Define("PageViewer",
             return true;
         };
 
+        /**
+         * Save the page grid data.
+         * @memberof! PageViewer#         
+         * @protected
+         * @returns {void}
+         */
         this.Save = function () {
 
             var grd = _self.GetPageGrid();
@@ -1788,15 +2019,33 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Clear the page cache.
+         * @memberof! PageViewer#         
+         * @protected
+         * @returns {void}
+         */
         this.ClearCache = function () {
             m_form.ClearCache();
             Application.Message("%LANG:S_REOPENPAGE%");
         };
 
+        /**
+         * Merge a view with the current page view.
+         * @memberof! PageViewer#
+         * @param {string} view View to merge with the page view.
+         * @returns {string} Returns the merged views.
+         */
         this.MergeView = function (view) {
             return Application.MergeView(view, m_record);
         };
 
+        /**
+         * Flag the page that a change has been made.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void}
+         */
         this.ChangeMade = function () {
             if (m_form.Name.within(m_designerPages))
                 m_changed = true;
@@ -1806,6 +2055,13 @@ Define("PageViewer",
 				m_openedFrom.Changed(true);				             
         };
 
+        /**
+         * Get a page control by name.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} id Control name.
+         * @returns {Control} Returns the control if it is found, otherwise returns `null`.
+         */
         this.GetControl = function (id) {
             for (var j = 0; j < m_controls.length; j++) {
                 if (m_controls[j].Field().Name == id) {
@@ -1815,6 +2071,12 @@ Define("PageViewer",
             return null;
         };
 
+        /**
+         * Check mandatory fields for values. Displays an error if one or more mandatory fields are `null`.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void}
+         */
         this.MandatoryCheck = function () {
             //Check mandatory.
             for (var j = 0; j < m_form.Fields.length; j++) {
@@ -1830,6 +2092,12 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Check fields for valid values. Displays an error if one or more fields are invalid.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void}
+         */
         this.ValidCheck = function () {
             //Check valid.
             for (var j = 0; j < m_form.Fields.length; j++) {
@@ -1848,6 +2116,12 @@ Define("PageViewer",
 
         //#region Record Functions
 
+        /**
+         * Function that runs when the `New` button is clicked.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {JQueryPromise} Promises to return after creating the new record.
+         */
         this.OnNew = function () {
 
             var grd = _self.GetPageGrid();
@@ -1938,6 +2212,12 @@ Define("PageViewer",
         );
         };
 
+        /**
+         * Function that runs when the `delete` button is clicked.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {JQueryPromise} Promises to return after deleting the current record/s.
+         */
         this.OnDelete = function () {
 
             return $codeblock(
@@ -1969,6 +2249,12 @@ Define("PageViewer",
         );
         };
 
+        /**
+         * Delete the current record.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {JQueryPromise} Promises to return after deleting the current record.
+         */
         this.DeleteRecord = function () {
 
             var w = $wait();
@@ -2045,6 +2331,14 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Parse a value based on the field type.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {PageField} field Page field definition.
+         * @param {any} value_ Value to parse.
+         * @returns {void}
+         */
         this.FixValue = function (field, value_) {
 
             //Check for nulls
@@ -2149,6 +2443,15 @@ Define("PageViewer",
             return value_;
         };
 
+        /**
+         * Validate a record field.
+         * @memberof! PageViewer#
+         * @param {string} name_ Field name.
+         * @param {any} value_ Value to validate.
+         * @param {string} [rowid_] Current row id (grid mode only).
+         * @param {boolean} [showLoad_=true] If `true`, show the loading overlay.
+         * @returns {void}
+         */
         this.RecordValidate = function (name_, value_, rowid_, showLoad_) {
             
             if(!m_record.Temp)
@@ -2246,11 +2549,22 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Validate a record field (used by the RecordValidate function).
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} name_ Field name.
+         * @param {any} value_ Value to validate.
+         * @param {string} rowid_ Current row id (grid mode only).
+         * @param {boolean} showLoad If `true`, show the loading overlay.
+         * @param {PageField} field_ Page field definition.
+         * @returns {JQueryPromise} Promises to return after validating the field.
+         */
         this.FinishValidate = function (name_, value_, rowid_, showLoad_, field_) {            
 
 			//Partial refresh.			
             var skipupdate = _self.SkipPageRefresh(),
-                skiptrans = m_record.Temp;
+                skiptrans = m_record.Temp && Application.HasOption(m_form.Options,"noupdatetrans");
 			
             if (field_.LookupDisplayField != "" && value_ != "" && value_ != null && field_.CustomControl == "" && m_comboSelected) {
                 value_ = m_record[name_];
@@ -2320,6 +2634,16 @@ Define("PageViewer",
 			);
         };
 
+        /**
+         * Run the record validate trigger and insert/modify the record.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} name_ Field name.
+         * @param {any} value_ Value to validate.
+         * @param {string} rowid_ Current row id (grid mode only).
+         * @param {PageField} field_ Page field definition.
+         * @returns {void}
+         */
         this.Validate = function (name_, value_, rowid_, field_) {
 
             if (!m_form.FieldOption(field_, "anyvalue"))
@@ -2426,6 +2750,11 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Clear the record filters and refresh the page.
+         * @memberof! PageViewer#
+         * @returns {void}
+         */
         this.ClearFilters = function () {
 
             //m_record.Filters = new Array();
@@ -2446,6 +2775,15 @@ Define("PageViewer",
             Application.RunNext(_self.Update);
         };
 
+        /**
+         * Filter the current record set.
+         * @memberof! PageViewer#
+         * @param {string} col Column to filter.
+         * @param {string} value Value to filter.
+         * @param {boolean} [update=true] Update the page after filtering.
+         * @param {boolean} [applywildcard=false] Wrap `value` in wild cards.
+         * @returns {JQueryPromise|void} Promises to return after updating the page (if `update` = true).
+         */
         this.Filter = function (col, value, update, applywildcard) {
 
             update = Default(update, true);
@@ -2483,6 +2821,12 @@ Define("PageViewer",
 
         //#region Temp Record Functions
 
+        /**
+         * Get/set the temp changed flag.
+         * @memberof! PageViewer#
+         * @param {boolean} [value] If specified, sets the temp changed flag.
+         * @returns {boolean|void} Returns the temp changed flag if `value` is not specified.
+         */
         this.TempChanged = function (value) {
 
             if (typeof value != "undefined") {
@@ -2500,6 +2844,12 @@ Define("PageViewer",
 
         //#region Card Form Functions
 
+        /**
+         * Load a card style page.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {JQueryPromise} Promises to return after loading the card page.
+         */
         this.LoadCardForm = function () {
 
             var w = $wait();
@@ -2630,6 +2980,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Load the page tabs.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {JQueryPromise} Promises to return after loading the tabs.
+         */
         this.LoadTabs = function () {
 
 			if(m_options.mobilegrideditor)
@@ -2734,6 +3090,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Create a tab window and add to the current page.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void}
+         */
         this.CreateTab = function (tab_) {
 
             //var icon = Default(Application.OptionValue(tab_.Options, "icon"), m_form.Icon);
@@ -2804,6 +3166,13 @@ Define("PageViewer",
             _base.AddSubWindow(win);
         };
 
+        /**
+         * Get a tab by name.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} name_ Tab name.
+         * @returns {Window} Returns the tab window if found.
+         */
         this.GetTab = function (name_) {
             if (name_ != "General") {
                 for (var i = 0; i < m_tabs.length; i++) {
@@ -2815,6 +3184,15 @@ Define("PageViewer",
             return _base;
         };
 
+        /**
+         * Get a tab column (for placing a control).
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} tab_ Tab name.
+         * @param {Control} cont_ Control to place.
+         * @param {boolean} left_ If `true` gets the left column.
+         * @returns {JQueryStatic} Returns the column.
+         */
         this.GetTabColumn = function (tab_, cont_, left_) {
 			
 			var ignore = cont_.IgnoreColumns();
@@ -2832,6 +3210,13 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Add a custom control to the page.
+         * @memberof! PageViewer#
+         * @param {PageField} field_ Page field definition.
+         * @param {boolean} left_ If `true` adds the control to the left column.
+         * @returns {void}
+         */
         this.AddCustomControl = function (field_, left_) {
 
             var tab = _self.GetTab(field_.TabName);
@@ -2848,6 +3233,13 @@ Define("PageViewer",
             m_controls.push(cont);
         };
 
+        /**
+         * Add a text control to the page.
+         * @memberof! PageViewer#
+         * @param {PageField} field_ Page field definition.
+         * @param {boolean} left_ If `true` adds the control to the left column.
+         * @returns {void}
+         */
         this.AddTextField = function (field_, left_) {
 
             var tab = _self.GetTab(field_.TabName);
@@ -2859,6 +3251,13 @@ Define("PageViewer",
             m_controls.push(txt);
         };
 
+        /**
+         * Add a time control to the page.
+         * @memberof! PageViewer#
+         * @param {PageField} field_ Page field definition.
+         * @param {boolean} left_ If `true` adds the control to the left column.
+         * @returns {void}
+         */
         this.AddTimeField = function (field_, left_) {
 
             var tab = _self.GetTab(field_.TabName);
@@ -2870,6 +3269,13 @@ Define("PageViewer",
             m_controls.push(txt);
         };
 
+        /**
+         * Add a spinner control to the page.
+         * @memberof! PageViewer#
+         * @param {PageField} field_ Page field definition.
+         * @param {boolean} left_ If `true` adds the control to the left column.
+         * @returns {void}
+         */
         this.AddSpinnerField = function (field_, left_) {
 
             var tab = _self.GetTab(field_.TabName);
@@ -2881,6 +3287,13 @@ Define("PageViewer",
             m_controls.push(txt);
         };
 
+        /**
+         * Add a date control to the page.
+         * @memberof! PageViewer#
+         * @param {PageField} field_ Page field definition.
+         * @param {boolean} left_ If `true` adds the control to the left column.
+         * @returns {void}
+         */
         this.AddDateField = function (field_, left_) {
 
             var tab = _self.GetTab(field_.TabName);
@@ -2892,6 +3305,13 @@ Define("PageViewer",
             m_controls.push(dte);
         };
 
+        /**
+         * Add a date time control to the page.
+         * @memberof! PageViewer#
+         * @param {PageField} field_ Page field definition.
+         * @param {boolean} left_ If `true` adds the control to the left column.
+         * @returns {void}
+         */
         this.AddDateTimeField = function (field_, left_) {
 
             var tab = _self.GetTab(field_.TabName);
@@ -2903,6 +3323,13 @@ Define("PageViewer",
             m_controls.push(dte);
         };
 
+        /**
+         * Add a combobox control to the page.
+         * @memberof! PageViewer#
+         * @param {PageField} field_ Page field definition.
+         * @param {boolean} left_ If `true` adds the control to the left column.
+         * @returns {void}
+         */
         this.AddComboField = function (field_, left_) {
 
             var tab = _self.GetTab(field_.TabName);
@@ -2914,6 +3341,13 @@ Define("PageViewer",
             m_controls.push(cmb);
         };
 
+        /**
+         * Add a checkbox control to the page.
+         * @memberof! PageViewer#
+         * @param {PageField} field_ Page field definition.
+         * @param {boolean} left_ If `true` adds the control to the left column.
+         * @returns {void}
+         */
         this.AddCheckboxField = function (field_, left_) {
 
             var tab = _self.GetTab(field_.TabName);
@@ -2925,11 +3359,25 @@ Define("PageViewer",
             m_controls.push(chk);
         };
 
+        /**
+         * Add a sub page to the window.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {PageViewer} page_ Page to add.
+         * @returns {void}
+         */
         this.AddSubpage = function (page_) {
             m_subPages.push(page_);
             _base.AddSubWindow(page_);
         };
-		
+        
+        /**
+         * Remove a sub page from the window.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} index_ Index of the page to remove.
+         * @returns {void}
+         */
 		this.RemoveSubpage = function (index_) {
             for(var i = 0; i < m_subPages.length; i++){
 				if(i == index_){
@@ -2940,7 +3388,14 @@ Define("PageViewer",
 				}
 			}            
         };
-		
+        
+        /**
+         * Remove a tab from the window.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} index_ Index of the tab to remove.
+         * @returns {void}
+         */
 		this.RemoveTab = function (index_) {
             for(var i = 0; i < m_tabs.length; i++){
 				if(i == index_){
@@ -2956,6 +3411,12 @@ Define("PageViewer",
 
         //#region List Form Functions
 
+        /**
+         * Load a list style page.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {JQueryPromise} Promises to return after loading the list page.
+         */
         this.LoadListForm = function () {
 
             return $codeblock(
@@ -2970,6 +3431,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Convert the current record set to grid data.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {object[]} Returns the grid data.
+         */
         this.GenerateGridData = function () {
 
             var recs = new Array();
@@ -2983,6 +3450,12 @@ Define("PageViewer",
             return recs;
         };
 
+        /**
+         * Convert the current record to grid data.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {object} Returns the grid data.
+         */
         this.ConvertRecordToData = function () {
 
             var r = new Record();
@@ -2996,6 +3469,11 @@ Define("PageViewer",
 
         //#region Grid Functions
 
+        /**
+         * Export the current page data to a CSV file.
+         * @memberof! PageViewer#
+         * @returns {void}
+         */
         this.ExportCSV = function () {
 
             var data = _self.GetPageGrid().DataSource();
@@ -3003,6 +3481,13 @@ Define("PageViewer",
             Application.FileDownload.DownloadText(m_id+".csv", csv_data, "text/csv;charset=utf-8;");
         };
 
+        /**
+         * Convert record data to csv format.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {object[]} data_ Record data to convert.
+         * @returns {string} Returns the csv string.
+         */
         this.GenerateCSVData = function (data_) {
 
             var csvFile = '';
@@ -3024,6 +3509,12 @@ Define("PageViewer",
             return csvFile;
         };
 
+        /**
+         * Format data value to CSV format.
+         * @param {any} value_ Value to convert.
+         * @param {string} type_ Data type.
+         * @returns {string} Returns the formatted value.
+         */
         function FormatData(value_, type_) {
 
             if (value_ == null || typeof value_ == "undefined")
@@ -3041,6 +3532,11 @@ Define("PageViewer",
             return value_;
         };
 
+        /**
+         * Convert a row of strings to a CSV row.
+         * @param {string[]} row Row of strings to convert.
+         * @returns {string} Returns the CSV row.
+         */
         function ProcessCSVRow(row) {
             var finalVal = '';
             for (var j = 0; j < row.length; j++) {
@@ -3063,6 +3559,12 @@ Define("PageViewer",
             return finalVal + '\r\n';
         };
 
+        /**
+         * Load the page grid.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void} 
+         */
         this.LoadPageGrid = function () {
 
             var grd = new Grid(null, _self);
@@ -3131,6 +3633,13 @@ Define("PageViewer",
             m_controls.push(grd);
         };
 
+        /**
+         * Function that runs on select of a grid row.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} rowid Row ID of the selected row.
+         * @returns {void}
+         */
         this.GridRowSelect = function (rowid) {
             setTimeout(function () {                
                 Application.RunNext(function () {
@@ -3144,6 +3653,11 @@ Define("PageViewer",
             }, 500);
         };
 
+        /**
+         * Get the page grid.
+         * @memberof! PageViewer#
+         * @returns {Grid} Returns the page grid.
+         */
         this.GetPageGrid = function () {
 
             for (var i = 0; i < m_controls.length; i++) {
@@ -3156,6 +3670,12 @@ Define("PageViewer",
             return null;
         };
 
+        /**
+         * Get a record by row id.
+         * @memberof! PageViewer#
+         * @param {number} rowid Row ID of the record.
+         * @returns {void}
+         */
         this.GetRecordByRowId = function (rowid) {
 
             if (m_record.Count == 0 || rowid == null)
@@ -3169,6 +3689,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Get a record by rec id.
+         * @memberof! PageViewer#
+         * @param {string} recid Rec ID of the record.
+         * @returns {void}
+         */
         this.GetRecordByRecId = function (recid) {
 
             if (m_record.Count == 0 || recid == null)
@@ -3182,6 +3708,14 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Update the page grid.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {Grid} cont Grid control.
+         * @param {string} selectedrec Selected record.
+         * @returns {JQueryPromise} Promises to return after updating the grid.
+         */
         this.UpdateGrid = function (cont, selectedrec) {
 
             var w = $wait();
@@ -3203,6 +3737,14 @@ Define("PageViewer",
             return w.promise();
         };
 
+        /**
+         * Select a grid row by record id.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {Grid} cont Grid control.
+         * @param {string} selectedrec Selected record.
+         * @returns {number} Returns the index of the selected row.
+         */
         this.SelectRowByRec = function (cont, selectedrec) {
             var data = cont.DataSource();
             for (var i = 0; i < data.length; i++) {
@@ -3214,10 +3756,26 @@ Define("PageViewer",
             return 0;
         };
 
+        /**
+         * Function to run on resize of a grid column.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void}
+         */
         this.GridResizeCol = function () {
             _self.SaveLayout();
         };
 
+        /**
+         * Function to run on double click of a grid row.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} rowid Row ID of the clicked on row.
+         * @param {number} iRow Row index.
+         * @param {number} iCol Column index.
+         * @param {Event} e Click event.
+         * @returns {void}
+         */
         this.GridDoubleClick = function (rowid, iRow, iCol, e) {
 
             if (!m_form.DoubleClickAction() && !m_enableEditMode)
@@ -3279,6 +3837,17 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Function to run on submit of a grid cell.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} rowid Row ID of the clicked on row.
+         * @param {string} cellname Name of the column.
+         * @param {any} value Value of the cell.
+         * @param {number} iRow Row index.
+         * @param {number} iCol Column index.         
+         * @returns {void}
+         */
         this.GridCellSubmit = function (rowid, cellname, value, iRow, iCol) {
 
             _self.RecordValidate(cellname, value, rowid);
@@ -3286,6 +3855,13 @@ Define("PageViewer",
             return value; //Must return the value.
         };
 
+        /**
+         * Function to run on load of the grid footer.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {Grid} grd Grid control.
+         * @returns {void}
+         */
         this.GridLoadFooter = function (grd) {
             var data = new Object();
             for (var i = 0; i < m_form.Fields.length; i++) {
@@ -3318,6 +3894,13 @@ Define("PageViewer",
 
         //#region Action Functions
 
+        /**
+         * Run a page action.
+         * @memberof! PageViewer#
+         * @param {string} name_ Action name.
+         * @param {boolean} [trans_=false] If `true`, uses a database transaction. 
+         * @returns {JQueryPromise} Promises to return after running the action.
+         */
         this.RunAction = function (name_, trans_) {
 
             _self.Save();
@@ -3380,6 +3963,15 @@ Define("PageViewer",
             }             
         };
 
+        /**
+         * Run an individual page action.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} name_ Action name.
+         * @param {boolean} [trans_=false] If `true`, uses a database transaction. 
+         * @param {boolean} [hideLoad_=true] If `true`, hide the page loading overlay after the function runs.
+         * @returns {JQueryPromise} Promises to return after running the action.
+         */
         this.RunIndividualAction = function (name_, trans_, hideLoad_) {
 
             if (name_ == null || name_ == "")
@@ -3496,10 +4088,25 @@ Define("PageViewer",
             return w.promise();
         };
 
+        /**
+         * Check if all actions have finished running.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {boolean} Returns `true` if the actions have finished running.
+         */
         this.ActionsFinished = function () {
             return (m_actionsQueue <= 0);
         };
 
+        /**
+         * Run an Open Page action.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {PageAction} action Page action definition.
+         * @param {string} id Page name to open.
+         * @param {string} view Page view to use.
+         * @returns {JQueryPromise<PageViewer>} Promises to return after the page has opened.
+         */
         this.OpenPageAction = function (action, id, view) {
 
             if (Application.IsInMobile())
@@ -3550,6 +4157,14 @@ Define("PageViewer",
             );
         };
 
+        /**
+         * Show line actions for a grid row (mobile only).
+         * @memberof! PageViewer#
+         * @protected
+         * @param {object} row Row data.
+         * @param {number} rowid Row ID.
+         * @returns {void}
+         */
 		this.ShowLineActions = function(row,rowid){
 			
 			$(".lineactions,.lineactionsoverlay").remove();	
@@ -3624,7 +4239,18 @@ Define("PageViewer",
                 });	
 			});
 		};
-		
+        
+        /**
+         * Add a line action to the line actions menu (mobile only).
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} name Action name.
+         * @param {string} image Action icon.
+         * @param {string} text Action caption.
+         * @param {Function} func Action function.
+         * @param {number} i Action index.
+         * @returns {JQueryStatic} Returns the line action div.
+         */
 		 this.AddLineAction = function (name, image, text, func, i) {
 
 			var id = $id();
@@ -3646,36 +4272,79 @@ Define("PageViewer",
 
         //#region Public Properties
 
+        /**
+         * Get the page custom control.
+         * @memberof! PageViewer#
+         * @returns {Control} Returns the page custom control.
+         */
         this.CustomControl = function () {
             return m_customControl;
         };
 
+        /**
+         * Get the page viewer options.
+         * @memberof! PageViewer#
+         * @returns {PageViewerSettings} Returns the page viewer options.
+         */
         this.Options = function () {
             return m_options;
         };
 
+        /**
+         * Add a page viewer option.
+         * @memberof! PageViewer#
+         * @param {string} name Name of the option.
+         * @param {any} value Option value.
+         * @returns {void}
+         */
         this.AddOption = function (name, value) {
             m_options[name] = value;
         };
 
+        /**
+         * Get the page type (Card or List).
+         * @memberof! PageViewer#
+         * @returns {string} Returns the page type.
+         */
         this.Type = function () {
             return m_form.Type;
         };
 
+        /**
+         * Get the page window.
+         * @memberof! PageViewer#
+         * @returns {Window} Returns the page window.
+         */
         this.Window = function () {
             return _base;
         };
 
+        /**
+         * Get the page's parent window.
+         * @memberof! PageViewer#
+         * @returns {PageViewer} Returns the page's parent window.
+         */
         this.ParentWindow = function () {
             if (m_parent != null)
                 return m_parent; //.Window();
             return _self;
         };
 
+        /**
+         * Get the page that opened this page.
+         * @memberof! PageViewer#
+         * @returns {PageViewer} Returns the page that opened this page.
+         */
         this.OpenedFrom = function () {
             return m_openedFrom;
         };
 
+        /**
+         * Get/set the page record.
+         * @memberof! PageViewer#
+         * @param {Record} [value] If specified, sets the page record.
+         * @returns {Record|void} Returns the page record if `value` is not specified.
+         */
         this.Record = function (value) {
             if (typeof value == "undefined") {
                 //Get the record (List form only).
@@ -3691,10 +4360,21 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Get the original page view.
+         * @memberof! PageViewer#
+         * @returns {string} Returns the original page view.
+         */
         this.FormView = function () {
             return m_form.View;
         };
-		
+        
+        /**
+         * Get/set the page loaded flag.
+         * @memberof! PageViewer#
+         * @param {boolean} [value_] If specified, sets the page loaded flag.
+         * @returns {boolean|void} Returns the page loaded flag if `value_` is not specified.
+         */
 		this.Loaded = function(value_) {
 
             if (value_ !== undefined) { //SET                
@@ -3704,6 +4384,12 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Get/set the page view.
+         * @memberof! PageViewer#
+         * @param {string} [value_] If specified, sets the page view.
+         * @returns {string|void} Returns the page view if `value_` is not specified.
+         */
         this.View = function (value_) {
 
             if (value_ !== undefined) { //SET
@@ -3716,6 +4402,12 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Get/set the cancel close flag.
+         * @memberof! PageViewer#
+         * @param {boolean} [value_] If specified, sets the cancel close flag.
+         * @returns {boolean|void} Returns the cancel close flag if `value_` is not specified.
+         */
         this.CancelClose = function (value_) {
 
             if (value_ !== undefined) {
@@ -3724,19 +4416,40 @@ Define("PageViewer",
                 return _base.CancelClose();
             }
         };
-		
+        
+        /**
+         * Check of the page is in grid edit mode (mobile only).
+         * @memberof! PageViewer#
+         * @returns {boolean} Returns `true` if the page is in grid edit mode.
+         */
 		this.GridEditMode = function(){
 			return m_options.mobilegrideditor != null;
 		};
 
+        /**
+         * Get the record filters.
+         * @memberof! PageViewer#
+         * @returns {RecordFieldInfo[]} Returns the record filters.
+         */
         this.Filters = function () {
             return m_record.Filters();
         };
 
+        /**
+         * Get the line editor.
+         * @memberof! PageViewer#
+         * @returns {JQueryStatic} Returns the line editor.
+         */
         this.LineEditor = function () {
             return m_lineEditor;
         };
 
+        /**
+         * Get/set the focus control.
+         * @memberof! PageViewer#
+         * @param {Control} [cont] If specified, sets the focus control.
+         * @returns {Control|void} Returns the focus control if `cont` is not specified.
+         */
         this.FocusControl = function (cont) {             
             if (cont !== undefined) {
                 m_focusControl = cont;
@@ -3745,18 +4458,41 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Set the previous focus control.
+         * @memberof! PageViewer#
+         * @param {Control} cont Sets the previous focus control.
+         * @returns {void}
+         */
         this.XFocusControl = function (cont) {
             m_xFocusControl = cont;
         };
 
+        /**
+         * Set the close page action.
+         * @memberof! PageViewer#
+         * @param {Function} func_ Sets the close page action.
+         * @returns {void}
+         */
 		this.CloseAction = function (func_) {
             m_closeAction = func_;
         };
-		
+        
+        /**
+         * Set the close function.
+         * @memberof! PageViewer#
+         * @param {Function} func_ Sets the close function.
+         * @returns {void}
+         */
         this.CloseFunction = function (func_) {
             m_closeFunc = func_;
         };
 
+        /**
+         * Check if the page is readonly.
+         * @memberof! PageViewer#
+         * @returns {boolean} Returns `true` if the page is readonly.
+         */
         this.ReadOnly = function () {
 
             if (m_options && m_options.readonly && m_options.readonly == true)
@@ -3777,22 +4513,48 @@ Define("PageViewer",
             return !editable;
         };
 
+        /**
+         * Get the window position.
+         * @memberof! PageViewer#
+         * @returns {Application.position} Returns the window position. Returns values from {@link module:Application.Application.position Application.position}.
+         */
         this.Position = function () {
             return _base.Position();
         };
 
+        /**
+         * Get the page definition.
+         * @memberof! PageViewer#
+         * @returns {Page} Returns the page definition.
+         */
         this.Page = function () {
             return m_form;
         };
 
+        /**
+         * Get the table definition.
+         * @memberof! PageViewer#
+         * @returns {Page} Returns the table definition.
+         */
 		this.Table = function () {
             return m_table;
         };
-		
+        
+        /**
+         * Get the filter toolbar control.
+         * @memberof! PageViewer#
+         * @returns {FilterToolbar} Returns the filter toolbar control.
+         */
         this.FilterToolbar = function () {
             return m_filterToolbar;
         };
 
+        /**
+         * Get a control by field name.
+         * @memberof! PageViewer#
+         * @param {string} name_ Name of the field.
+         * @returns {Control} Returns the control if it is found.
+         */
         this.Control = function (name_) {
 
             if (m_customControl && m_customControl.Control)
@@ -3810,6 +4572,12 @@ Define("PageViewer",
             return null;
         };
 
+        /**
+         * Get a button by action name.
+         * @memberof! PageViewer#
+         * @param {string} name Name of the action.
+         * @returns {JQueryStatic} Returns the button if it is found.
+         */
 		this.Button = function(name){			
 		    var btn = Default(m_buttons[name],null);
 		    if (!btn) {
@@ -3840,6 +4608,14 @@ Define("PageViewer",
 			return btn;
 		};
 
+        /**
+         * Set a field as valid/invalid.
+         * @memberof! PageViewer#
+         * @param {string} name Name of the field.
+         * @param {boolean} valid If `true` the field is marked as valid.
+         * @param {string} [msg] Optional message to display.
+         * @returns {void}
+         */
         this.ValidValue = function (name, valid, msg) {
 
             var cont = _self.Control(name);
@@ -3849,14 +4625,35 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Set the current column.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {string} value_ Column name.
+         * @returns {void}
+         */
         this.Col = function (value_) {
             m_col = value_;
         };
 
+        /**
+         * Set the current row.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} value_ Row ID.
+         * @returns {void}
+         */
         this.Row = function (value_) {
             m_row = value_;
         };
 
+        /**
+         * Check if the layout cause an error.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {PageViewer} pge Page to check.
+         * @returns {boolean} Returns `true` if the layout may have caused an error.
+         */
         this.CheckLayout = function (pge) {
             if (m_layout && m_layout.Filters) {
                 Application.Confirm("One or more filters may have caused an error. Do you wish to clear them?", function (r) {
@@ -3871,18 +4668,39 @@ Define("PageViewer",
             return false;
         };
 
+        /**
+         * Get the parent viewer.
+         * @memberof! PageViewer#
+         * @returns {PageViewer} Returns the parent viewer.
+         */
         this.ParentPage = function () {
             return m_parent;
         };
 
+        /**
+         * Get the sub pages.
+         * @memberof! PageViewer#
+         * @returns {PageViewer[]} Returns the sub pages.
+         */
         this.SubPages = function () {
             return m_subPages;
         };
 
+        /**
+         * Get the page tabs.
+         * @memberof! PageViewer#
+         * @returns {Window[]} Returns the page tabs.
+         */
 		this.Tabs = function () {
             return m_tabs;
         };
-		
+        
+        /**
+         * Get a page tab/subpage by name.
+         * @memberof! PageViewer#
+         * @param {string} name Name of the tab.
+         * @returns {Window|PageViewer} Returns the page tab/subpage if found.
+         */
 		this.GetTabByName = function(name){
 			for(var i = 0; i < m_subPages.length; i++){
 				if(m_subPages[i].TabName() == name)
@@ -3897,7 +4715,14 @@ Define("PageViewer",
 			}
 			return null;
 		};
-		
+        
+        /**
+         * Get a page tab/subpage by id.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} id ID of the tab.
+         * @returns {Window|PageViewer} Returns the page tab/subpage if found.
+         */
 		this.GetTabByID = function(id){
 			for(var i = 0; i < m_subPages.length; i++){
 				if(m_subPages[i].ID() == id)
@@ -3909,11 +4734,23 @@ Define("PageViewer",
 			}
 			return null;
 		};
-		
+        
+        /**
+         * Get the OK clicked flag.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {boolean} Returns the OK clicked flag.
+         */
         this.OKClicked = function () {
             return m_okClicked;
         };
 
+        /**
+         * Get/set the changed flag.
+         * @memberof! PageViewer#
+         * @param {boolean} [value_] If specified, sets the changed flag.
+         * @returns {boolean|void} Returns the changed flag if `value_` is not specified.
+         */
         this.Changed = function (value_) {
 
             if (value_ !== undefined) {
@@ -3924,10 +4761,23 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Get the enable edit mode flag.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {boolean} Returns the enable edit mode flag.
+         */
         this.EnableEditMode = function () {
             return m_enableEditMode;
         };
 
+        /**
+         * Get/set the selected combobox.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {Control} [value_] If specified, sets the selected combo.
+         * @returns {Control|void} Returns the selected combo if `value_` is not specified.
+         */
         this.ComboSelected = function (value_) {
             if (typeof value_ == "undefined") {
                 return m_comboSelected;
@@ -3935,7 +4785,13 @@ Define("PageViewer",
                 m_comboSelected = value_;
             }
         };
-		
+        
+        /**
+         * Get the line actions (mobile only).
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {PageAction[]} Returns the line actions.
+         */
 		this.LineActions = function () {
             return m_lineActions;
         };
@@ -3944,6 +4800,12 @@ Define("PageViewer",
 
         //#region Events
 
+        /**
+         * Function to run on error of the page.
+         * @memberof! PageViewer#
+         * @param {string} e Error message.
+         * @returns {void}
+         */
         this.OnError = function (e) {
 
             m_record.Temp = m_temp; //Reset this if the error occurs on save.            			
@@ -4030,7 +4892,7 @@ Define("PageViewer",
 
                             //Rollback current row (if the user moved).
                             var curr_row = grd.SelectedRow();
-                            if (curr_row != m_row) {
+                            if (curr_row != m_row || m_temp) {
                                 _self.GetRecordByRowId(curr_row);
                                 m_record.RollBack();
                                 grd.SetDataRow(curr_row, _self.ConvertRecordToData());
@@ -4056,6 +4918,12 @@ Define("PageViewer",
             }
         };
 
+        /**
+         * Function to run on key press on the page.
+         * @memberof! PageViewer#
+         * @param {Event} ev Key press event.
+         * @returns {void}
+         */
         this.OnKeyPress = function (ev) {
 
             try {
@@ -4156,6 +5024,12 @@ Define("PageViewer",
 
         };
 
+        /**
+         * Function to run before closing the page.
+         * @memberof! PageViewer#
+         * @param {boolean} okclicked If `true` the OK button was clicked.
+         * @returns {void}
+         */
         this.OnBeforeClose = function (okclicked) {
 
             if (okclicked != null)
@@ -4176,6 +5050,12 @@ Define("PageViewer",
             return true;
         };
 
+        /**
+         * Function to run on close of the page.
+         * @memberof! PageViewer#
+         * @param {boolean} okclicked If `true` the OK button was clicked.
+         * @returns {void}
+         */
         this.OnClose = function (okclicked) {
 
 			if(m_options.homepage && Application.IsInMobile())
@@ -4219,6 +5099,12 @@ Define("PageViewer",
             return w.promise();
         };
 
+        /**
+         * Function to run on resize of the page.
+         * @memberof! PageViewer#
+         * @param {number} width Width of the page.
+         * @returns {void}
+         */
         this.OnResize = function (width) {
 
                 var j = 0;
@@ -4340,6 +5226,12 @@ Define("PageViewer",
 
         //#region Window Functions
 
+        /**
+         * Show the page viewer.
+         * @memberof! PageViewer#
+         * @param {number} w Width of the window.
+         * @returns {void}
+         */
         this.Show = function (w) {
 
             w = _base.Show(w);				
@@ -4365,7 +5257,13 @@ Define("PageViewer",
 			
             return w;
         };
-		
+        
+        /**
+         * Remove the page viewer from the DOM.
+         * @memberof! PageViewer#
+         * @protected
+         * @returns {void}
+         */
 		this.Remove = function(){
 			
 			for(var i = 0; i < m_controls.length; i++){
@@ -4407,12 +5305,24 @@ Define("PageViewer",
 			_self = null;
 		};
 
+        /**
+         * Trigger a resize on the page viewer.
+         * @memberof! PageViewer#
+         * @returns {void}
+         */
         this.Resize = function () {
 			
             _base.Resize();
             _self.OnResize(_base.InnerWidth());			
         };
 
+        /**
+         * Resize the list page.
+         * @memberof! PageViewer#
+         * @protected
+         * @param {number} height Height of the page.
+         * @returns {void}
+         */
         this.ResizeList = function (height) {
 
             var h = m_options.height;
@@ -4440,6 +5350,12 @@ Define("PageViewer",
         this.Pin = function () {
         };	
 
+        /**
+         * Function to run on minimize/maximize of the page.
+         * @memberof! PageViewer#
+         * @param {boolean} skipevent If `true` don't save the page layout.
+         * @returns {void}
+         */
 		this.OnToggle = function(skipevent){
 			if(!skipevent)
 			_self.SaveLayout();

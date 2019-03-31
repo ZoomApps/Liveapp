@@ -33,7 +33,7 @@ Define("Signature",
         this.CreateMobile = function (window_) {
 
             //Create the control.
-            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><div id="' + _base.ID() + '" style=""><canvas id="ctl' + _base.ID() + '" style="width: 300px; height: 300px; border: 1px solid #000;background:#FFF;"><b>' + UI.IconImage('warning') + ' This control is unsupported in your browser version. Please upgrade to the latest version.</b></canvas><br/><a id="clear' + _base.ID() + '" type="button" data-inline="true" data-mini="true" data-theme="a">Clear Signature</a></div>');
+            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><div id="' + _base.ID() + '" style=""><canvas id="ctl' + _base.ID() + '" style="width: 100%; height: 300px; border: 1px solid #000;background:#FFF;"><b>' + UI.IconImage('warning') + ' This control is unsupported in your browser version. Please upgrade to the latest version.</b></canvas><br/><a id="clear' + _base.ID() + '" type="button" data-inline="true" data-mini="true" data-theme="a">Clear Signature</a></div>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
@@ -158,7 +158,7 @@ Define("Signature",
             if(!canvas)
                 return;
                         
-            canvas.width = 300;
+            canvas.width = w;
             canvas.height = 300;            
 
             if (m_context) {

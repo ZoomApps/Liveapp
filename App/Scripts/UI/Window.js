@@ -164,9 +164,10 @@ Define("Window", null, function () {
                             return false
                         }
                         Application.RunNext(function () {
+                            var okclicked = m_okClicked;
                             m_okClicked = false;
-                            return UI.WindowManager.Close(m_id, m_options.cancelopenonclose);
-                        });
+                            return UI.WindowManager.Close(m_id, m_options.cancelopenonclose,null,okclicked);
+                        });                        
                         return false;
                     },
                     toolbar: "<a id='okbtn" + m_id + "' style='float: right; font-size: 11pt; width: 100px; margin: 10px;'>OK</a>"

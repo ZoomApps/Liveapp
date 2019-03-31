@@ -290,6 +290,7 @@ Define("Control",
             m_container.hide();
             m_label.hide();
             m_control.hide();
+            $('#lbldesc'+m_id).hide();
             m_visible = false;
         };
 
@@ -297,6 +298,7 @@ Define("Control",
             m_container.show();
             m_label.show();
             m_control.show();
+            $('#lbldesc'+m_id).show();
             m_visible = true;
         };
 
