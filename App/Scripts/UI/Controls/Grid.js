@@ -308,7 +308,8 @@ Define("Grid",
                     hidden: false,
                     sortable: true,                    
                     edittype: 'custom',
-                    align: colalign || 'center',					
+                    align: colalign || 'center',
+                    summaryType: sumtype,					
 					formatter: function (cellvalue, options, rowObject) {						
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
@@ -351,6 +352,7 @@ Define("Grid",
                     sortable: true,
                     edittype: 'custom',
                     align: colalign || 'center',
+                    summaryType: sumtype,
                     formatter: function (cellvalue, options, rowObject) {
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
@@ -387,6 +389,7 @@ Define("Grid",
                     sortable: true,                    
                     edittype: 'custom',
                     align: colalign || 'center',
+                    summaryType: sumtype,
 					formatter: function (cellvalue, options, rowObject) {
 						cellvalue = MandatoryCheck(cellvalue,field);
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
@@ -429,6 +432,7 @@ Define("Grid",
 					},
                     edittype: 'custom',
                     align: colalign || 'left',
+                    summaryType: sumtype,
 					skipsanitize: Application.HasOption(field.Options,"skipsanitize"),
                     formatter: function (cellvalue, options, rowObject) {
 						return UpdateComboCell(field, cellvalue, rowObject);                        
@@ -499,6 +503,7 @@ Define("Grid",
                     sortable: true,
                     edittype: 'custom',
                     align: colalign || 'center',
+                    summaryType: sumtype,
                     formatter: function (cellvalue, options, rowObject) {
 
                         var checked = '';

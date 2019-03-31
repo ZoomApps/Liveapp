@@ -118,6 +118,7 @@ Define("PageViewer",
                     m_form.Type = "List";
                     m_form.InsertAllowed = true;
                     m_form.DeleteAllowed = true;
+                    m_form.SkipRecordLoad = true;
 
                     var act1 = Application.Objects.PageActionInfo();
                     act1.Name = "New";
@@ -2168,7 +2169,7 @@ Define("PageViewer",
 
 			//Partial refresh.			
             var skipupdate = _self.SkipPageRefresh(),
-                skiptrans = m_record.Temp;
+                skiptrans = m_record.Temp && Application.HasOption(m_form.Options,"noupdatetrans");
 			
             if (field_.LookupDisplayField != "" && value_ != "" && value_ != null && field_.CustomControl == "" && m_comboSelected) {
                 value_ = m_record[name_];
@@ -3914,7 +3915,7 @@ Define("PageViewer",
 
                             //Rollback current row (if the user moved).
                             var curr_row = grd.SelectedRow();
-                            if (curr_row != m_row) {
+                            if (curr_row != m_row || m_temp) {
                                 _self.GetRecordByRowId(curr_row);
                                 m_record.RollBack();
                                 grd.SetDataRow(curr_row, _self.ConvertRecordToData());
