@@ -1144,13 +1144,15 @@ DefineModule("App",
 							if(Application.IsInMobile() && Application.HasOption(item.Options,"desktoponly"))
 								skip = true;
 							if(!Application.IsInMobile() && Application.HasOption(item.Options,"mobileonly"))
-								skip = true;
+                                skip = true;
+                                
+                            var flags = Application.OptionValue(item.Options,"flags");
 
                             if (Application.CheckOfflineObject(item.Type, item.ID) && !skip) {
                                 added = true;
                                 if (item.Icon == "")
                                     item.Icon = "window";
-                                _self.PrintSideLink(mnu2, Application.executionPath + 'Images/ActionIcons/' + item.Icon + '.png',  Application.ProcessCaption(item.Name), "Application.App.LoadPage('" + item.ID + "');", false, false, item.ID);
+                                _self.PrintSideLink(mnu2, Application.executionPath + 'Images/ActionIcons/' + item.Icon + '.png',  Application.ProcessCaption(item.Name), "Application.App.LoadPage('" + item.ID + "',null,"+(flags?"{flags:'"+flags+"'}":"null")+");", false, false, item.ID);
                             }
                         }
 
