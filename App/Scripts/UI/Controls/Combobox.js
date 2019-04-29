@@ -78,7 +78,7 @@ Define("Combobox",
 
         this.Create = function (window_) {
 
-            var container = $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr><td style="width: 50%"><label id="lbl' + _base.ID() + '" id= for="ctrl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td><td style="width: 50%; padding-right: 10px; text-align: left; vertical-align: top;"><input type="text" id="ctl' + _base.ID() + '" placeholder="Select or Search" style="width: 100%;"></input><button id="btn' + _base.ID() + '" type="button" style="display: none;">&nbsp;</button></td></tr></table></div>');
+            var container = $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr><td style="width: 50%"><label id="lbl' + _base.ID() + '" id= for="ctrl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td><td style="width: 50%; padding-right: 10px; text-align: left; vertical-align: top;"><input type="text" id="ctl' + _base.ID() + '" '+(Application.IsIE() ? '' : 'placeholder="Select or Search" ')+'style="width: 100%;"></input><button id="btn' + _base.ID() + '" type="button" style="display: none;">&nbsp;</button></td></tr></table></div>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
@@ -199,8 +199,8 @@ Define("Combobox",
                                                 }else{
                                                     _base.Viewer().RecordValidate(field.Name,rec[field.LookupField]);
                                                 }
-                                            }
-                                        });                                    
+                                            }                                            
+                                        });                                                                            
                                         return form.Open();
                                     }			
                                 );

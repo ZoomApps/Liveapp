@@ -280,6 +280,21 @@ String.prototype.replaceall = function (str,rep) {
 	return s;
 };
 
+if (!String.prototype.includes) {
+    String.prototype.includes = function(search, start) {
+      'use strict';
+      if (typeof start !== 'number') {
+        start = 0;
+      }
+  
+      if (start + search.length > this.length) {
+        return false;
+      } else {
+        return this.indexOf(search, start) !== -1;
+      }
+    };
+  }
+
 if (!Array.indexOf) {
     Array.prototype.indexOf = function (obj) {
         for (var i = 0; i < this.length; i++) {

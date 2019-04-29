@@ -1,4 +1,30 @@
+<a name="5.15"></a>
+# Liveapp v5.15 (April 2019)
 
+## Bug Fixes
+
+  - **combobox**
+    - fix auto dropdown issue in IE
+
+  - **grid**
+    - mobile line actions not showing when `Edit` is the only action (v5.x)
+
+  - **multicombo**
+    - scroll bar not showing for large list of items (v5.x)
+
+  - **server**
+    - emails always asking for delivery notifications
+    - `flownull` option not working correctly
+
+## Features
+
+  - **app**
+    - add new menu item option `flags`
+
+  - **application**
+    - add prototype for `String.includes`
+
+    
 <a name="5.14"></a>
 # Liveapp v5.14 (March 2019)
 

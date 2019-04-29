@@ -2202,7 +2202,8 @@ fieldset.ui-controlgroup {
 	min-width: 11em;
 }
 .ui-selectmenu .ui-dialog-contain {
-	overflow: hidden;
+	overflow: auto;
+	max-height: calc(100vh - 40px);
 }
 .ui-selectmenu .ui-header {
 	margin: 0;

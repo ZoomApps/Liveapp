@@ -347,7 +347,7 @@ Define("Grid",
 
                     ev.preventDefault();
 
-                    var lineEditMode = _base.Viewer().LineActions().length > 0;
+                    var lineEditMode = _base.Viewer().LineActions().length > 0 || _base.Viewer().EnableEditMode();
                     var isRowSelector = false;
                     var isHyperLink = false;
                     try{
