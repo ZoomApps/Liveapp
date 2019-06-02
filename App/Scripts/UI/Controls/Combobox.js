@@ -130,6 +130,10 @@ Define("Combobox",
             return _base.CreateList(container, cont, value_);
         };
 
+        this.Columns = function(){
+            return m_cols;
+        }
+
         //#endregion
 
         //#region Private Methods

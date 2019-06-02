@@ -10,7 +10,9 @@ Define("OptionsWindow", null, function (options_) {
     var m_openedFrom = null; //PageViewer
 	var m_closeFunc = null;
     var m_okClicked = false;
-	var m_options = null; //Options
+    var m_focusControl = null;
+    var m_xFocusControl = null;
+    var m_options = null; //Options    
 	
 	//Option Members
 	var m_record = new Object();
@@ -891,10 +893,16 @@ Define("OptionsWindow", null, function (options_) {
 
     //#region Overloaded Methods
 
-    this.FocusControl = function () {
+    this.FocusControl = function (cont) {             
+        if (cont !== undefined) {
+            m_focusControl = cont;
+        } else {
+            return m_focusControl;
+        }
     };
 
-    this.XFocusControl = function () {
+    this.XFocusControl = function (cont) {
+        m_xFocusControl = cont;
     };
 
     this.Type = function () {
@@ -979,6 +987,13 @@ Define("OptionsWindow", null, function (options_) {
 				Application.RunNext(_self.Close);
 				return;                
 			 } else {
+                if(m_xFocusControl){
+                    m_focusControl = m_xFocusControl;
+                    try {
+                        m_focusControl.select();
+                    } catch (e) {
+                    }
+                }
 			     Application.RunNext(_self.UpdateControls);
 			 }
         });        

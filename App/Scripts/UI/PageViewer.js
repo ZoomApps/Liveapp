@@ -3443,6 +3443,10 @@ Define("PageViewer",
                         opts.mode = m_nextPageOptions.mode;
                     opts.parentwin = _self.ParentWindow();
 
+                    var flags = Application.OptionValue(action.Options,"flags");
+                    if(flags)
+                        opts.flags = flags;
+
                     m_nextPageOptions = null;
 
                     var page = new PageViewer(opts);

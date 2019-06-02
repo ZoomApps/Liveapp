@@ -26,7 +26,7 @@ Define("Checkbox",
         this.Create = function (window_) {
 
             //Create the control.
-            var container = $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr><td style="width: 100%"><label id="lbl' + _base.ID() + '" id= for="ctl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td><td style="width: 50px; padding-right: 10px; text-align: right; vertical-align: top;"><input type="checkbox" id="ctl' + _base.ID() + '" style=""></input></td></tr></table></div>');
+            var container = $('<div id="' + _base.ID() + '" style="display: none;"><table style="width: 100%"><tr><td style="width: 50%"><label id="lbl' + _base.ID() + '" id= for="ctl' + _base.ID() + '" style="width: 100%; padding-left: 6px;"></label></td><td style="width: 50%; padding-right: 10px; text-align: left; vertical-align: top;"><input type="checkbox" id="ctl' + _base.ID() + '" style=""><div id="ctld'+_base.ID()+'"></div></input></td></tr></table></div>');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function(cont){
@@ -59,12 +59,12 @@ Define("Checkbox",
         //#endregion
 
         //#region Overloaded Methods
-
+        
         this.SetSize = function (width, height) {
-            //Only set container width.
             _base.Container().width(width);
+            $('#ctld'+_base.ID()).width((width / 2) - 2);            
         };
-		
+
 		this.Update = function (rec_) {
 
             var value = rec_[_base.Field().Name];

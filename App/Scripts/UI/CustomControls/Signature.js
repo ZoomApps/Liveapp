@@ -154,6 +154,9 @@ Define("Signature",
 
             var canvas = $('#ctl' + _base.ID()).get(0);
             var w = $(window).width() - 30;      
+
+            if(!Application.IsInMobile())
+                w = 300;
                
             if(!canvas)
                 return;
@@ -176,6 +179,13 @@ Define("Signature",
                 //m_context.fillStyle = "#000";
                 //m_context.font = "20px Arial";
                 //m_context.fillText("x", 40, 155);
+            }
+        };
+
+        this.SetSize = function (width, height) {
+            if(!Application.IsInMobile()){
+                _base.Container().width(width);
+                _base.Control().width(300);
             }
         };
 
