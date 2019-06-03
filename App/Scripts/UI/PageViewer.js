@@ -329,12 +329,15 @@
                                                 }
                                             }
                                             for(var j = 0; j < m_form.Actions.length; j++){
+                                                var sort = Application.OptionValue(m_form.Actions[j].Options,'sort');
+                                                if(sort)
+                                                    sort = +sort;
                                                 if(m_form.Actions[j].Type == "New")
                                                     m_form.Actions[j].Sort = 1;
                                                 if(m_form.Actions[j].Type == "Delete")
                                                     m_form.Actions[j].Sort = 4;
                                                 if(!m_form.Actions[j].Sort)
-                                                    m_form.Actions[j].Sort = 3;
+                                                    m_form.Actions[j].Sort = sort || 3;
                                             }
                                             m_form.Actions.sort(function (a, b) {
                                                 if (a.Sort == b.Sort)
@@ -4126,6 +4129,10 @@
                     if (m_nextPageOptions != null && m_nextPageOptions.mode != null)
                         opts.mode = m_nextPageOptions.mode;
                     opts.parentwin = _self.ParentWindow();
+
+                    var flags = Application.OptionValue(action.Options,"flags");
+                    if(flags)
+                        opts.flags = flags;
 
                     m_nextPageOptions = null;
 

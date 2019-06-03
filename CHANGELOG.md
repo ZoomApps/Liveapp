@@ -1,3 +1,37 @@
+<a name="5.16"></a>
+# Liveapp v5.16 (May 2019)
+
+## Bug Fixes
+
+  - **checkbox**
+    - fix alignment of checkboxes in desktop mode
+
+  - **htmleditor**
+    - fix z-index of toolbar
+
+  - **optionswindow**
+    - focus control not getting set correctly
+
+  - **signature**
+    - fix signature width in desktop mode
+
+## Features
+
+  - **combobox**
+    - add new public method `Columns'
+
+  - **pageviewer**
+    - add new page action option `sort` (v5.x)
+    - add new page action option `flags`
+
+  - **photogallery**
+    - add id to photo description (v5.x)
+
+  - **server**
+    - add request tracking to user sessions list
+    - upgrade pdf generator DLL
+
+
 <a name="5.15"></a>
 # Liveapp v5.15 (April 2019)
 

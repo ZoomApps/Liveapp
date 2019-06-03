@@ -84,7 +84,7 @@
   padding: 0;
   list-style-type: none;
   line-height: 10px;
-  z-index: 70000;
+  z-index: 19999;
   -webkit-backface-visibility: hidden;
           backface-visibility: hidden; }
   .trumbowyg-button-pane li {
