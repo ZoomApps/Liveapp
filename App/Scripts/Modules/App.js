@@ -223,8 +223,13 @@ DefineModule("App",
                         }
 
 						 //Login from token.
-                        if (m_params["token"] != null && !Application.IsOffline()) {							
-                            return _self.LoginFromToken(m_params["token"]);
+                        if (m_params["token"] != null && !Application.IsOffline()) {	                            
+                            var token = m_params["token"];
+                            if(window.history && window.history.pushState){
+                                m_params["token"] = null;
+                                window.history.pushState(null, window.title, "%SERVERADDRESS%"+m_params["instance"]);
+                            }
+                            return _self.LoginFromToken(token);
                         }
 						
                         //Attempt to login from cookie.
@@ -1115,7 +1120,7 @@ DefineModule("App",
 
                         if(window.history && window.history.pushState){
                             m_params["pageid"] = null;
-                            window.history.pushState(null, window.title, "%SERVERADDRESS%"+Application.auth.Instance);
+                            window.history.pushState(null, window.title, "%SERVERADDRESS%"+m_params["instance"]);
                         }
 
                     } else if (id != "") {

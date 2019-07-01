@@ -668,7 +668,7 @@ Define("PageViewer",
                     m_record.View = m_view;
 
                     //Retrieve filters.
-                    if (m_form.ShowFilters && m_layout && m_layout.Filters && !Application.IsInMobile() && !Application.HasOption(m_form.Options,"clearfilters") && !m_options.searchmode) {
+                    if ((m_form.ShowFilters || m_form.Option('savefilters')) && m_layout && m_layout.Filters && !Application.IsInMobile() && !Application.HasOption(m_form.Options,"clearfilters") && !m_options.searchmode) {
                         for (var i in m_layout.Filters) {
 							if(m_layout.Filters[i] != null)
 								m_record.Filter(i, m_layout.Filters[i]);
@@ -1500,7 +1500,7 @@ Define("PageViewer",
                     }
                 }
 
-                if (m_form.ShowFilters)
+                if (m_form.ShowFilters || m_form.Option('savefilters'))
                     m_layout.Filters = filters;
 
 				m_layout.state = _base.State();	
@@ -1513,6 +1513,18 @@ Define("PageViewer",
                 return Application.SaveUserLayout(Application.auth.Username, uidlayout ? m_uid : m_id, $.toJSON(m_layout));                 
 
             },null,null,true);
+        };
+
+        this.UserLayout = function (value) {
+
+            if (typeof value != "undefined") {
+
+                m_layout = value;                
+
+            } else {
+
+                return m_layout;
+            }
         };
 
         this.ClearLayout = function () {
@@ -3406,10 +3418,10 @@ Define("PageViewer",
 
                 if (action.Type != "Open Page") {
                     if (action.Reload == true) {
-                        return _self.Update();
+                        return _self.Update(true,true,true);
                     } else if (action.ReloadParent == true) {
                         if (m_parent != null) {
-                            return m_parent.Update();
+                            return m_parent.Update(true,true,true);
                         }
                     }
                 }
@@ -3454,9 +3466,9 @@ Define("PageViewer",
                     //Setup the close function.
                     if (action.Reload == true) {
                         page.CloseFunction(function () {
-                            var w = $wait();
-                            $code(_self.Update);
-                            return w.promise();
+                            return $codeblock(function(){
+                                return _self.Update(true,true,true);
+                            });
                         });
                     } else if (action.ReloadParent == true) {
                         page.CloseFunction(function () {
@@ -3464,7 +3476,7 @@ Define("PageViewer",
                             $code(
                                 function () {
                                     if (m_parent != null) {
-                                        return m_parent.Update();
+                                        return m_parent.Update(true,true,true);
                                     }
                                 }
                             );
@@ -3891,12 +3903,14 @@ Define("PageViewer",
 						_self.SaveLayout();
 					}					
 					
-                    if (m_loaded == false) {
-                        if (_self.CheckLayout(_self))
-                            return;
-                        for (var i = 0; i < m_subPages.length; i++) {
-                            if (m_subPages[i].CheckLayout(_self))
+                    if (m_loaded == false) {                        
+                        if(m_layout){
+                            if (_self.CheckLayout(_self))
                                 return;
+                            for (var i = 0; i < m_subPages.length; i++) {
+                                if (m_subPages[i].CheckLayout(_self))
+                                    return;
+                            }
                         }
                         Application.RunNext(_self.Close);
                         return;
