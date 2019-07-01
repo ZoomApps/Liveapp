@@ -1,3 +1,33 @@
+<a name="5.17"></a>
+# Liveapp v5.17 (June 2019)
+
+## Bug Fixes
+
+  - **app**
+    - remove token from URL after use
+
+  - **pageviewer**
+    - fix refresh issue on actions with `Reload` or `ReloadParent` ticked
+
+  - **server**
+    - remove SQL command timeout
+    - security fix - HTTP verb tempering - OTG-INPVAL-003
+    - security fix - session token length - OTG-SESS001
+
+## Features
+
+  - **optionswindow**
+    - add lookup display functionality
+
+  - **pageviewer**
+    - add new page option `savefilters`
+    - add a new member function `UserLayout` to get or set the user layout of the viewer
+
+  - **server**
+    - add new web.config setting `PING_TIMEOUT_MINS`
+    - add new view option `NOVIEW`
+
+
 <a name="5.16"></a>
 # Liveapp v5.16 (May 2019)
 
@@ -31,7 +61,7 @@
     - add request tracking to user sessions list
     - upgrade pdf generator DLL
 
-
+    
 <a name="5.15"></a>
 # Liveapp v5.15 (April 2019)
 

@@ -1,27 +1,27 @@
-var CACHE_NAME = 'LiveappCache-5_15';
+var CACHE_NAME = 'LiveappCache-5_17';
 
-self.addEventListener('install', function (event) {
+self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE_NAME).then(function() {
             return self.skipWaiting();
-          })
+        })
     );
 });
 
-self.addEventListener('activate', function (event) {
+self.addEventListener('activate', function(event) {
 
     var cacheWhitelist = [CACHE_NAME];
 
     event.waitUntil(
-        caches.keys().then(function (cacheNames) {
+        caches.keys().then(function(cacheNames) {
             return Promise.all(
-                cacheNames.map(function (cacheName) {
+                cacheNames.map(function(cacheName) {
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
                         return caches.delete(cacheName);
                     }
                 })
             );
-        }).then(function(){
+        }).then(function() {
             return clients.claim()
         })
     );
@@ -37,8 +37,8 @@ self.addEventListener('fetch', function(event) {
                     return response;
                 }
                 return fetch(event.request).then(function(response) {
-                    if(event.request.method === "GET" && response.ok)
-                      cache.put(event.request, response.clone());
+                    if (event.request.method === "GET" && response.ok)
+                        cache.put(event.request, response.clone());
                     return response;
                 });
             });

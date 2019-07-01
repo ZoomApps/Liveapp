@@ -963,7 +963,56 @@ Define("OptionsWindow", null, function (options_) {
 
         var editor = _self.GetEditor(col);
         if (editor) {
+            
             editor.Container().hide();
+
+            var field = editor.Field();
+            if (field.LookupTable != "" && value != null && value != "") {
+                Application.RunNext(function () {
+                    return $codeblock(
+                        function () {
+                            return Application.LookupRecord(field, _self, value, function () { });
+                        },
+                        function (vals) {
+                            
+                            var f = field.LookupField;
+                            if (field.LookupDisplayField != "")
+                                f = field.LookupDisplayField;
+
+                            for (var i = 0; i < vals.length; i++) {
+                                if (vals[i][f] == value) {
+                                    if (field.LookupDisplayField != "") {
+                                        _self.FilterChange(col, vals[i][field.LookupField]);
+                                    }
+                                    return vals[i][f];
+                                }
+                            }
+
+                            for (var i = 0; i < vals.length; i++) {
+                                if (vals[i][f].toLowerCase().indexOf(value.toLowerCase()) != -1) {
+                                    if (field.LookupDisplayField != "") {
+                                        _self.FilterChange(col, vals[i][field.LookupField]);
+                                    }
+                                    return vals[i][f];
+                                }
+                            }
+
+                            return null;
+                        },
+                        function (ret) {
+                            if (ret == null)
+                                Application.Error("Invalid value: " + value);
+
+                            var cont = _self.GetFilterControl(col);
+                            if (cont) {
+                                cont.Control().val(value);                                
+                                cont.Container().show();
+                            }
+                        }
+                    );
+                });
+                return;
+            }
         }
 
         var cont = _self.GetFilterControl(col);
@@ -1188,10 +1237,8 @@ Define("OptionsWindow", null, function (options_) {
             var col = m_table.Column(c);
             if (!skip && col) {
                 var name = col.Name;
-                if (col.LookupDisplayField != "") {
-                    name = "FF$" + col.Name;
-                }
-				if(col.OptionCaption != ""){
+
+				if(col.OptionCaption != "" && col.Type === "Integer"){
 					filter = Application.SetOptionFilter(filter,col.OptionCaption);
 				}
                 if (filters == "") {
