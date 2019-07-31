@@ -2377,8 +2377,8 @@
 
                 } else if (field.Type == "Time") {
 
-                    if(Application.HasOption(field.Options,'24hours') && typeof value_ === 'string'){
-                        value_ = moment('1900/01/01 '+value_,'YYYY-MM-DD HH:mm').toDate();
+                    if(typeof value_ === 'string'){
+                        value_ = moment('1900/01/01 '+value_,Application.HasOption(field.Options,'24hours') ? 'YYYY-MM-DD HH:mm':'YYYY-MM-DD hh:mm a').toDate();
                     }else{
                         var tme = Application.ParseTime(value_);
                         if (tme == null)
@@ -4903,11 +4903,7 @@
                     }
 
                     if (m_form.Type == "List" && m_col == null) return;
-                    if (m_form.Type == "Card" && m_xFocusControl == null) return;
-
-                    //Rollback record.
-                    if (!m_temp && !m_record.UnsavedChanges())
-                        m_record.RollBack();
+                    if (m_form.Type == "Card" && m_xFocusControl == null) return;                    
 
                     if (m_form.Type == "List") {
 
@@ -4915,15 +4911,14 @@
 
                         if (grd) {
 
-                            grd.SetDataRow(m_row, _self.ConvertRecordToData()); //Error record.
+                            //Get record that caused the error.
+                            _self.GetRecordByRowId(m_row);
 
-                            //Rollback current row (if the user moved).
-                            var curr_row = grd.SelectedRow();
-                            if (curr_row != m_row || m_temp) {
-                                _self.GetRecordByRowId(curr_row);
+                             //Rollback record.
+                            if (!m_temp && !m_record.UnsavedChanges())
                                 m_record.RollBack();
-                                grd.SetDataRow(curr_row, _self.ConvertRecordToData());
-                            }
+
+                            grd.SetDataRow(m_row, _self.ConvertRecordToData()); //Error record.                            
 
                             //Go back to the error cell.
                             grd.SelectRow(m_row);
@@ -4933,6 +4928,11 @@
                         m_row = null;
 
                     } else {
+
+                        //Rollback record.
+                        if (!m_temp && !m_record.UnsavedChanges())
+                            m_record.RollBack();
+
                         m_focusControl = m_xFocusControl;
                         try {
                             m_focusControl.select();

@@ -711,8 +711,8 @@ Define("OptionsWindow", null, function (options_) {
 
 			} else if (field.Type == "Time") {
 
-                if(Application.HasOption(field.Options,'24hours') && typeof value_ === 'string'){
-                    value_ = moment('1900/01/01 '+value_,'YYYY-MM-DD HH:mm').toDate();
+                if(typeof value_ === 'string'){
+                    value_ = moment('1900/01/01 '+value_,Application.HasOption(field.Options,'24hours') ? 'YYYY-MM-DD HH:mm':'YYYY-MM-DD hh:mm a').toDate();
                 }else{
                     var tme = Application.ParseTime(value_);
                     if (tme == null)

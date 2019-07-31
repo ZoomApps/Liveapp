@@ -1,4 +1,4 @@
-var CACHE_NAME = 'LiveappCache-5_17';
+var CACHE_NAME = 'LiveappCache-5_18';
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
@@ -28,6 +28,8 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
+    if(event.request.url && event.request.url.indexOf('InlineFile') !== -1)
+        return;
     event.respondWith(
         caches.open(CACHE_NAME).then(function(cache) {
             return cache.match(event.request).then(function(response) {

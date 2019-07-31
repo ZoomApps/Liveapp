@@ -1,3 +1,33 @@
+<a name="5.18"></a>
+# Liveapp v5.18 (July 2019)
+
+## Bug Fixes
+
+  - **app**
+    - don't cache `InlineFile` requests (v5.x)
+
+  - **application**
+    - get correct path for `service-worker.js` (v5.x)
+    - fix issue when using `&` in a combobox %term search
+    - speed up `app` timer
+
+  - **pageviewer**
+    - fix issue when an error occurs on validate in a grid
+    - fix issue when parsing `Time` values
+
+  - **record**
+    - fix error in `ModifyAll` and `DeleteAll` funcitons
+
+  - **server**
+    - fix infinite loop in `QueryHandler`
+    - server stability fixes
+    - save tokens to file system
+    - fix infinite loop in `LogException` method
+
+  - **texbox**
+    - fix `datetime` display in mobile mode
+
+
 <a name="5.17"></a>
 # Liveapp v5.17 (June 2019)
 
