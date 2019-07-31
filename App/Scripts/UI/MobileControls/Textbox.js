@@ -48,6 +48,23 @@ Define("Textbox",
             });
         };
 
+        this.Update = function (rec_) {
+
+            Application.LogInfo("Updating mobile control: " + _base.ID() + ", Caption: " + _base.Field().Caption);
+            
+            var value = rec_[_base.Field().Name];
+            if (typeof value == 'undefined')
+                return;
+
+            if(_base.Field().Type === "DateTime"){
+                _base.Control().val($.format.date(value,"dd/MM/yyyy hh:mm a"));
+            }else{
+                _base.Control().val(value);
+            }
+
+            _self.Loaded(true);
+        };
+
         //#endregion
 
         //#region Overrideable Methods

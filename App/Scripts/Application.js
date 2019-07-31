@@ -383,13 +383,13 @@ Application.ProgressBox = null;
 
 //Offline.
 Application.IsOffline = function () {
-    if ($moduleloaded("OfflineManager"))
+    if (Application.Offline)
         return Application.Offline.IsOffline();
     return false;
 };
 
 Application.CheckOfflineObject = function(type, id){
-	if($moduleloaded("OfflineManager"))
+	if(Application.Offline)
 		return Application.Offline.CheckOfflineObject(type, id);
 	return true;
 };
@@ -548,7 +548,7 @@ Application.ExecuteWebService = function (method, args, callback_, async_, progr
             return;
     }
 
-    if (Application.IsOffline() && $moduleloaded("OfflineManager")) {
+    if (Application.IsOffline() && Application.Offline) {
         Application.LogInfo("Executing Offline Action: " + method + ", Session ID: " + Application.auth.SessionID);
         if (Application.Offline.Process(method, args, callback_))
             return;
@@ -1408,7 +1408,7 @@ Application.Error = function (msg) {
 	}
     
     Application.HideProgress();        
-	if($moduleloaded("OfflineManager")){
+	if(Application.Offline){
 		Application.Offline.HideLoad();
 	}
 
@@ -2219,7 +2219,7 @@ Application.MergeLookupView = function (field, viewer, term, value) {
 	
     var view = ""
     view = viewer.MergeView(filters);
-    view = view.replace("%term", term);
+    view = view.replace("%term", Default(term,'').replace(/\&/g,'*'));
     view = view.replace("%value", value);
     return view;
 };

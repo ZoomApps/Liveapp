@@ -596,6 +596,8 @@ Define("Record", null, function (name_) {
     };
 
     this.ModifyAll = function (col_, value_) {
+        if(Application.GetFilters(_self.View).length === 0)
+            return _self;
         return $codeblock(
             function () {
                 return _self.Modification(_self, "RecordModifyAll", col_, value_);
@@ -617,6 +619,8 @@ Define("Record", null, function (name_) {
     };
 
     this.DeleteAll = function () {
+        if(Application.GetFilters(_self.View).length === 0)
+            return _self;
         return $codeblock(
             function () {
                 return _self.Modification(_self, "RecordDeleteAll");
