@@ -57,7 +57,7 @@ Define("Checkbox",
                 return;
             }
             
-            if(_base.Control().length > 0)
+            if(_base.Control().length > 0 && _base.Control()[0])
                 _base.Control()[0].checked = value;
 
             _self.Loaded(true);

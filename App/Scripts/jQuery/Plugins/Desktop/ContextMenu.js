@@ -119,7 +119,8 @@
                     .css({
                         position: "absolute",
                         left: 0,
-                        top: 0
+                        top: 0,
+                        'z-index': 40001
                     })
                     .position(g)
                     .hide(), f.preventContextMenuForPopup && this.$menu.bind("contextmenu" + this.eventNamespace, function (a) {

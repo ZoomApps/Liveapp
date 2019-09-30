@@ -36,7 +36,8 @@ Define("Checkbox",
                         return;
                     if(_base.Viewer())
                         _base.Viewer().XFocusControl(cont);
-                    _self.OnValueChange(_base.Field().Name, cont[0].checked);
+                    if(cont[0])
+                        _self.OnValueChange(_base.Field().Name, cont[0].checked);
                 });
 			});
         };

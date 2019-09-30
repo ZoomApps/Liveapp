@@ -835,8 +835,12 @@ DefineModule("App",
             Application.Loading.Hide(Application.IsInMobile() ? "AppWorkspace" : "tdMain");
         };
 
-        this.Loaded = function () {
-            return m_loaded;
+        this.Loaded = function (value_) {
+            if(typeof value_ === 'undefined'){
+                return m_loaded;
+            }else{
+                m_loaded = value_;
+            }
         };
 
         this.GetInstance = function () {
@@ -924,7 +928,7 @@ DefineModule("App",
 
                 Application.ShowError(e, function () {
                     if (typeof e.indexOf != 'undefined') {
-                        if (e.indexOf("%LANG:ERR_BADLOGIN%") != -1) {
+                        if (e.toLowerCase().indexOf("%LANG:ERR_BADLOGIN%".toLowerCase()) != -1) {
                             _self.ShowLogin(true);
                             setTimeout(function () { $("#txtUsername").select(); }, 500);
                         }
@@ -1178,7 +1182,7 @@ DefineModule("App",
 
         this.PrintSideGroup = function (name_, id_) {
             Application.LogInfo("Creating menu group: " + name_);
-            var li = $('<ul class="menu-items"><li class="menu-item-group">'+name_+'</li></ul>');
+            var li = $('<ul class="menu-items" id="mnugroup'+name_.replace(/ /g,'_')+'"><li class="menu-item-group">'+name_+'</li></ul>');
             $("#mnuMain").append(li);
             return li;
         };
@@ -1392,7 +1396,7 @@ DefineModule("App",
                 return $codeblock(
 
 					function(){						
-						if($moduleloaded("OfflineManager")){
+						if(Application.Offline){
 							Application.auth.Username = $("#txtUsername").val();
 							Application.auth.Username = Application.auth.Username.toUpperCase();
 							var w = $wait();
@@ -1682,7 +1686,7 @@ DefineModule("App",
                 },
 
                 function(){
-                    if($moduleloaded("OfflineManager"))
+                    if(Application.Offline)
                         return Application.Offline.LoadDatapack();
                 },
 				
@@ -1796,7 +1800,7 @@ DefineModule("App",
 
             if (Application.auth.SessionID != "") {
 
-                if ($moduleloaded("OfflineManager"))
+                if (Application.Offline)
                     if (Application.Offline.DownloadRequest() != null)
                         return;
 

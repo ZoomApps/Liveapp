@@ -106,7 +106,7 @@ DefineModule("NotificationManager",
 
             if (Application.auth.SessionID != "") {
 
-                if ($moduleloaded("OfflineManager"))
+                if (Application.Offline)
                     if (Application.Offline.DownloadRequest() != null)
                         return;                               
 

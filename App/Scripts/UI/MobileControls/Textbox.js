@@ -57,7 +57,7 @@ Define("Textbox",
                 return;
 
             if(_base.Field().Type === "DateTime"){
-                _base.Control().val($.format.date(value,"dd/MM/yyyy hh:mm a"));
+                _base.Control().val($.format.date(value,"dd/MM/yyyy "+(Application.HasOption(_base.Field().Options,'24hours') ? "HH:mm" : "hh:mm a")));
             }else{
                 _base.Control().val(value);
             }

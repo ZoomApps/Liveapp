@@ -1,3 +1,51 @@
+<a name="5.19"></a>
+# Liveapp v5.19 (August/September 2019)
+
+## Bug Fixes
+
+  - **app**
+    - fix an error in the `Error` function
+    - speed up offline check
+
+  - **application**
+    - replace multiple occurrences of `%term` and `%value` in lookup views
+
+  - **checkbox**
+    - fix checkbox error
+
+  - **control**
+    - allow return characters in a `HTMLEditor` in mobile mode
+
+  - **pageviewer**
+    - pass `workspace` from `Options` into subpages
+    - allow mandatory check on `Option` fields
+
+  - **plugins**
+    - fix the z-index value of `ContextMenu` and `DDSlick`
+    - fix an error in the `SendKeys` plugin
+
+  - **server**
+    - fix foreign key generation issue
+
+## Features
+
+  - **app**
+    - add an id to menu items so they can be referenced in jquery
+    - allow loaded flag to be set via `Application.App.Loaded(val)`
+
+  - **datetime**
+    - add option `24hours` to mobile datetime fields
+
+  - **imagemanager**
+    - add new param for `quality`
+
+  - **server**
+    - get params from `formdata` for endpoints when available
+
+  - **ui**
+    - return the context menu instance when using `UI.ContextMenu`
+
+
 <a name="5.18"></a>
 # Liveapp v5.18 (July 2019)
 
