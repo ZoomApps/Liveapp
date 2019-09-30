@@ -492,7 +492,7 @@ DefineModule("AppUI",
                     mnu.push({ title: menu[i].Name, cmd: menu[i].ID });
                 }
             }
-            $(document).contextmenu({
+            return $(document).contextmenu({
                 menu: mnu,
                 select: function (ev, ui) {
                     if (callback)

@@ -35,13 +35,14 @@ DefineModule("ImageManager",
             UI.ImageManager = this;
         };
 
-        this.Resize = function (img_, maxWidth_, maxHeight_, angle_, callback_) {
+        this.Resize = function (img_, maxWidth_, maxHeight_, angle_, callback_, quality_) {
 
             $.canvasResize(img_, {
                 width: maxWidth_,
                 height: maxHeight_,
                 crop: false,
                 rotate: angle_,
+                quality: quality_,
                 callback: function (img, width, height) {
                     callback_(img, width, height);
                 }

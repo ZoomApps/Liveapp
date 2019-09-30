@@ -367,7 +367,7 @@ Define("PageViewer",
 
                     _base.Create(UI.IconImage(m_form.Icon) + ' ' + m_form.Caption, {
                         closebutton: false,
-                        workspace: $(workspace),
+                        workspace: m_parent.Options().workspace || $(workspace),
                         shortcutWorkspace: null,
                         hidden: m_form.Fields.length == 0,
                         position: pos,
@@ -1751,7 +1751,7 @@ Define("PageViewer",
             for (var j = 0; j < m_form.Fields.length; j++) {
                 var field = m_form.Fields[j];
                 if (field.Mandatory) {
-                    if ((m_record[field.Name] == 0 || m_record[field.Name] == null || m_record[field.Name] == "null") && field.OptionCaption == "") {
+                    if (m_record[field.Name] == 0 || m_record[field.Name] == null || m_record[field.Name] == "null") {
                         var cont = _self.GetControl(field.Name);
                         if (cont)
                             _self.XFocusControl(cont.Control());
@@ -2630,8 +2630,9 @@ Define("PageViewer",
 										caption: tab.Name, 
 										block: block, 
 										view: tab.View, 
-										position: pos, 
-										homepage: m_options.homepage, 
+                                        position: pos, 
+                                        workspace: m_options.workspace,
+										homepage: m_options.homepage,
 										promoted: m_form.TabOption(tab, "promoted"), 
 										height: Application.OptionValue(tab.Options, "height"),
 										minimized: Application.OptionValue(tab.Options, "minimized"),

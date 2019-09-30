@@ -868,8 +868,12 @@ DefineModule("App",
             Application.Loading.Hide("tdMain");
         };
 
-        this.Loaded = function () {
+        this.Loaded = function (value_) {
+            if(typeof value_ === 'undefined'){
             return m_loaded;
+            }else{
+                m_loaded = value_;
+            }
         };
 
         this.GetInstance = function () {
@@ -955,7 +959,7 @@ DefineModule("App",
 
                 Application.ShowError(e, function () {
                     if (typeof e.indexOf != 'undefined') {
-                        if (e.indexOf("%LANG:ERR_BADLOGIN%") != -1) {
+                        if (e.toLowerCase().indexOf("%LANG:ERR_BADLOGIN%".toLowerCase()) != -1) {
                             _self.ShowLogin(true);
                             setTimeout(function () { $("#txtUsername").select(); }, 500);
                         }
@@ -1471,7 +1475,7 @@ DefineModule("App",
                 return $codeblock(
 
 					function(){						
-						if($moduleloaded("OfflineManager")){
+						if(Application.Offline){
 							Application.auth.Username = $("#txtUsername").val();
 							Application.auth.Username = Application.auth.Username.toUpperCase();
 							var w = $wait();
@@ -1761,7 +1765,7 @@ DefineModule("App",
                 },
 
                 function(){
-                    if($moduleloaded("OfflineManager"))
+                    if(Application.Offline)
                         return Application.Offline.LoadDatapack();
                 },
 				
@@ -1877,7 +1881,7 @@ DefineModule("App",
 
             if (Application.auth.SessionID != "") {
 
-                if ($moduleloaded("OfflineManager"))
+                if (Application.Offline)
                     if (Application.Offline.DownloadRequest() != null)
                         return;
 

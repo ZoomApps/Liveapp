@@ -323,7 +323,7 @@ bililiteRange.bounds = {
 
 // sendkeys functions
 bililiteRange.sendkeys = {
-	'{enter}': function (rng){
+	'{enter}': function (rng, c, simplechar){
 		simplechar(rng, '\n');
 		rng.insertEOL();
 	},

@@ -103,7 +103,7 @@ Define("Control",
 				}
 
             }).keypress(function (event) {
-                if (event.keyCode == '13' && m_field.CustomControl != "NotesBox") {
+                if (event.keyCode == '13' && m_field.CustomControl != "NotesBox" && m_field.CustomControl != "HTMLEditor") {
                     event.preventDefault();
                     m_control.blur();
                 }

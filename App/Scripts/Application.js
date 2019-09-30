@@ -2219,8 +2219,8 @@ Application.MergeLookupView = function (field, viewer, term, value) {
 	
     var view = ""
     view = viewer.MergeView(filters);
-    view = view.replace("%term", Default(term,'').replace(/\&/g,'*'));
-    view = view.replace("%value", value);
+    view = view.replace(/\%term/g, Default(term,'').replace(/\&/g,'*').replaceall("(","LB;").replaceall(")","RB;"));
+    view = view.replace(/\%value/g, value);
     return view;
 };
 
