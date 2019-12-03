@@ -1,4 +1,4 @@
-﻿
+
 
 Define("Page", null, function (id_, useCache_) {
 
@@ -116,7 +116,7 @@ Define("Page", null, function (id_, useCache_) {
                 }
 
                 if (action.ActionCode && action.ActionCode != "") {
-                    eval("var func = function(rec){" + action.ActionCode + "};");
+                    eval("var func = function runAction(rec){" + action.ActionCode + "};");
                     var page = _self;
                     var win = null;
                     if (viewer)

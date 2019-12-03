@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("HTMLEditor",
 
@@ -32,18 +32,34 @@ Define("HTMLEditor",
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {
                 cont.trumbowyg({
-					fullscreenable: true,
-					btns: ['viewHTML',
-					  '|', 'formatting',
-					  '|', 'btnGrp-design',
-					  '|', 'link',
-					  '|', 'insertImage',					  
-					  '|', 'btnGrp-justify',
-					  '|', 'btnGrp-lists',
-					  '|', 'horizontalRule']
+                    svgPath: Application.url+'Images/trumbowyg/icons.svg',
+                    btnsDef: {
+                        save: {
+                            fn: function() {
+                                _self.OnValueChange(_base.Field().Name,cont.html());
+                            },
+                            title: 'Save HTML',
+                            text: 'Save',
+                            ico: 'save'   
+                        }
+                    },
+                    btns: [
+                        ['viewHTML'],                        
+                        ['formatting'],
+                        ['fontfamily','fontsize','foreColor', 'backColor'],
+                        ['strong', 'em', 'del'],
+                        ['superscript', 'subscript'],
+                        ['link'],
+                        ['table'],
+                        ['insertImage'],
+                        ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+                        ['unorderedList', 'orderedList'],
+                        ['horizontalRule'],                        
+                        ['removeformat'],
+                        ['fullscreen'],
+                        ['save']
+                    ]
 				});		
-				//var btn = $("<a>Save HTML</a>");
-				//container.append(btn);
 				cont.on("tbwblur",function(){					
 					_self.OnValueChange(_base.Field().Name,cont.html());
 				});
@@ -109,15 +125,33 @@ Define("HTMLEditor",
             });
 
             $('#html' + _base.ID()).css("display","").trumbowyg({
-                fullscreenable: false,
-					btns: ['viewHTML',
-					  '|', 'formatting',
-					  '|', 'btnGrp-design',
-					  '|', 'link',
-					  '|', 'insertImage',					  
-					  '|', 'btnGrp-justify',
-					  '|', 'btnGrp-lists',
-					  '|', 'horizontalRule']
+                svgPath: Application.url+'Images/trumbowyg/icons.svg',
+                btnsDef: {
+                    save: {
+                        fn: function() {
+                            _self.OnValueChange(_base.Field().Name,cont.html());
+                        },
+                        title: 'Save HTML',
+                        text: 'Save',
+                        ico: 'save'   
+                    }
+                },
+                btns: [
+                    ['viewHTML'],                        
+                    ['formatting'],
+                    ['fontfamily','fontsize','foreColor', 'backColor'],
+                    ['strong', 'em', 'del'],
+                    ['superscript', 'subscript'],
+                    ['link'],
+                    ['table'],
+                    ['insertImage'],
+                    ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+                    ['unorderedList', 'orderedList'],
+                    ['horizontalRule'],                        
+                    ['removeformat'],
+                    ['fullscreen'],
+                    ['save']
+                ]
             });
         };
 

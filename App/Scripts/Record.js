@@ -918,7 +918,7 @@ Define("Record", null, function (name_) {
                     if (viewer)
                         win = viewer.Window();
 
-                    eval("var func = function(rec){return $codeblock(" +
+                    eval("var func = function validateRecord(rec){return $codeblock(" +
                     "function(){" + func_code + "}, " +
                     "function(){rec.SaveCurrent();return rec;}" +
                     ");}");
@@ -944,7 +944,7 @@ Define("Record", null, function (name_) {
         return $codeblock(
             function () {
                 if (func_code != null) {
-                    eval("var func = function(rec,viewer){return $codeblock(" +
+                    eval("var func = function runTrigger(rec,viewer){return $codeblock(" +
                     "function(){" + func_code + "}, " +
                     "function(){return rec;}" +
                     ");}");

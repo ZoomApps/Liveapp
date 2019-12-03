@@ -60,42 +60,10 @@ window.onpopstate = function(event) {
 		});
 };
 
-//#region Speed Fixes
-
-Application.timeouts = [];
-(function () {
-
-    var messageName = "ztm";
-
-    // Like setTimeout, but only takes a function argument.  There's
-    // no time argument (always zero) and no arguments (you have to
-    // use a closure).
-    function setZeroTimeout(fn) {
-        Application.timeouts.push(fn);
-        window.postMessage(messageName, "*");
-    }
-
-    function handleMessage(event) {
-		
-		if (event.origin == "%REMOTEDEBUGURL%"){
-			Application.Log.HandleMessage(event);
-			return;
-		}
-		
-        if (event.source == window && event.data == messageName) {
-            event.stopPropagation();
-            if (Application.timeouts.length > 0) {
-                var fn = Application.timeouts.shift();
-                fn();
-            }
-        }
-    }
-
-    window.addEventListener("message", handleMessage, true);
-
-    // Add the one thing we want added to the window object.
-    window.setZeroTimeout = setZeroTimeout;
-})();
+// Backwards Compat.
+window.setZeroTimeout = function(func){
+    return func();
+};
 
 function memoize(fn, resolver) {
 
@@ -1274,12 +1242,12 @@ Application.RunNext = function (func, skipDelay, id, trans) {
     if(skipDelay)
         return $codeblock(func);	
 		
-    setZeroTimeout(function () {
+    setTimeout(function () {
         $thread(function () {
 			return $codeblock(func);
         },null,null,null,id);
-    });
-}
+    },1);
+};
 
 Application.TestNumber = function (n) {
     if (isNaN(parseInt(n))) 
@@ -1486,7 +1454,7 @@ Application.Message = function (msg, callback, title, icon) {
     //Don't show the message if we have no GUI access.
     if (Application.noGUI){
         if (callback) 
-            setZeroTimeout(callback);
+            callback();
         return;
     }
 
@@ -1506,9 +1474,7 @@ Application.Confirm = function (msg, callback, title, yescaption, nocaption) {
     //Don't show the message if we have no GUI access.
     if (Application.noGUI){
         if (callback != null)
-            setZeroTimeout(function(){
                 callback(true);
-            });
         return;
     }
 

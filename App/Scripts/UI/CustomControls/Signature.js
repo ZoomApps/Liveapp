@@ -153,16 +153,20 @@ Define("Signature",
             m_leftButton = false;
 
             var canvas = $('#ctl' + _base.ID()).get(0);
-            var w = $(window).width() - 30;      
+            var w = $(window).width() - 30;    
+            var h = 300;  
 
             if(!Application.IsInMobile())
                 w = 300;
                
             if(!canvas)
                 return;
+
+            w = Application.OptionValue(_base.Field().Options, "width") || w;
+            h = Application.OptionValue(_base.Field().Options, "height") || h;
                         
             canvas.width = w;
-            canvas.height = 300;            
+            canvas.height = h;            
 
             if (m_context) {
 
