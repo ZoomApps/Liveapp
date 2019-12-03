@@ -1,4 +1,4 @@
-﻿
+
 /**
  * Code engine module.
  * @module CodeEngine 
@@ -189,7 +189,7 @@ DefineModule("CodeEngine",
             Application.LogDebug(Application.StrSubstitute("%LANG:S_NEWQUEUE%", (m_queue.length - 1), arguments.length));
 
             //Resolve the first function.
-            setZeroTimeout(function () { _self.ResolveQueue() });
+            _self.ResolveQueue();
 
         };
 
@@ -363,7 +363,7 @@ DefineModule("CodeEngine",
 
             ).then(
 
-                function (result2) { //Sucess.     
+                function finishedRun(result2) { //Sucess.     
 
                     Application.LogDebug("%LANG:S_FINISHEDMETHOD%");
 
@@ -403,10 +403,8 @@ DefineModule("CodeEngine",
         this.RunNextFunction = function (param_) {
 
             if (m_queue.length > 0) {
-                m_queue[m_queue.length - 1].shift();
-                setZeroTimeout(function () {
-                    _self.ResolveQueue(param_)
-                });
+                m_queue[m_queue.length - 1].shift();                
+                _self.ResolveQueue(param_);                
             }
 
         };
@@ -448,11 +446,11 @@ DefineModule("CodeEngine",
 
                 $code(
 
-                    function () {
+                    function loopIterator() {
                         return func(i);
                     },
 
-                    function (ret) {
+                    function finishLoop(ret) {
                         if (ret != null) {
                             if (ret == $next) {
                                 return recfunc(i + 1);
@@ -470,7 +468,7 @@ DefineModule("CodeEngine",
 
             //Start recursion
             $code(
-		        function () {
+		        function startLoop() {
 		            return recfunc(0);
 		        }
 	        );
@@ -581,7 +579,7 @@ DefineModule("CodeEngine",
                 //A different thread is still running.    
                 if (m_priority[0] != id || m_running == false) {				
 					
-                    setTimeout(function () {
+                    setTimeout(function queueThread() {
                         //Application.LogInfo(Application.StrSubstitute("%LANG:S_QUEUEDTHREAD%", id));
                         $thread(func, id, i + 1);
                     },1);
@@ -596,11 +594,21 @@ DefineModule("CodeEngine",
 
             $code(
 
-                function () {
+                function runThread() {
                     return func();
                 },
+
+                function(){
+                    if(Application.transactionStarted > 0){
+                        if(Application.developerMode)
+                            Application.Message('Transactions out of sync!!! Fixing...');
+                        Application.LogWarn('Transactions out of sync!!! Fixing...');
+                        Application.transactionStarted = 1;
+                        return Application.CommitTransaction();
+                    }
+                },
                 
-                function () {					
+                function finishThread() {					
                     Application.LogDebug(Application.StrSubstitute("%LANG:S_STOPPEDTHREAD%", id));
                     _self.Stop();
                     Application.Fire("ThreadFinished");					

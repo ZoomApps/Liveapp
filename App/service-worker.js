@@ -1,4 +1,4 @@
-var CACHE_NAME = 'LiveappCache-5_19';
+var CACHE_NAME = 'LiveappCache-5_20';
 
 self.addEventListener('install', function(event) {
     event.waitUntil(

@@ -1,3 +1,33 @@
+<a name="5.20"></a>
+# Liveapp v5.20 (October/November 2019)
+
+## Bug Fixes
+
+  - **app**
+    - speed fixes for codeblocks
+
+  - **optionswindow**
+    - fix filtering issue
+
+  - **pageviewer**
+    - fix skipupdate option
+
+  - **server**
+    - fix forgot password token issue
+    - fix flowfield link issue
+    - fix flowfield filtering issue
+    - fix table cache issue when saving a table design
+    - fix `LOOKUP` flowfield filtering issue
+
+## Features
+
+  - **htmleditor**
+    - upgrade trumbowyg
+
+  - **signature**
+    - add new options `width` and `height`
+
+
 <a name="5.19"></a>
 # Liveapp v5.19 (August/September 2019)
 

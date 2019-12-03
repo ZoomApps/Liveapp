@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 DefineModule("ImageManager",
 
@@ -64,9 +64,9 @@ DefineModule("ImageManager",
                 var url = canvas.toDataURL(_self.GetMimeType(img_), quality_ / 100);
                 delete context;
                 delete canvas;
-                setZeroTimeout(function () {
+                setTimeout(function () {
                     callback_(url);
-                });
+                },1);
 
             };
 
@@ -88,9 +88,9 @@ DefineModule("ImageManager",
                 var url = canvas.toDataURL()
                 delete context;
                 delete canvas;
-                setZeroTimeout(function () {
+                setTimeout(function () {
                     callback_(url);
-                });
+                },1);
             };
         };
 
@@ -103,9 +103,9 @@ DefineModule("ImageManager",
                 var tempW = tempImg.width;
                 var tempH = tempImg.height;
 
-                setZeroTimeout(function () {
+                setTimeout(function () {
                     callback_(tempW, tempH);
-                });
+                },1);
             };
         };
 

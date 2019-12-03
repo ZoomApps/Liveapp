@@ -822,7 +822,7 @@ Define("OptionsWindow", null, function (options_) {
         m_record[col] = value;
 		
 		if(field.OnValidate && field.OnValidate != ""){
-			eval("var func = function(rec,viewer){" + field.OnValidate  + "};");
+			eval("var func = function onValidate(rec,viewer){" + field.OnValidate  + "};");
 			Application.RunNext(function(){
 				return $codeblock(					
 					function(){
@@ -1005,7 +1005,10 @@ Define("OptionsWindow", null, function (options_) {
 
                             var cont = _self.GetFilterControl(col);
                             if (cont) {
-                                cont.Control().val(value);                                
+                                cont.Control().val(value);     
+                                if (field.LookupDisplayField === "") {
+                                    _self.FilterChange(col, value);
+                                }                           
                                 cont.Container().show();
                             }
                         }
@@ -1311,7 +1314,7 @@ Define("OptionsWindow", null, function (options_) {
                     for (var j = 0; j < consts.length; j++) {
                         var name = consts[j].replace(check, '$2');
                         var cont = _self.Control(name);					
-                        var f = Default(rec[name], null);            										
+                        var f = rec[name] || m_filters[name] || null;            										
                         if(f == "null" || f == "" || f == 0)
                             f = null;
                         if(f && cont && (cont.ObjectType() == "MultiCombobox" || cont.ObjectType() == "MultiSelect"))

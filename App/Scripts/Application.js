@@ -185,50 +185,10 @@ window.onpopstate = function(event) {
 		});
 };
 
-/**
- * Stores functions ready to fire for the {@link setZeroTimeout} function.
- * @memberof module:Application
- * @type {Function[]}
- * @protected
- */
-Application.timeouts = [];
-
-(function () {
-
-    var messageName = "ztm";
-
-    /**
-     * Delays code execution by 0 seconds (runs quicker than setTimeout).
-     * @global
-     * @param {Function} fn Function to run after 0 seconds.
-     * @returns {void}
-     */
-    function setZeroTimeout(fn) {
-        Application.timeouts.push(fn);
-        window.postMessage(messageName, "*");
-    }
-
-    function handleMessage(event) {
-		
-		if (event.origin == "%REMOTEDEBUGURL%"){
-			Application.Log.HandleMessage(event);
-			return;
-		}
-		
-        if (event.source == window && event.data == messageName) {
-            event.stopPropagation();
-            if (Application.timeouts.length > 0) {
-                var fn = Application.timeouts.shift();
-                fn();
-            }
-        }
-    }
-
-    window.addEventListener("message", handleMessage, true);
-
-    // Add the one thing we want added to the window object.
-    window.setZeroTimeout = setZeroTimeout;
-})();
+// Backwards Compat.
+window.setZeroTimeout = function(func){
+    return func();
+};
 
 /**
  * @deprecated Since v5.0.0
@@ -2549,7 +2509,7 @@ Application.RunNext = function (func, skipDelay, id, trans) {
     if(skipDelay)
         return $codeblock(func);	
 		
-    setZeroTimeout(function () {
+    setTimeout(function () {
         $thread(function () {
 			if(!trans){
 				return $codeblock(func);
@@ -2561,7 +2521,7 @@ Application.RunNext = function (func, skipDelay, id, trans) {
 				);
 			}
         },null,null,null,id);
-    });
+    },1);
 };
 
 /**
@@ -2917,7 +2877,7 @@ Application.Message = function (msg, callback, title, icon) {
     //Don't show the message if we have no GUI access.
     if (Application.noGUI){
         if (callback) 
-            setZeroTimeout(callback);
+            callback();
         return;
     }
 
@@ -2951,9 +2911,7 @@ Application.Confirm = function (msg, callback, title, yescaption, nocaption) {
     //Don't show the message if we have no GUI access.
     if (Application.noGUI){
         if (callback != null)
-            setZeroTimeout(function(){
                 callback(true);
-            });
         return;
     }
 

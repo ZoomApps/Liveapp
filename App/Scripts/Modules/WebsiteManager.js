@@ -584,17 +584,24 @@ DefineModule("WebsiteManager",
 				overflow: 'auto'
 			});	
 			edit.trumbowyg({
-				fullscreenable: true,
-				closable: true,
-				btns: ['viewHTML',
-				  '|', 'formatting',
-				  '|', 'btnGrp-design',
-				  '|', 'link',
-				  '|', 'insertImage',					  
-				  '|', 'btnGrp-justify',
-				  '|', 'btnGrp-lists',
-				  '|', 'horizontalRule']
-			});
+				svgPath: './images/trumbowyg/icons.svg',
+				btns: [
+					['viewHTML'],                        
+					['formatting'],
+					['fontfamily','fontsize','foreColor', 'backColor'],
+					['strong', 'em', 'del'],
+					['superscript', 'subscript'],
+					['link'],
+					['table'],
+					['insertImage'],
+					['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+					['unorderedList', 'orderedList'],
+					['horizontalRule'],                        
+					['removeformat'],
+					['fullscreen'],
+					['close']
+				]
+			});	
 			
 			var cssClass = 'trumbowyg-fullscreen';
 			edit.parent().toggleClass(cssClass);
@@ -753,17 +760,24 @@ DefineModule("WebsiteManager",
 			var edit = $("#divEditor");
 			edit.html(m_record.TemplateHTML);
 			edit.trumbowyg({
-				fullscreenable: true,
-				closable: true,
-				btns: ['viewHTML',
-				  '|', 'formatting',
-				  '|', 'btnGrp-design',
-				  '|', 'link',
-				  '|', 'insertImage',					  
-				  '|', 'btnGrp-justify',
-				  '|', 'btnGrp-lists',
-				  '|', 'horizontalRule']
-			});
+				svgPath: './images/trumbowyg/icons.svg',
+				btns: [
+					['viewHTML'],                        
+					['formatting'],
+					['fontfamily','fontsize','foreColor', 'backColor'],
+					['strong', 'em', 'del'],
+					['superscript', 'subscript'],
+					['link'],
+					['table'],
+					['insertImage'],
+					['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+					['unorderedList', 'orderedList'],
+					['horizontalRule'],                        
+					['removeformat'],
+					['fullscreen'],
+					['close']
+				]
+			});	
 			
 			var cssClass = 'trumbowyg-fullscreen';
 			edit.parent().toggleClass(cssClass);

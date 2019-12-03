@@ -659,7 +659,7 @@
                     if (action.Name != "" && !skip) {
 
                         var func;
-                        eval("func = function () {Application.RunNext(function () {return _self.RunAction('" + action.Name + "',true);},null,'ACTION" + action.Name + "');}");
+                        eval("func = function runAction() {Application.RunNext(function () {return _self.RunAction('" + action.Name + "',true);},null,'ACTION" + action.Name + "');}");
 
                         if (action.Type == "New")
                             action.Image = "document_new";
@@ -2015,7 +2015,7 @@
 
                     m_okClicked = true;                    
 
-                    if (m_options.mobilegrideditor == null) {
+                    if (m_options.mobilegrideditor == null && !Application.HasOption(m_form.Options,"skipupdate")) {
                         return _self.Update();
                     } else {
                         return _self.UpdateControls();
@@ -4079,7 +4079,7 @@
 
                 //Open Page action.
                 if (action.Type == "Open Page") {
-                    eval("Application.RunNext(function () { return _self.OpenPageAction(action, action.ReferencePage, '" + action.View + "');});");
+                    eval("Application.RunNext(function openPage() { return _self.OpenPageAction(action, action.ReferencePage, '" + action.View + "');});");
                 }
             },
 
