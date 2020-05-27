@@ -1,3 +1,44 @@
+<a name="5.21"></a>
+# Liveapp v5.21 (December 2019 - March 2020)
+
+## Bug Fixes
+
+  - **app**
+    - fix error on unload of browser window
+    - samsung devices display incorrect time
+    - fix issue when uploading files in iOS
+
+  - **combobox**
+    - fix parent window issue
+
+  - **filedownloadmanager**
+    - fix chunk size on upload
+
+  - **notesbox**
+    - z-index issue
+
+  - **page**
+    - fix double click action is it's desktop or mobile only
+
+  - **pageviewer**
+    - fix `AddChildWindow` error
+    - fix error on close
+
+  - **report**
+    - fix integer totals in reports
+
+  - **server**
+    - check menu item security before adding to main menu
+    - record modification was not using `lookupcolumns` when returning data
+    - foreign key not renaming
+    - timezone issues
+
+## Features
+
+  - **server**
+    - add new email mode `User Auth`
+
+
 <a name="5.20"></a>
 # Liveapp v5.20 (October/November 2019)
 
