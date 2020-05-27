@@ -300,10 +300,8 @@ Date.prototype.dst = function() {
 
 Date.prototype.toJSON = function(){
 	if(!this)
-        return "null";
-    if(this.getFullYear && this.getFullYear() === 1900)
-        return moment(this).format("%LANG:FORMAT_DATE_JSON%");
-    return moment(this).format()+'Z';
+        return "null";    
+    return moment(this).format('YYYY-MM-DDTHH:mm:ss');    
 }
 
 if($.datepicker && $.datepicker._gotoToday){
@@ -2410,7 +2408,7 @@ Application.MergeView = function (view, rec) {
                     if(f.Value == null || f.Value == "" || f.Value == 0)
                         f.Value = null;
                     if(f.Value && f.Value.getMonth){           
-                        view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + $.format.date(f.Value,"dd/MM/yyyy") + ")");
+                        view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + Application.FormatDate(f.Value) + ")");
                     }else{
                         view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + f.Value + ")");
                     }
@@ -3157,17 +3155,9 @@ Application.ConvertDate = function(str,skipTZ) {
     var frmt = "%LANG:FORMAT_LONGDATE%".toUpperCase();
     if(str.indexOf('T') !== -1)
         frmt = null;
-    var m = moment(str,frmt);
-   
-    var server_tz = 0;
-    var local_tz = 0;    
 
-    if(m._tzm){
-		server_tz = m._tzm*-1;
-    	local_tz = moment(str).zone();    
-    }
-	
-	Application.dateCache[str] = m.zone(server_tz-local_tz).toDate();
+    var m = moment(str,frmt);       
+	Application.dateCache[str] = m.toDate();
 	
     return new Date(Application.dateCache[str]);
 };
@@ -3492,16 +3482,19 @@ moment.locale("%LANG:CULTURE%");
  * Formats a date into a string.
  * @memberof module:Application
  * @param {Date} dte The date to be formatted.
- * @param {string} [format='dd/MM/yyyy'] The format the date is to be changed into.
+ * @param {string} [format='DD/MM/YYYY'] The format the date is to be changed into.
  * @returns {string} Returns the date formatted as a string.
  * @example
  * var str = Application.FormatDate(new Date());
  */
 Application.FormatDate = function(dte, format){
 	if(dte == null)
-		return "";
-	format = Default(format,"dd/MM/yyyy");
-	return $.format.date(dte,format);
+        return "";
+    if(typeof dte === 'string')
+        return dte;
+    format = Default(format,"dd/MM/yyyy");
+    format = format.replace(/dd/g,'DD').replace(/y/g,'Y');
+	return moment(dte).format(format);
 };
 
 /**
@@ -3696,13 +3689,13 @@ Application.ViewSubstitute = function (view) {
         view = view.replace(/%1/g, Application.auth.Username);
 
     if (view.indexOf("%TODAY") != -1)
-        view = view.replace(/%TODAY/g, $.format.date(new Date(), '%LANG:FORMAT_LONGDATE%'));
+        view = view.replace(/%TODAY/g, Application.FormatDate(new Date(), '%LANG:FORMAT_LONGDATE%'));
 
     if (view.indexOf("%NOW") != -1)
-        view = view.replace(/%NOW/g, $.format.date(new Date(), 'hh:mm a'));
+        view = view.replace(/%NOW/g, Application.FormatDate(new Date(), 'hh:mm a'));
 
     if (view.indexOf("%RIGHTNOW") != -1)
-        view = view.replace(/%RIGHTNOW/g, $.format.date(new Date(), '%LANG:FORMAT_LONGDATE% hh:mm a'));
+        view = view.replace(/%RIGHTNOW/g, Application.FormatDate(new Date(), '%LANG:FORMAT_LONGDATE% hh:mm a'));
 
     if (Application.auth.UserData != "" && view.indexOf("%") != -1) {
         try {

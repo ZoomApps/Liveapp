@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Grid",
 
@@ -141,7 +141,7 @@ Define("Grid",
                         if (val == null)
                             return "";
                         try {
-                            return $.format.date(val, '%LANG:FORMAT_SHORTDATE%')
+                            return Application.FormatDate(val, '%LANG:FORMAT_SHORTDATE%')
                         } catch (e) {
                         }
                         return val;
@@ -155,7 +155,7 @@ Define("Grid",
                         if (val == null)
                             return "";
                         try {
-                            return $.format.date(val, 'hh:mm a')
+                            return Application.FormatDate(val, 'hh:mm a')
                         } catch (e) {
                         }
                         return val;
@@ -169,7 +169,7 @@ Define("Grid",
                         if (val == null)
                             return "";
                         try {
-                            return $.format.date(val, "dd/MM/yyyy hh:mm a");
+                            return Application.FormatDate(val, "DD/MM/YYYY hh:mm a");
                         } catch (e) {
                         }
                         return val;
@@ -674,11 +674,11 @@ Define("Grid",
 
             //Dates and times
             if (field_.Type == "Date") {
-                return $.format.date(value_, "dd/MM/yyyy");
+                return Application.FormatDate(value_);
             } else if (field_.Type == "DateTime") {
-                return $.format.date(value_, "dd/MM/yyyy hh:mm a");
+                return Application.FormatDate(value_, "DD/MM/YYYY hh:mm a");
             } else if (field_.Type == "Time") {
-                return $.format.date(value_, "hh:mm a");
+                return Application.FormatDate(value_, "hh:mm a");
             }
 
 			if (field_.Type == "Boolean") {

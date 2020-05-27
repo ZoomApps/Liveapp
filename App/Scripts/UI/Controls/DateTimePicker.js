@@ -76,7 +76,7 @@ Define("DateTimePicker",
             if (typeof value == 'undefined')
                 return;
 
-            _base.Control().val($.format.date(value,"dd/MM/yyyy hh:mm a"));
+            _base.Control().val(Application.FormatDate(value,"DD/MM/YYYY hh:mm a"));
 
         };
 

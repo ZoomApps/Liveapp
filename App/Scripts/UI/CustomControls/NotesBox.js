@@ -94,7 +94,7 @@ Define("NotesBox",
             })
             .addClass("ui-widget ui-widget-content ui-corner-left")
 	        .css("width", "80%")
-	        .css("width", "calc(100% - 2px)");
+            .css("width", "calc(100% - 2px)");            
 
             //Call base method.
             return _base.CreateList(container, cont, value_);
@@ -113,7 +113,7 @@ Define("NotesBox",
             var txt = $('<textarea id="notes' + _base.ID() + '" rows="10" cols="50">')
             .css("position", "absolute")
             .css("left", cont.offset().left)
-            .css("top", cont.offset().top)
+            .css("top", cont.offset().top)            
             .appendTo("body")
             .val(val)
             .attr("maxlength", _base.Field().Size)
@@ -131,10 +131,12 @@ Define("NotesBox",
                 }
             })
             .addClass("ui-widget ui-widget-content ui-corner-left");
+
+            txt.parent().css("z-index","30010");
 			
-		setTimeout(function(){
-			txt.select();
-		},500); //Set timeout for Edge compat.
+            setTimeout(function(){
+                txt.select();
+            },500); //Set timeout for Edge compat.
 
             function ReturnFocus(editor_, ev_) {
 

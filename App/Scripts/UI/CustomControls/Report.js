@@ -61,7 +61,7 @@ Define("Report",
 
             //Base merge fields.
             m_mergeFields["%title"] = m_form.Caption;
-            m_mergeFields["%date"] = $.format.date(new Date(), "dd/MM/yyyy");
+            m_mergeFields["%date"] = Application.FormatDate(new Date());
             m_mergeFields["%userid"] = Application.auth.Username;
             m_mergeFields["%columns"] = "<th style='font-weight: bold; width: %columnwidthpx; text-align: %colalign; font-size: 12px;'>%columncaption</th>";
             m_mergeFields["%rows"] = "<tr>%cells</tr>";
@@ -843,7 +843,7 @@ Define("Report",
 				} else if(tt == "Count"){
 		            rows += "<td style='background-color: WhiteSmoke; -webkit-print-color-adjust: exact; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;'>" + (tt ? tt + ": " + totals[j]: "") + "</td>";
 		        } else {
-		            rows += "<td style='background-color: WhiteSmoke; -webkit-print-color-adjust: exact; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;'>" + (tt ? tt + ": " + totals[j].toFixed(2) : "") + "</td>";
+		            rows += "<td style='background-color: WhiteSmoke; -webkit-print-color-adjust: exact; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;'>" + (tt ? tt + ": " + (f.Type === 'Decimal' ? totals[j].toFixed(2) : totals[j]) : "") + "</td>";
 		        }		        
 		        totals[j] = -1;
 		    }			
@@ -866,7 +866,7 @@ Define("Report",
 				} else if(tt == "Count"){
 		            rows.push((tt ? tt + ": " + totals[j] : ""));
 		        } else {
-		            rows.push((tt ? tt + ": " + totals[j].toFixed(2) : ""));
+		            rows.push((tt ? tt + ": " + (f.Type === 'Decimal' ? totals[j].toFixed(2) : totals[j]) : ""));
 		        }		        
 		        totals[j] = -1;
 		    }					    			
@@ -972,11 +972,11 @@ Define("Report",
 
             //Dates and times
             if (field_.Type == "Date") {
-                return $.format.date(value_, "dd/MM/yyyy");
+                return Application.FormatDate(value_);
             } else if (field_.Type == "DateTime") {
-                return $.format.date(value_, "dd/MM/yyyy hh:mm a");
+                return Application.FormatDate(value_, "DD/MM/YYYY hh:mm a");
             } else if (field_.Type == "Time") {
-                return $.format.date(value_, "hh:mm a");
+                return Application.FormatDate(value_, "hh:mm a");
             }
 
 			if (field_.Type == "Boolean" && !export_) {

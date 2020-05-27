@@ -616,7 +616,8 @@
 
                 if (m_options.parentwin != null) {
                     m_openedFrom = m_options.parentwin;
-                    m_openedFrom.AddChildWindow(_base);
+                    if(m_openedFrom.AddChildWindow)
+                        m_openedFrom.AddChildWindow(_base);
                 }
 
                 //Show filters?
@@ -3544,11 +3545,11 @@
 
             //Dates and times
             if (type_ == "Date") {
-                return $.format.date(value_, "dd/MM/yyyy");
+                return Application.FormatDate(value_);
             } else if (type_ == "DateTime") {
-                return $.format.date(value_, "dd/MM/yyyy hh:mm a");
+                return Application.FormatDate(value_, "DD/MM/YYYY hh:mm a");
             } else if (type_ == "Time") {
-                return $.format.date(value_, "hh:mm a");
+                return Application.FormatDate(value_, "hh:mm a");            
             }
 
             return value_;
@@ -5025,11 +5026,11 @@
                                         var val = data[col.name];
                                         var field = m_table.Column(col.name);
                                         if (field.Type == "DateTime")
-                                            val = $.format.date(val, '%LANG:FORMAT_LONGDATE% HH:mm');
+                                            val = Application.FormatDate(val, '%LANG:FORMAT_LONGDATE% HH:mm');
                                         if (field.Type == "Time")
-                                            val = $.format.date(val, 'HH:mm');
+                                            val = Application.FormatDate(val, 'HH:mm');
                                         if (field.Type == "Date")
-                                            val = $.format.date(val, '%LANG:FORMAT_LONGDATE%');
+                                            val = Application.FormatDate(val, '%LANG:FORMAT_LONGDATE%');
                                         if (field.LookupDisplayField != "")
                                             val = data["FF$" + col.name];
                                         editor.val(val);
@@ -5320,7 +5321,7 @@
 			m_closeAction = null;			
 			m_record = null;
 			m_table = null;
-			m_form = null;
+			//m_form = null;
 			m_layout = null;
 			m_options = null;
 			m_designerPages = null;

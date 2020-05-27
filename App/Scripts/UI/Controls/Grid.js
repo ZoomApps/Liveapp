@@ -323,7 +323,7 @@ Define("Grid",
 							return cellvalue;
 						if(typeof cellvalue === "string")
 							cellvalue = Application.ParseDate(cellvalue);
-                        return $.format.date(cellvalue, "dd/MM/yyyy");
+                        return Application.FormatDate(cellvalue, "DD/MM/YYYY");
                     },
                     editoptions: {
                         custom_element: function (value, options) {
@@ -363,8 +363,8 @@ Define("Grid",
                         if (cellvalue == null || cellvalue == "null" || cellvalue == "")
                             return "";
 						if(typeof cellvalue === "string")
-							return cellvalue;
-                        return $.format.date(cellvalue, "dd/MM/yyyy hh:mm a");
+							return cellvalue;                        
+                        return Application.FormatDate(cellvalue, Application.HasOption(field.Options,'24hours') ? 'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY hh:mm a');
                     },
                     editoptions: {
                         custom_element: function (value, options) {
@@ -403,7 +403,7 @@ Define("Grid",
 							return cellvalue;
 						if(typeof cellvalue === "string")
 							cellvalue = Application.ParseTime(cellvalue);
-                        return $.format.date(cellvalue, Application.HasOption(field.Options,'24hours') ? 'HH:mm' : 'hh:mm a');
+                        return Application.FormatDate(cellvalue, Application.HasOption(field.Options,'24hours') ? 'HH:mm' : 'hh:mm a');
                     },
                     editoptions: {
                         custom_element: function (value, options) {

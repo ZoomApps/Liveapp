@@ -166,7 +166,7 @@ DefineModule("Logging",
 
             //Add date and time to msg.      
 			if(typeof msg == "string")
-				msg = $.format.date(new Date(), '%LANG:FORMAT_LONGDATE% %LANG:FORMAT_TIME%') + " - " + msg;
+				msg = Application.FormatDate(new Date(), '%LANG:FORMAT_LONGDATE% %LANG:FORMAT_TIME%') + " - " + msg;
 
             //Console log.
             if (m_type == 0) {

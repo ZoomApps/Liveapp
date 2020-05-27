@@ -103,7 +103,6 @@ Define("Record", null, function (name_) {
     var m_records = [];
     var m_xrecords = [];
     var m_mandatory = [];
-    var m_lookupCols = [];
     var m_table = null; //TableInfo
     var m_flowfields = [];
 	var m_fieldsToCalc = null;
@@ -180,6 +179,13 @@ Define("Record", null, function (name_) {
         this.Keys = [];
 
         /**
+         * Lookup columns.
+         * @memberof! Record#
+         * @type {string[]}
+         */
+        this.LookupFields = [];
+
+        /**
          * Current record.        
          * @memberof! Record#
          * @type {RecordInfo}         
@@ -236,6 +242,7 @@ Define("Record", null, function (name_) {
         var position = this.Position;
         var view = Default(this.View, "");
         var groupfilters = Default(this.GroupFilters, []);
+        var lookupcols = Default(this.LookupFields, []);
 
         this.CheckTableName();
 
@@ -247,7 +254,8 @@ Define("Record", null, function (name_) {
             cr.Position = Default(position, 0);
             cr.NewRecord = false;
             cr.View = view;
-			cr.GroupFilters = groupfilters;
+            cr.GroupFilters = groupfilters;
+            cr.LookupFields = lookupcols;
 
             //Save the record.
             app_transferObjectProperties.call(_self, cr);
@@ -271,7 +279,8 @@ Define("Record", null, function (name_) {
                 r.Position = Default(position, 0);
                 r.NewRecord = false;
                 r.View = view;
-				r.GroupFilters = groupfilters;
+                r.GroupFilters = groupfilters;
+                r.LookupFields = lookupcols;
 
                 //Save the record.
                 app_transferObjectProperties.call(_self, r);
@@ -552,7 +561,7 @@ Define("Record", null, function (name_) {
         var w = $wait();
 
         Application.ExecuteWebService("RecordSet",
-        { auth: Application.auth, table_: m_name, view_: Default(this.View, ""), reset_: reset_, calcfields_: this.CalculatedFields, groupFilters_: this.GroupFilters, lookupCols_: m_lookupCols, group_: false }, function (r) {
+        { auth: Application.auth, table_: m_name, view_: Default(this.View, ""), reset_: reset_, calcfields_: this.CalculatedFields, groupFilters_: this.GroupFilters, lookupCols_: this.LookupFields, group_: false }, function (r) {
 
             if (r) {
                 try {
@@ -642,7 +651,7 @@ Define("Record", null, function (name_) {
         var w = $wait();
 
         Application.ExecuteWebService("RecordSet",
-        { auth: Application.auth, table_: m_name, view_: Default(this.View, ""), reset_: reset_, calcfields_: this.CalculatedFields, groupFilters_: this.GroupFilters, lookupCols_: m_lookupCols, group_: true }, function (r) {
+        { auth: Application.auth, table_: m_name, view_: Default(this.View, ""), reset_: reset_, calcfields_: this.CalculatedFields, groupFilters_: this.GroupFilters, lookupCols_: this.LookupFields, group_: true }, function (r) {
 
             if (r) {
                 try {
@@ -1631,6 +1640,10 @@ Define("Record", null, function (name_) {
         for (var i = 0; i < r.GroupFilters.length; i++) {
             this.GroupFilters.push(r.GroupFilters[i]);
         }
+        this.LookupFields = [];
+        for (var i = 0; i < r.LookupFields.length; i++) {
+            this.LookupFields.push(r.LookupFields[i]);
+        }
         this.Keys = [];
         for (var i = 0; i < r.Keys.length; i++) {
             this.Keys.push(r.Keys[i]);
@@ -1857,7 +1870,7 @@ Define("Record", null, function (name_) {
      * return r.FindFirst(); // Only the Name column will be fetched from the database.
      */
     this.AddLookupField = function (col_) {
-        m_lookupCols.push(col_.replace("FF$", ""));
+        this.LookupFields.push(col_.replace("FF$", ""));
     };
 
     /**

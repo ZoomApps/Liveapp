@@ -111,7 +111,7 @@ DefineModule("FileDownloadManager",
             return $codeblock(
 
                 function () {
-                    return Application.CreateFileForUpload(name_, data_.length, 30000, mime_);
+                    return Application.CreateFileForUpload(name_, data_.length, (m_chunksize || 30000), mime_);
                 },
 
                 function (info_) {
@@ -124,7 +124,7 @@ DefineModule("FileDownloadManager",
 					};
                     info_.chunksize = 30000;
 					if(m_chunksize)
-						info_.chunksize = m_chunksize;
+                        info_.chunksize = m_chunksize;                        
                     info_.showUI = showUI_;
 					info_.failedChunks = [];
 
@@ -161,7 +161,7 @@ DefineModule("FileDownloadManager",
                 return;
             }
 
-            Application.Confirm("<p><img src='%SERVERADDRESS%Images/Icons/document_attachment.png' /></p><p>Name: " + info_.Name + "<br/>Size: " + PrintLength(info_) + "</br>Expires: " + $.format.date(info_.Expires, 'hh:mm a') + "</p><p>Do you wish to download this file?</p>", function (r) {
+            Application.Confirm("<p><img src='%SERVERADDRESS%Images/Icons/document_attachment.png' /></p><p>Name: " + info_.Name + "<br/>Size: " + PrintLength(info_) + "</br>Expires: " + Application.FormatDate(info_.Expires, 'hh:mm a') + "</p><p>Do you wish to download this file?</p>", function (r) {
 
                 if (!r) {
                     if (cancel_)
@@ -184,6 +184,8 @@ DefineModule("FileDownloadManager",
             info_.chunksize = 50000;
             if (info_.Length > 100000)
                 info_.chunksize = 100024;
+            if (info_.Length > 1000000)
+                info_.chunksize = Math.round(info_.Length/10);
 			if(m_chunksize)
 				info_.chunksize = m_chunksize;
 			info_.failedChunks = [];
@@ -447,6 +449,7 @@ DefineModule("FileDownloadManager",
                 try {
 
                     m_files[file].chunks[chunk] = null;
+                    delete m_files[file].chunks[chunk];
                     m_files[file].completedchunks += 1;
 
 					if(m_showProgress)

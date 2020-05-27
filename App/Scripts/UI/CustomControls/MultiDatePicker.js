@@ -66,7 +66,7 @@ Define("MultiDatePicker",
             //Call base method.
             _base.Create(window_, container, function(col,val){
                 if(val)
-                    val = $.format.date(val, 'dd/MM/yyyy');
+                    val = Application.FormatDate(val);
                 _self.OnValueChange(col,val);
             }, function (cont) {
 

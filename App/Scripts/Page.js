@@ -177,8 +177,14 @@ Define("Page", null, function (id_, useCache_) {
     this.DoubleClickAction = function () {
 
         for (var i = 0; i < this.Actions.length; i++) {
-            if (this.Actions[i].OnDoubleClick)
-                return this.Actions[i];
+            var skip = false,
+                action = this.Actions[i];
+            if (Application.HasOption(action.Options, "desktoponly") && Application.IsInMobile())
+                skip = true;
+            if (Application.HasOption(action.Options, "mobileonly") && !Application.IsInMobile())
+                skip = true;
+            if (action.OnDoubleClick && !skip)
+                return action;
         }
         return null;
     };

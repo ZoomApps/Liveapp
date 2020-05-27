@@ -63,10 +63,8 @@ DefineModule("ImageManager",
                 var context = canvas.getContext("2d").drawImage(tempImg, 0, 0);
                 var url = canvas.toDataURL(_self.GetMimeType(img_), quality_ / 100);
                 delete context;
-                delete canvas;
-                setTimeout(function () {
-                    callback_(url);
-                },1);
+                delete canvas;                
+                callback_(url);                
 
             };
 
@@ -87,10 +85,8 @@ DefineModule("ImageManager",
                 context.drawImage(tempImg, destX_, destY_, destWidth_, destHeight_, 0, 0, destWidth_, destHeight_);
                 var url = canvas.toDataURL()
                 delete context;
-                delete canvas;
-                setTimeout(function () {
-                    callback_(url);
-                },1);
+                delete canvas;                
+                callback_(url);                
             };
         };
 
@@ -102,10 +98,8 @@ DefineModule("ImageManager",
 
                 var tempW = tempImg.width;
                 var tempH = tempImg.height;
-
-                setTimeout(function () {
-                    callback_(tempW, tempH);
-                },1);
+                
+                callback_(tempW, tempH);
             };
         };
 

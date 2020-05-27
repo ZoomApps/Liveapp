@@ -71,7 +71,7 @@ Define("DatePicker",
                 return;
             }
 
-            _base.Control().val($.format.date(value, 'dd/MM/yyyy'));
+            _base.Control().val(Application.FormatDate(value));
 
             _self.Loaded(true);
         };

@@ -175,7 +175,7 @@ DefineModule("NotificationManager",
                                 } else {
 
                                     msg = '<table><tr><td>' + img + '</td><td style="padding-left: 5px;">' + msg +
-                                '<br/><br/><span style="color: Gray;">' + UI.IconImage("calendar") + ' ' + $.format.date(new Date(), '%LANG:FORMAT_TIME% %LANG:FORMAT_LONGDATE%') + '</span>' +
+                                '<br/><br/><span style="color: Gray;">' + UI.IconImage("calendar") + ' ' + Application.FormatDate(new Date(), '%LANG:FORMAT_TIME% %LANG:FORMAT_LONGDATE%') + '</span>' +
                                 '</td></table>';
 
                                     $.notify(msg, {

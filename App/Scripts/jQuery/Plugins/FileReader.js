@@ -310,6 +310,11 @@ See http://github.com/bgrins/filereader.js for documentation.
 
         Array.prototype.forEach.call(files, function (file) {
 
+            //IOS Fix.
+            if(!file.extra){
+                setupCustomFileProperties([file],group.groupID);
+            }
+
             file.extra.started = new Date();
 
             if (opts.accept && !file.type.match(new RegExp(opts.accept))) {
@@ -336,18 +341,17 @@ See http://github.com/bgrins/filereader.js for documentation.
             else {
 
                 var reader = new FileReader();
-                reader.originalEvent = e;
-
+                reader.originalEvent = e;                
                 fileReaderEvents.forEach(function (eventName) {
-                    reader['on' + eventName] = function (e) {
+                    reader.addEventListener(eventName, function (e) {                        
                         if (eventName == 'load' || eventName == 'error') {
                             file.extra.ended = new Date();
                         }
-                        opts.on[eventName](reader.result, e, file);
-                        if (eventName == 'loadend') {
+                        opts.on[eventName](reader.result, e, file, files.length);
+                        if (eventName == 'loadend') {                            
                             groupFileDone();
                         }
-                    };
+                    });
                 });
 
                 reader[readAs](file);

@@ -953,9 +953,16 @@ DefineModule("App",
 
                 Application.Fire("Exit");
 
-                if (Application.auth.SessionID != "") {
+                if (Application.auth.SessionID != "" && navigator.sendBeacon) {
                     //Application.auth.Layout = $.toJSON(m_layout); //Save layout.
-                    Application.Disconnect();
+                    //Application.Disconnect();
+                    let body = { auth: Application.auth, clearcookie_: false};
+                    let headers = {
+                        type: 'application/x-www-form-urlencoded',
+                        'Content-Type': "application/x-www-form-urlencoded; charset=utf-8"
+                    };
+                    let blob = new Blob([encodeURIComponent($.toJSON(body))], headers);
+                    navigator.sendBeacon(Application.url+'q/?m=Disconnect',blob);
                 }
 
             } catch (e) {
@@ -1844,7 +1851,7 @@ DefineModule("App",
 
             var html = "";
             html += '<b>%LANG:S_USER%:</b> ' + Application.auth.Username + "<br/>";
-            html += '<b>%LANG:S_LOGINTIME%:</b> ' + $.format.date(Application.auth.LoginTime, 'hh:mm a') + "<br/>";
+            html += '<b>%LANG:S_LOGINTIME%:</b> ' + Application.FormatDate(Application.auth.LoginTime, 'hh:mm a') + "<br/>";
             html += '<b>%LANG:S_IDLETIME%:</b> ' + r[0] + "<br/>";
             html += _self.PrintServerLoad(r[1], time) + "<br/>";
 

@@ -1320,7 +1320,7 @@ Define("OptionsWindow", null, function (options_) {
                         if(f && cont && (cont.ObjectType() == "MultiCombobox" || cont.ObjectType() == "MultiSelect"))
                             f = f.replace(/,/g,'|');
                         if(f && f.getMonth){           
-                            view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + $.format.date(f,"dd/MM/yyyy") + ")");
+                            view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + Application.FormatDate(f) + ")");
                         }else{
                             view = view.replace("="+keyword+"(" + consts[j].replace(check, '$1') + ")", "="+(keyword === 'FIELD' ? 'CONST':'FILTER')+"(" + f + ")");
                         }					      

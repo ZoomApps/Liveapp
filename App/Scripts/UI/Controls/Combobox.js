@@ -193,12 +193,14 @@ Define("Combobox",
                                             view: Application.MergeView(field.LookupFilters,_base.Viewer().Record()),
                                             mode: "New",
                                             dialog: true,
-                                            parentwin: viewer
+                                            parentwin: !_base.Viewer().Window().Dialog() ? viewer : null
                                         });                            
                                         form.CloseFunction(function () {                                            
                                             var rec = form.Record();
                                             if(rec.Record.NewRecord === false){    
                                                 if (field.LookupDisplayField != ""){
+                                                    _base.Viewer().Record()[field.Name] = rec[field.LookupField];
+                                                    _base.Viewer().Record()['FF$'+field.Name] = rec[field.LookupDisplayField];
                                                     _base.Viewer().RecordValidate(field.Name,rec[field.LookupDisplayField]);
                                                 }else{
                                                     _base.Viewer().RecordValidate(field.Name,rec[field.LookupField]);
