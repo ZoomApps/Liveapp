@@ -972,7 +972,7 @@ Define("Grid",
         //#region Private Methods
 
 		function MandatoryCheck(cellvalue, field){
-			if (cellvalue == null || cellvalue == "null" || cellvalue == 0)
+			if (cellvalue === null || cellvalue === "null" || cellvalue === 0)
 				if(field.Mandatory)
 					return "<span style='color: red; font-style: italic'>Mandatory</span>";				
 			return cellvalue;

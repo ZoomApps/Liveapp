@@ -956,12 +956,12 @@ DefineModule("App",
                 if (Application.auth.SessionID != "" && navigator.sendBeacon) {
                     //Application.auth.Layout = $.toJSON(m_layout); //Save layout.
                     //Application.Disconnect();
-                    let body = { auth: Application.auth, clearcookie_: false};
-                    let headers = {
+                    var body = { auth: Application.auth, clearcookie_: false};
+                    var headers = {
                         type: 'application/x-www-form-urlencoded',
                         'Content-Type': "application/x-www-form-urlencoded; charset=utf-8"
                     };
-                    let blob = new Blob([encodeURIComponent($.toJSON(body))], headers);
+                    var blob = new Blob([encodeURIComponent($.toJSON(body))], headers);
                     navigator.sendBeacon(Application.url+'q/?m=Disconnect',blob);
                 }
 

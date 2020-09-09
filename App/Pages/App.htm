@@ -23,6 +23,18 @@
         
     <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true" type="text/javascript"></script>
     
+    <style id="antiClickjack">
+        body{display:none !important;}
+    </style>
+
+    <script type="text/javascript">
+        if (self === top) {
+            var antiClickjack = document.getElementById("antiClickjack");
+            antiClickjack.parentNode.removeChild(antiClickjack);
+        } else {
+            top.location = self.location;
+        }
+    </script>
     <script type="text/javascript">
 
 

@@ -1111,6 +1111,9 @@ Application.GenerateWebService = function (method, args){
  */
 Application.ExecuteWebService = function (method, args, callback_, async_, progress_, ignoreConnection_, overrideCallbacks_, timeout_) {
 
+    // Cannot do synchronious requests.
+    async_ = true;
+
 	//Retry last service call
 	if(!method){		
 	
@@ -4052,7 +4055,7 @@ Application.LookupRecord = function (field, viewer, term, response, value) {
                         result.push(item);
                 } while (r.Next());
 
-            if (field.LookupCategoryField != "")
+            if (field.LookupCategoryField != "" && (!r.View || r.View.indexOf('SORTING') === -1))
                 result.sort(function (a, b) {
                     if (a.BoldField == b.BoldField)
                         return 0;

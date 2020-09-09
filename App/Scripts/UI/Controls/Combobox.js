@@ -304,14 +304,14 @@ Define("Combobox",
                     previous_request.abort();
                 }
 
-                var view = viewer.View();
-
-                $thread(function () {
-                    return Application.LookupRecord(field, viewer, request.term, function (vals) {
-                        m_data = vals;
-                        response(vals);
+                setTimeout(function(){
+                    Application.RunNext(function(){
+                        return Application.LookupRecord(field, viewer, request.term, function (vals) {
+                            m_data = vals;
+                            response(vals);
+                        });
                     });
-                });
+                },500);                
             }
 
             return options;

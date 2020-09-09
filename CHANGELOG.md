@@ -1,3 +1,40 @@
+<a name="5.22"></a>
+# Liveapp v5.22 (September 2020)
+
+## Bug Fixes
+
+  - **app**
+    - clickjacking (OWASP 4.11.9)
+    - fix error on disconnect (caused by es6 code)
+
+  - **application**
+    - dont sort the lookup client-side when using `SORTING` in the view
+
+  - **codeengine**
+    - queue executing too quickly
+
+  - **combobox**
+    - lookup not working correctly
+
+  - **grid**
+    - fix `null` reference error
+    - mandatory label not working correctly
+
+  - **pageviewer**
+    - dont allow edit in mobile mode if page is readonly
+    - grid row not re-selecting after page update
+
+  - **server**
+    - cookie attributes (OWASP 4.6.2)
+    - commit dead sessions before they disconnect
+    - fix filtering using CONST and filter characters. ie. > < = *
+
+## Features
+  
+  - **server**
+    - allow views to have flowfields
+
+
 <a name="5.21"></a>
 # Liveapp v5.21 (December 2019 - March 2020)
 

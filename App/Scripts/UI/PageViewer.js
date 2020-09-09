@@ -699,7 +699,7 @@
                 //Add special mobile actions.
                 if (!m_form.CustomControl || m_form.CustomControl == "") {
 
-                    if (Application.IsInMobile() && m_form.Type == "List" && !m_form.Option("noedit")) {
+                    if (Application.IsInMobile() && m_form.Type == "List" && !m_form.Option("noedit") && !_self.ReadOnly()) {
                         for (var i = 0; i < m_form.Fields.length; i++) {
                             if (m_form.Fields[i].Editable == true && (!Application.HasOption(m_form.Fields[i].Options,"desktoponly") || !Application.IsInMobile()) && (!Application.HasOption(m_form.Fields[i].Options,"mobileonly") || Application.IsInMobile())) {
                                 m_enableEditMode = true;
@@ -1173,7 +1173,7 @@
                 //Focus on first row                
                 var grd = _self.GetPageGrid();
                 if (grd) {
-                    if (first_) {
+                    if (first_ && !skipOpenFunc_) {
                         if (m_record.Count > 0) {
                             grd.SelectRow(1);							
                             grd.ScrollToRow(1);

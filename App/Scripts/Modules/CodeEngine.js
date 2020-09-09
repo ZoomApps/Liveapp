@@ -403,8 +403,10 @@ DefineModule("CodeEngine",
         this.RunNextFunction = function (param_) {
 
             if (m_queue.length > 0) {
-                m_queue[m_queue.length - 1].shift();                
-                _self.ResolveQueue(param_);                
+                m_queue[m_queue.length - 1].shift();    
+                setTimeout(function(){          
+                    _self.ResolveQueue(param_);  
+                },1);              
             }
 
         };

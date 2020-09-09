@@ -10842,7 +10842,7 @@ var xmlJsonClass = {
                                     case "button":
                                     case "image":
                                     case "textarea":
-                                        if (tmp === "&nbsp;" || tmp === "&#160;" || (tmp.length === 1 && tmp.charCodeAt(0) === 160)) {
+                                        if (!tmp || tmp === "&nbsp;" || tmp === "&#160;" || (tmp.length === 1 && tmp.charCodeAt(0) === 160)) {
                                             tmp = '';
                                         }
                                         $("#" + nm, "#" + fmid)
@@ -13177,7 +13177,7 @@ var xmlJsonClass = {
                                     if (!cm[i].edittype) {
                                         cm[i].edittype = "text";
                                     }
-                                    if (tmp === "&nbsp;" || tmp === "&#160;" || (tmp.length === 1 && tmp.charCodeAt(0) === 160)) {
+                                    if (!tmp || tmp === "&nbsp;" || tmp === "&#160;" || (tmp.length === 1 && tmp.charCodeAt(0) === 160)) {
                                         tmp = '';
                                     }
                                     var elc = $.jgrid.createEl.call($t, cm[i].edittype, opt, tmp, true, $.extend({}, $.jgrid.ajaxOptions, $t.p.ajaxSelectOptions || {}));
@@ -14067,7 +14067,7 @@ var xmlJsonClass = {
                         name: nm,
                         v: tmp
                     });
-                    if (tmp === "&nbsp;" || tmp === "&#160;" || (tmp.length === 1 && tmp.charCodeAt(0) === 160)) {
+                    if (!tmp || tmp === "&nbsp;" || tmp === "&#160;" || (tmp.length === 1 && tmp.charCodeAt(0) === 160)) {
                         tmp = '';
                     }
                     if ($.isFunction($t.p.formatCell)) {
