@@ -67,6 +67,7 @@
         var _self = this;
         var _base = null;
         var m_id = null;
+        var m_ouid = "";
         var m_uid = "";
         var m_loaded = false;
         var m_view = "";
@@ -107,6 +108,9 @@
 		var m_causedUpdate = null;	
 		var m_lineActions = [];
 		var m_lastView = null;
+        var m_pagingCurrentPage = 1;
+        var m_pagingRecordsPerPage = 50;
+        var m_pagingNoOfPages = 1;
 
         //#endregion
 
@@ -121,10 +125,11 @@
             m_options = options_;
 
             m_id = Default(m_options.id, null);
-            m_view = Default(m_options.view, "");
+            m_view = Default(m_options.view, "");            
             m_parent = m_options.parent;
             m_options.caption = Default(m_options.caption, null);
             m_options.tableid = Default(m_options.tableid, null);
+            m_ouid = (m_id || 'VIEWER'+m_options.tableid);
         };
 
         /**
@@ -177,7 +182,7 @@
                     m_form.Type = "List";
                     m_form.InsertAllowed = true;
                     m_form.DeleteAllowed = true;
-                    m_form.SkipRecordLoad = true;
+                    m_form.Options = 'recordsperpage:50';                   
 
                     var act1 = Application.Objects.PageActionInfo();
                     act1.Name = "New";
@@ -197,6 +202,8 @@
                     act3.ActionView = "WHERE(Name=CONST(" + m_options.tableid + "))";
                     m_form.Actions.push(act3);
                 }
+
+                m_pagingRecordsPerPage = +(Application.OptionValue(m_form.Options,'recordsperpage') || m_pagingRecordsPerPage);
 
                 if (m_options.table != null)
                     return m_options.table;
@@ -299,7 +306,7 @@
                                     return $codeblock(
                                         function(){
                                             var tab = m_form.TabList[i];
-                                            if (tab.ID != "" && !Application.HasOption(tab.Options, "desktoponly")) {
+                                            if (tab.ID != "" && !Application.HasOption(tab.Options, "desktoponly") && (!Application.IsOffline() || !Application.HasOption(tab.Options, "onlineonly"))) {
                                                 return $codeblock(
                                                     function(){
                                                         return new Page(tab.ID);
@@ -509,7 +516,9 @@
                         cancelopenonclose: m_options.cancelopenonclose
                     });
                 }
-				
+                
+                Application.Fire("WindowCreated", _self);
+
 				//Removed as jquery widgets trigger this
 				if(Application.IsInMobile() && window.history && window.history.pushState && (diag || m_parent == null))
 				    window.history.pushState({ windowid: _base.ID() }, window.title);
@@ -646,6 +655,12 @@
                         skip = true;
 
                     if (Application.HasOption(action.Options, "mobileonly") && !Application.IsInMobile())
+                        skip = true;
+
+                    if (Application.HasOption(action.Options, "onlineonly") && Application.IsOffline())
+                        skip = true;
+
+                    if (Application.HasOption(action.Options, "offlineonly") && !Application.IsOffline())
                         skip = true;
 
                     if (m_options.tabname != null && m_options.tabname != "")
@@ -956,7 +971,18 @@
 			}
 			return skipupdate;
 			
-        };		
+        };	
+        
+        this.PagingPage = function(val){
+            if(typeof val === 'undefined'){
+                return m_pagingCurrentPage;
+            }else{
+                m_pagingCurrentPage = val;
+                Application.RunNext(function(){
+                    return _self.Update();
+                });
+            }
+        };
         
         /**
          * Update the page viewer.
@@ -1014,40 +1040,141 @@
                 }
             },
 
-			function(){
-				var maxrows = Default(Application.OptionValue(m_form.Options,"maxrows"),0);
-				if(maxrows > 0){
-					
-					var skip = true;
-					if (m_form.SkipRecordLoad) {						
-						var filters = _self.Filters();
-						for (var i = 0; i < filters.length; i++) {
-							var pagefield = m_form.GetField(filters[i].Name.replace("FF$", ""));
-							if (pagefield)
-								skip = false;
-						}
-					}else{
-						skip = false;
-					}
-					
-					if(!skip)
-						COUNT(m_record.Table, m_record.View.replace(Application.GetSorting(m_record.View),""), function(c){
-							if(c.Count > maxrows){
-								var w = $wait();
-								Application.Confirm("There are more than "+maxrows+" records. Do you wish to continue?",function(b){								
-									if(b){									
-										w.resolve();
-									}else{
-										setTimeout(function(){
-											Application.Error("Cancelled");
-										},10);
-									}
-								});
-								return w.promise();
-							}
-						});
-				}
-			},
+            function () {
+
+                if(!_self || skipupdate)return;
+
+                if(_self.GetPageGrid() && 
+                    m_table.Name.indexOf('VT$') !== 0 && 
+                    !m_options.factbox &&
+                    !Application.IsInMobile() &&
+                    !Application.HasOption(m_form.Options,"nopaging")){    
+
+                    _self.GetPageGrid().OnSortCol = function(){
+                        var currsort = Application.GetSorting(m_record.View);
+                        m_record.View = m_record.View.replace(currsort,'').trim();
+                        var sort = _self.GetPageGrid().GetSort();
+                        try{
+                            var cols = sort.split(',');                            
+                            var view_cols = [];
+                            var view_order = [];
+                            for(var i = 0; i < cols.length; i++){
+                                var c = cols[i];
+                                c = c.trim();
+                                var o = 'asc';
+                                if(c.indexOf(' desc') !== -1)
+                                    o = 'desc';
+                                c = c.replace(' asc','').replace(' desc','');
+                                var fld = m_form.GetField(c);
+                                if(fld){
+                                    if(fld.LookupDisplayField || fld.FlowField)
+                                        c = 'FF$' + c;
+                                    var skip = false;
+                                    if(fld.FlowField && fld.FlowField.indexOf('function') === 0)
+                                        skip = true;
+                                    if(!skip){
+                                        view_cols.push(c);
+                                        if(o === 'asc'){
+                                            view_order.push('Ascending');
+                                        }else{
+                                            view_order.push('Descending');
+                                        }
+                                    }
+                                }
+                            }
+                            if(view_cols.length > 0)
+                                m_record.View = 'SORTING('+view_cols.join(',')+') ORDER('+view_order.join(',')+') '+m_record.View;
+                            Application.RunNext(_self.Update);
+                        }catch(e){                        
+                        }                        
+                    };
+                    
+                    var toolbar = _self.Toolbar2();
+                    toolbar.addClass("ui-widget ui-state-default");
+                    toolbar.css("padding-top", "10px");
+                    toolbar.css("padding-bottom", "10px");
+                    toolbar.css("display", "inline-block");
+                    toolbar.css("width", "100%");
+                    toolbar.css("border-width", "0px");
+                    toolbar.css("font-size", "13px");
+
+                    m_record.View = Application.RemovePagingFromView(m_record.View);
+                    var countview = m_record.View;
+                    for (var i = 0; i < m_record.GroupFilters.length; i++) {
+                        var filter = m_record.GroupFilters[i];
+                        countview = Application.AddFilter(countview,filter.Name,filter.Value);
+                    }
+                    COUNT(m_table.Name,countview,function(recordcount){
+
+                        m_pagingNoOfPages = Math.ceil(recordcount.Count / m_pagingRecordsPerPage);
+                        if(m_pagingCurrentPage > m_pagingNoOfPages || m_pagingCurrentPage < 1)
+                            m_pagingCurrentPage = 1;  
+
+                        var offset = ((m_pagingCurrentPage-1)*m_pagingRecordsPerPage);
+                        var endoffset = Math.min(offset + m_pagingRecordsPerPage, recordcount.Count);
+                        var startoffset = Math.min(offset+1,recordcount.Count);
+
+                        m_record.View = 'OFFSET('+offset+') FETCH('+m_pagingRecordsPerPage+') ' + m_record.View;
+                        var pagingdiv = $('#paging'+_self.ID());
+                        if(pagingdiv.length === 0)
+                            pagingdiv = $('<div id="paging'+_self.ID()+'" style="float:left;"></div>').appendTo(_self.Toolbar2());
+                        pagingdiv.html('');          
+                                                
+                        $('<div class="app-button"><<</div>')
+                        .on('click',function(){
+                            _self.PagingPage(1);
+                        }).appendTo(pagingdiv);
+
+                        $('<div class="app-button">Prev</div>')
+                        .on('click',function(){
+                            _self.PagingPage(m_pagingCurrentPage - 1);
+                        }).appendTo(pagingdiv);
+
+                        $('<div style="display:inline-block;">Page: </div>').appendTo(pagingdiv);
+
+                        var html = '<select style="width: auto; max-width: 100px; display: inline-block; margin: 0 5px 0 5px;border: 1px solid #ccc;padding: 3px;border-radius: 4px;">'
+                        for(var i = 1; i <= m_pagingNoOfPages; i++){
+                            html += '<option value="'+i+'" '+(i === m_pagingCurrentPage ? 'selected':'')+'>'+i+'</option>';                                                      
+                        }
+                        html += '</select>'
+
+                        $(html).on('change',function(){
+                            _self.PagingPage(+$(this).val());
+                        }).appendTo(pagingdiv);
+
+                        $('<div class="app-button">Next</div>')
+                        .on('click',function(){
+                            _self.PagingPage(m_pagingCurrentPage + 1);
+                        }).appendTo(pagingdiv);
+
+                        $('<div class="app-button">>></div>')
+                        .on('click',function(){
+                            _self.PagingPage(m_pagingNoOfPages);
+                        }).appendTo(pagingdiv);      
+                        
+                        $('<div style="display:inline-block;margin-left:5px;">Records per Page: </div>').appendTo(pagingdiv);
+
+                        var rpphtml = '<select style="width: auto; max-width: 100px; display: inline-block; margin: 0 5px 0 5px;border: 1px solid #ccc;padding: 3px;border-radius: 4px;">';
+                        rpphtml += '<option value="50" '+(50 === m_pagingRecordsPerPage ? 'selected':'')+'>50</option>';
+                        for(var i = 1; i <= 5; i++){
+                            var val = i * 100;
+                            rpphtml += '<option value="'+val+'" '+(val === m_pagingRecordsPerPage ? 'selected':'')+'>'+val+'</option>';                                                      
+                        }
+                        rpphtml += '</select>';
+
+                        $(rpphtml).on('change',function(){
+                            m_pagingRecordsPerPage = +$(this).val();
+                            if (!Application.IsInMobile()) 
+                                _self.SaveLayout();   
+                            _self.PagingPage(m_pagingCurrentPage);
+                        }).appendTo(pagingdiv);                        
+                        
+                        $('<div style="display:inline-block;margin-left:5px;">'+startoffset+' - '+endoffset+' of '+recordcount.Count+'</div>').appendTo(pagingdiv);
+          
+                    });
+                }
+
+            },
 			
             function () {
 
@@ -1074,6 +1201,7 @@
                         if (g)
                             Application.Loading.HideOverlay("gbox_" + g.ID() + "table");
                     }
+                                                
                 }
 
 				var isnew = true;
@@ -1102,6 +1230,10 @@
            function (r) {			  			  
 
                if (!_self || skipupdate) return r;
+
+               if(_self.GetPageGrid()){            
+                    m_record.View = Application.RemovePagingFromView(m_record.View);
+               }
 
 			   if(m_options.pos && first_)
 					r.SetPosition(m_options.pos);
@@ -1731,7 +1863,7 @@
 
             m_layout = null;
 
-			if (Application.IsInMobile() || Application.HasOption(m_form.Options,"nolayout"))
+			if (Application.IsInMobile() || Application.HasOption(m_form.Options,"nolayout") || m_form.Type === 'Card')
                 return;
 
             var uidlayout = Application.HasOption(m_form.Options,"uidlayout");
@@ -1739,7 +1871,7 @@
             return $codeblock(
 
                 function () {
-                    return Application.GetUserLayout(Application.auth.Username, uidlayout ? m_uid : m_id);
+                    return Application.GetUserLayout(Application.auth.Username, uidlayout ? m_uid : m_ouid);
                 },
 
                 function (layout) {
@@ -1747,6 +1879,7 @@
                     if (layout != "") {
                         m_layout = $.parseJSON(layout);
                         m_layout.Filters = Default(m_layout.Filters, null);
+                        m_pagingRecordsPerPage = m_layout.recordsPerPage || 50;
                     }
 
                 }
@@ -1763,8 +1896,9 @@
          */
         this.SaveLayout = function () {
 
-            if (Application.IsInMobile() || Application.HasOption(m_form.Options,"nolayout"))
+            if (Application.IsInMobile() || Application.HasOption(m_form.Options,"nolayout") || m_form.Type === 'Card')
                 return;
+                            
             var uidlayout = Application.HasOption(m_form.Options,"uidlayout");
 
             Application.RunNext(function () {
@@ -1800,8 +1934,10 @@
 				for(var i = 0; i < m_tabs.length; i++){
 					m_layout.tabs.push(m_tabs[i].State());
 				}
+
+                m_layout.recordsPerPage = m_pagingRecordsPerPage;
 				
-                return Application.SaveUserLayout(Application.auth.Username, uidlayout ? m_uid : m_id, $.toJSON(m_layout));                 
+                return Application.SaveUserLayout(Application.auth.Username, uidlayout ? m_uid : m_ouid, $.toJSON(m_layout));                 
 
             },null,null,true);
         };
@@ -1842,7 +1978,7 @@
                     Application.BeginTransaction,
 
                     function () {
-                        return Application.DeleteUserLayout(Application.auth.Username, uidlayout ? m_uid : m_id)
+                        return Application.DeleteUserLayout(Application.auth.Username, uidlayout ? m_uid : m_ouid)
                     },
 
                     Application.CommitTransaction,
@@ -3038,6 +3174,12 @@
                                 if (!Application.IsInMobile() && m_form.TabOption(tab, "mobileonly"))
                                     return;
 
+                                if (!Application.IsOffline() && m_form.TabOption(tab, "offlineonly"))
+                                    return;
+
+                                if (Application.IsOffline() && m_form.TabOption(tab, "onlineonly"))
+                                    return;
+
                                 if (tab.ID != "") {
 
                                     _self.OnShow();
@@ -3499,9 +3641,36 @@
          */
         this.ExportCSV = function () {
 
-            var data = _self.GetPageGrid().DataSource();
-            var csv_data = _self.GenerateCSVData(data);
-            Application.FileDownload.DownloadText(m_id+".csv", csv_data, "text/csv;charset=utf-8;");
+            Application.RunNext(function(){
+                return $codeblock(
+                    function(){
+                        
+                        var flds = m_form.Fields.map(function(col){
+                            return col.Name;
+                        });
+                        
+                        var vw = Application.RemovePagingFromView(m_record.View);
+                        Application.maxRecords = 100000;
+                        var r = [];
+                        FINDSET(m_record.Table,vw,function(recs){
+                            recs.DatabaseTable(m_record.DatabaseTable());
+                            Application.maxRecords = 10000;
+                            if(recs.Count > 0)
+                                do{
+                                    var r2 = new Record();
+                                    r2.Copy(recs);
+                                    r.push(r2);
+                                }while(recs.Next());
+                            return r;
+                        },flds);
+                    },
+                    function(r){
+                        var csv_data = _self.GenerateCSVData(r);
+                        Application.FileDownload.DownloadText(m_record.Table+".csv", csv_data, "text/csv;charset=utf-8;");
+                    }
+                );
+            });            
+
         };
 
         /**
@@ -3516,16 +3685,19 @@
             var csvFile = '';
 
             var hdrrow = [];
-            for (var j = 0; j < m_form.Fields.length; j++) {
-                hdrrow.push(m_form.Fields[j].Caption);
+            for (var j = 0; j < m_form.Fields.length; j++) {    
+                if(!m_form.Fields[j].Hidden)            
+                    hdrrow.push(m_form.Fields[j].Caption);
             }
             csvFile += ProcessCSVRow(hdrrow);
 
             for (var i = 0; i < data_.length; i++) {
                 var row = [];
-                for (var j = 0; j < m_form.Fields.length; j++) {
-                    var val = Default(data_[i]["FF$" + m_form.Fields[j].Name], data_[i][m_form.Fields[j].Name]);                    
-                    row.push(FormatData(val, m_form.Fields[j].Type));
+                for (var j = 0; j < m_form.Fields.length; j++) {  
+                    if(!m_form.Fields[j].Hidden){                  
+                        var val = Default(data_[i]["FF$" + m_form.Fields[j].Name], data_[i][m_form.Fields[j].Name]);                    
+                        row.push(FormatData(val, m_form.Fields[j].Type));                    
+                    }
                 }
                 csvFile += ProcessCSVRow(row);
             }
@@ -4879,7 +5051,7 @@
 					if (m_form.ShowFilters && m_filterToolbar)
 						m_filterToolbar.SetFilters(true);
 
-					if (!Application.IsInMobile()) {
+					if (!Application.IsInMobile() && m_form.Type !== 'Card') {
 						if (!m_layout) {
 							m_layout = new Object();                    
 						}
@@ -5323,7 +5495,7 @@
 			m_table = null;
 			//m_form = null;
 			m_layout = null;
-			m_options = null;
+			//m_options = null;
 			m_designerPages = null;
 			m_designerPages2 = null;
 			m_designerPages3 = null;
@@ -5355,8 +5527,12 @@
         this.ResizeList = function (height) {
 
             var h = m_options.height;
-            if (h)
+            if (h){
                 height = h;
+            }
+
+            if(height <= 350)
+                height = 350;
 
             var grd = _self.GetPageGrid();
             if (grd != null) {

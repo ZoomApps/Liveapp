@@ -247,12 +247,19 @@ Define("OptionsWindow", null, function (options_) {
 				//Attach fake record functions.
 				m_record.SaveCurrent = function(){};
 				m_record.GetCurrent = function(){};
+                m_record.GetField = function(name_){               
+                    return {
+                        Name: name_,
+                        Caption: name_,
+                        Value: m_record[name_]
+                    };
+                };
 				
                 //Add the options.
                 if (m_options.fields) {
                     for (var i = 0; i < m_options.fields.length; i++) {
 
-                        var f = m_options.fields[i];
+                        var f = m_options.fields[i];                        
 
                         var f2 = Extend(f, {
                             Name: "Option" + $id(),
@@ -260,7 +267,7 @@ Define("OptionsWindow", null, function (options_) {
                             Size: 1000000,
                             Editable: true,
                             Caption: "Option"
-                        });											
+                        });				                                                
 
 						if(typeof m_record[f2.Name] == "undefined")
 							m_record[f2.Name] = null;
@@ -272,6 +279,10 @@ Define("OptionsWindow", null, function (options_) {
 							m_record[f2.Name] = Application.ConvertDate(m_record[f2.Name]);
 						
                         var field = Extend(f2, Application.Objects.PageFieldInfo());
+
+                        field.Caption = Application.ProcessCaption(field.Caption);
+                        if(field.OptionCaption)
+                            field.OptionCaption = Application.ProcessCaption(field.OptionCaption);
 
                         if (field.Hidden == false) {
 

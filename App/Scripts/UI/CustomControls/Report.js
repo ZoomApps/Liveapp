@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Report",
 
@@ -27,6 +27,7 @@ Define("Report",
 		var m_groupFields = null;
 		var m_groupFieldCaptions = null;
 		var m_emailOptions = null;
+		var m_editor = null;
 
         //#endregion
 
@@ -72,8 +73,8 @@ Define("Report",
 			
             window_.AddControl("<br/>");
 			
-            window_.AddControl("<a id='btnPrint" + _base.ID() + "'>" + UI.IconImage("mdi-printer") + " Print</a>");
-            $("#btnPrint" + _base.ID()).button().hide().click(function () {
+            window_.AddControl("<div class='app-button' id='btnPrint" + _base.ID() + "'>" + UI.IconImage("mdi-printer") + " Print</div>");
+            $("#btnPrint" + _base.ID()).hide().click(function () {
 				
 				var landscape = Application.HasOption(m_form.Options,"landscape");
 				
@@ -85,7 +86,7 @@ Define("Report",
 					var wnd = window.open('', m_uid, 'left=0,top=0,width='+w+',height='+h+',toolbar=0,scrollbars=0,status=0, top='+top+', left='+left);
 					_base.Viewer().ShowLoad();
 					setTimeout(function(){
-						wnd.document.write("<html><head><title>Print Preview</title><link rel='stylesheet' href='//cdn.materialdesignicons.com/2.4.85/css/materialdesignicons.min.css'><style>@media print {thead {display: table-header-group;}}</style></head><body>" + m_container.html() + "</body></html>");
+						wnd.document.write("<html><head><title>Print Preview</title><link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/@mdi/font@2.4.85/css/materialdesignicons.min.css'><style>@media print {.noprint{visibility: hidden;}thead{display: table-header-group;}}</style></head><body>" + m_container.html() + "</body></html>");
 						wnd.document.close();
 						wnd.focus();
 						setTimeout(function(){
@@ -106,22 +107,99 @@ Define("Report",
             });
 			
 			if(!Application.HasOption(m_form.Options,"skipfilters")){
-				window_.AddControl("<a id='btnFilters" + _base.ID() + "'>" + UI.IconImage("mdi-filter") + " Filters</a>");
-				$("#btnFilters" + _base.ID()).button().hide().click(function () {
+				window_.AddControl("<div class='app-button' id='btnFilters" + _base.ID() + "'>" + UI.IconImage("mdi-filter") + " Filters</div>");
+				$("#btnFilters" + _base.ID()).hide().click(function () {
 					_self.ShowFilters();
 				});				
 			}
 			
-			window_.AddControl("<a id='btnExportCSV" + _base.ID() + "'>" + UI.IconImage("mdi-file-import") + " Export to CSV</a>");
-            $("#btnExportCSV" + _base.ID()).button().hide().click(function () {
+			window_.AddControl("<div class='app-button' id='btnExportCSV" + _base.ID() + "'>" + UI.IconImage("mdi-file-import") + " Export to CSV</div>");
+            $("#btnExportCSV" + _base.ID()).hide().click(function () {
                 _self.ExportCSV();
             });
 
-			window_.AddControl("<a id='btnEmailPDF" + _base.ID() + "'>" + UI.IconImage("mdi-email") + " Email PDF</a>");
-            $("#btnEmailPDF" + _base.ID()).button().hide().click(function () {
+			var editmode = false;
+
+			_self.SaveReport = function(){
+				m_container.html(m_editor.html()).show();
+				$('#divEditor' + _base.ID()).trumbowyg('destroy');
+				$('#divEditor' + _base.ID()).remove();					
+				$("#btnEdit" + _base.ID()).find('span').html(UI.IconImage("mdi-pencil") + " Edit Report");
+				$("#btnEmailPDF" + _base.ID()).find('span').html(UI.IconImage("mdi-email") + " Email PDF");	
+			}
+
+			window_.AddControl("<div class='app-button' id='btnEmailPDF" + _base.ID() + "'>" + UI.IconImage("mdi-email") + " Email PDF</div>");
+            $("#btnEmailPDF" + _base.ID()).hide().click(function () {
+				if(editmode){
+					_self.SaveReport();
+				}
 				var data = GenerateReportData(m_record);
                 _self.EmailPDF(data);
-            });
+			});
+						
+			window_.AddControl("<div class='app-button' id='btnEdit" + _base.ID() + "'>" + UI.IconImage("mdi-pencil") + " Edit Report</div>");
+            $("#btnEdit" + _base.ID()).hide().click(function () {
+				editmode = !editmode;
+				if(editmode){
+					$("#btnEdit" + _base.ID()).find('span').html(UI.IconImage("mdi-check") + " Save Report");
+					$("#btnEmailPDF" + _base.ID()).find('span').html(UI.IconImage("mdi-email") + " Save and Email PDF");
+					m_container.hide();
+					m_editor = $('<div id="divEditor' + _base.ID()+'"></div>');
+					window_.AddControl(m_editor);
+					m_editor.html(m_container.html());
+					m_editor.css({
+						height: '100%',
+						'min-height': 'calc(100vh - 50px)',
+						'max-height': 'calc(100vh - 50px)',
+						overflow: 'auto'
+					});	
+					var trumbowyg = m_editor.trumbowyg({
+						svgPath: Application.url+'Images/trumbowyg/icons.svg',
+						btnsDef: {
+							insertPageBreak: {
+								fn: 'insertHtml',
+								tag: 'insertPageBreak',						
+								title: 'Button tooltip',
+								text: 'Insert Page Break',
+								isSupported: function () { return true; },								
+								param: "<div class='noprint' style='page-break-after: always;color:gray'>--PAGE BREAK--</div>",
+								forceCSS: false,
+								class: '',
+								hasIcon: false
+							}
+						},
+						btns: [
+							['viewHTML'],                        
+							['formatting'],
+							['fontfamily','fontsize','foreColor', 'backColor'],
+							['strong', 'em', 'del'],
+							['superscript', 'subscript'],
+							['link'],
+							['table'],
+							['insertImage'],
+							['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+							['unorderedList', 'orderedList'],
+							['horizontalRule'],                        
+							['removeformat'],
+							['fullscreen'],
+							['insertPageBreak'],
+							['close']
+						]
+					});							
+					m_editor.unbind("tbwclose");
+					m_editor.on("tbwclose",function(){		
+						editmode = !editmode;				
+						_self.SaveReport();
+					});
+					m_editor.show();
+				}else{					
+					_self.SaveReport();
+				}
+			});
+
+			if(Application.HasOption(m_form.Options,"allowedit")){
+				$("#btnEdit" + _base.ID()).show();
+			}
 			
 			if(!Application.HasOption(m_form.Options,"skipfilters")){
 				window_.AddControl("<label id='filters"+_base.ID()+"' class='ui-state-hover' style='display: none; font-size: 11px; width: auto; float: right; margin-right: 10px; padding: 3px; max-width: 500px;'></label>");
@@ -130,14 +208,7 @@ Define("Report",
 				});
 			}
 			
-			if(Application.IsInMobile()){
-				$("#btnFilters" + _base.ID()).parent().css("width","100px").css("display","inline-block");
-				$("#btnPrint" + _base.ID()).parent().css("width","100px").css("display","inline-block");
-				$("#btnExportCSV" + _base.ID()).parent().css("width","100px").css("display","inline-block");
-				$("#btnEmailPDF" + _base.ID()).parent().css("width","100px").css("display","inline-block");
-			}
-			
-            window_.AddControl(m_container);				
+			window_.AddControl(m_container);										
 
             var options = m_form.Options;
             m_groupFields = Application.OptionValue(options, "groupfields");
@@ -227,6 +298,10 @@ Define("Report",
 			});
 			
 		};
+
+		this.Record = function(){
+			return m_record;
+		}
 		
         this.Update = function (rec_) {
 			
@@ -292,8 +367,8 @@ Define("Report",
             if(data_.length == 0)
                 return "<h2>&nbsp;&nbsp;Oops, no report data found. Please check your filters and try again.</h2>";
 
-            var html = m_design.toString();
-
+			var html = m_design.toString();
+			
             //Get columns.
             var cols = "";
             for (var i = 0; i < m_form.Fields.length; i++) {
@@ -536,6 +611,42 @@ Define("Report",
 
             },null,null,true);
         };
+
+		function base64Encode(str) {
+			var CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+			var out = "", i = 0, len = str.length, c1, c2, c3;
+			while (i < len) {
+			  c1 = str.charCodeAt(i++) & 0xff;
+			  if (i == len) {
+				out += CHARS.charAt(c1 >> 2);
+				out += CHARS.charAt((c1 & 0x3) << 4);
+				out += "==";
+				break;
+			  }
+			  c2 = str.charCodeAt(i++);
+			  if (i == len) {
+				out += CHARS.charAt(c1 >> 2);
+				out += CHARS.charAt(((c1 & 0x3)<< 4) | ((c2 & 0xF0) >> 4));
+				out += CHARS.charAt((c2 & 0xF) << 2);
+				out += "=";
+				break;
+			  }
+			  c3 = str.charCodeAt(i++);
+			  out += CHARS.charAt(c1 >> 2);
+			  out += CHARS.charAt(((c1 & 0x3) << 4) | ((c2 & 0xF0) >> 4));
+			  out += CHARS.charAt(((c2 & 0xF) << 2) | ((c3 & 0xC0) >> 6));
+			  out += CHARS.charAt(c3 & 0x3F);
+			}
+			return out;
+		  }
+		  
+		  function getBinary(file) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", file, false);
+			xhr.overrideMimeType("text/plain; charset=x-user-defined");
+			xhr.send(null);
+			return xhr.responseText;
+		  }
 		
 		this.EmailPDF = function(){					
 			
@@ -598,27 +709,54 @@ Define("Report",
 							
 							if (okclicked) {
 								
-								m_emailOptions = options.GetOptions();
-								_self.SaveReportOptions();
-								
-								var html = m_container.html();
+								return $codeblock(									
 
-								//#235 - Temp Fix - TODO: Remove when new version of PDF software comes out
-								html = html.replace(/thead/g,"tbody");
+									function(){	
+										Application.ShowProgress('Sending Email');
+										var font = 'data:font/opentype;base64,'+base64Encode(getBinary(Application.url+'Assets/mdi/fonts/materialdesignicons-webfont.ttf?v=2.4.85'));    
+										var w = $wait();
+										$.ajax({
+											url: "https://cdn.jsdelivr.net/npm/@mdi/font@2.4.85/css/materialdesignicons.min.css",
+											type: "GET"
+										}).done(function( data, textStatus, jqXHR ) {
+											var style = data.split('normal}.mdi:before');
+											w.resolve('@font-face{font-family:"Material Design Icons";src:url(\''+font+'\') format("truetype");font-weight:normal;font-style:normal}.mdi:before'+style[1]);
+										}).fail(function( jqXHR, textStatus, errorThrown ) {
+											Application.Error(errorThrown);
+										});
+										return w.promise();		
+									},
+									function(style){																		
+																				
+										m_emailOptions = options.GetOptions();
+										_self.SaveReportOptions();
+											
+										var html = '<html><head><style>'+style+' @media print {.noprint{visibility: hidden;}thead{display: table-header-group;}}</style></head><body>'+m_container.html()+'</body></html>';
 
-								return Application.WebServiceWait("EmailPDF", { 
-									auth: Application.auth, 
-									html_: html,
-									name_: m_emailOptions.FileName,
-									subject_: m_emailOptions.Subject,
-									body_ : '<span style="font-family: '+$("body").css("font-family")+'">'+m_emailOptions.Body+'</span>',
-									to_:m_emailOptions.To,
-									from_:m_emailOptions.From,
-									cc_:"",
-									bcc_ :"",
-									landscape_:Application.HasOption(m_form.Options,"landscape"),
-									receipt_: false
-								});
+										//#235 - Temp Fix - TODO: Remove when new version of PDF software comes out
+										html = html.replace(/thead/g,"tbody");
+														
+										return Application.WebServiceWait("EmailPDF", { 
+											auth: Application.auth, 
+											html_: html,
+											name_: m_emailOptions.FileName,
+											subject_: m_emailOptions.Subject,
+											body_ : '<span style="font-family: '+$("body").css("font-family")+'">'+m_emailOptions.Body+'</span>',
+											to_:m_emailOptions.To,
+											from_:m_emailOptions.From,
+											cc_:m_emailOptions.CC||"",
+											bcc_ :m_emailOptions.BCC||"",
+											landscape_:Application.HasOption(m_form.Options,"landscape"),
+											receipt_: false
+										});
+									},
+									function(){
+										Application.HideProgress();
+									},
+									function(){
+										Application.Message('<!--Success-->Email Sent');
+									}
+								);
 							 }
 						});
 					
@@ -979,6 +1117,9 @@ Define("Report",
                 return Application.FormatDate(value_, "hh:mm a");
             }
 
+			if (field_.Type == "Decimal" && value_ && value_.toFixed)
+                return value_.toFixed(2);
+				
 			if (field_.Type == "Boolean" && !export_) {
 				if(value_ == true){
 					return UI.IconImage("mdi-check");

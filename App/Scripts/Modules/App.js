@@ -158,8 +158,6 @@ DefineModule("App",
                         //Events.
                         Application.On("Connected", function () {
                             UI.StatusBar(false);
-                            if (Application.IsOffline())
-                                UI.StatusBar(true, "Offline mode", "#FF6666");
                             $(window).resize();
                         });
                         Application.On("ConnectionLost", function () {
@@ -258,12 +256,20 @@ DefineModule("App",
 							$("body").append(dd);
 							dd.css("top",search.offset().top+40).css("left",search.offset().left);
 							for(var i = 0; i < ret.length; i++){
-								var item = $("<div style='font-size: 10pt; padding: 5px; border-bottom: 1px solid gainsboro; cursor: pointer;'>"+UI.IconImage(ret[i][2])+" "+ret[i][0]+"</div>");
+                                ret[i][0] = Application.ProcessCaption(ret[i][0]);
+								var item = $("<div data-id='"+i+"' style='font-size: 10pt; padding: 5px; border-bottom: 1px solid gainsboro; cursor: pointer;'>"+UI.IconImage(ret[i][2])+" "+ret[i][0]+"</div>");
 								dd.append(item);
-							var code = 'Application.App.LoadPage("'+ret[i][3]+'","'+ret[i][1]+'",{searchmode:true});';
-								if(Default(ret[i][4],"") != "")
-									code = ret[i][4].replace(/\&quot\;/g,'"');
-								eval('item.on("click",function(){'+code+'m_searchQueue=[];$(".searchdropdown").remove();});');
+                                item.on('click', function(){
+                                    var i = $(this).attr('data-id');
+                                    if(ret[i][4]){
+                                        var FunctionRunner = Function('this.OnSearch = function(){'+ret[i][4].replace(/\&quot\;/g,'"')+'};');    
+                                        new FunctionRunner().OnSearch();                            
+                                    }else{
+                                        Application.App.LoadPage(ret[i][3],ret[i][1],{searchmode:true});
+                                    }
+                                    m_searchQueue = [];
+                                    $(".searchdropdown").remove();
+                                });								
 							}											
 						}										
 						$("#imgGlobalSearch").hide();
@@ -888,7 +894,9 @@ DefineModule("App",
                     e.toLowerCase() == "%LANG:SYS_INTERNALSERVERERR%" ||
                     e.toLowerCase() == "unknown" ||
                     e.toLowerCase() == "ok" ||
-                    e.toLowerCase() == "not found") {
+                    e.toLowerCase() == "not found" || 
+                    e.toLowerCase() == 'failed to fetch' ||
+                    e.toLowerCase().indexOf('load failed') !== -1) {
                         Application.connected = false;
                         return;
                     } else if (Application.HasDisconnected(e)) {					
@@ -1411,8 +1419,11 @@ DefineModule("App",
 								if(Application.IsOffline() == false && r){									
 									Application.Confirm("You have an offline data package. Please select an option.",function(ret){
 										if(ret == false){
-											$("#offlineIndicatorText").click();	
-											Application.Error("");										
+											Application.Offline.Toggle();   
+                                            setTimeout(function(){
+                                                window.location.reload();
+                                            },200);
+                                            Application.Error('');
 										}else{
 											w.resolve();
 										}
@@ -1647,7 +1658,7 @@ DefineModule("App",
 
                             var r = new Record();
                             r.Table = "%DBIDENTIFIER% Object";
-                            r.View = "WHERE(Type=CONST(CODE),Startup=CONST(True))";
+                            r.View = "WHERE(Type=CONST(CODE),Startup=CONST(1))";
                             return r.FindFirst();
                         },
                         function (r) {

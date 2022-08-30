@@ -58,12 +58,12 @@ DefineModule("CodeEngine",
 
         //#region Members
 
-        var _self = this;
-        var m_running = true;
+        var _self = this;        
         var m_currentThread = 0;
         var m_queue = [];
         var m_priority = [];
-		var m_killed = [];
+        var m_threads = [];
+        var m_running = false;
 
         //#endregion
 
@@ -99,7 +99,6 @@ DefineModule("CodeEngine",
             $next = "<NEXTLOOP>"; 
             $stopallthreads = Application.CodeEngine.StopAllThreads;
             $thread = Application.CodeEngine.CreateThread;
-            $locked = Application.CodeEngine.Locked;
 
             /**
              * Use as the first line of a function when using {@link $codeinsert}.
@@ -107,10 +106,6 @@ DefineModule("CodeEngine",
              * @type {string}
              */
             $flag = "<FLAG>";
-
-            Application.On("Login", function () {
-                m_killed = [];
-            });
         };
 
         /**
@@ -130,7 +125,16 @@ DefineModule("CodeEngine",
          * @returns {JQueryPromise} Returns a new promise.
          */
         this.Wait = function () {
-            return new $.Deferred();
+           var resolver = null;
+           var promise = new Promise(function(done){
+               resolver = done;
+           });
+           return {
+               promise: function(){
+                   return promise;
+               },
+               resolve: resolver
+           };
         };
 
         /**
@@ -306,7 +310,7 @@ DefineModule("CodeEngine",
          * @returns {void}
          */
         this.RemoveLevel = function () {
-            m_queue.splice(m_queue.length - 1, 1);
+            m_queue.pop();
         };
 
         /**
@@ -325,7 +329,7 @@ DefineModule("CodeEngine",
          * @param {*} result_ Argument to pass into the executing function.
          * @returns {void}
          */
-        this.ResolveQueue = function (result_) {
+        this.ResolveQueue = async function (result_) {
 
             if (m_queue.length == 0) return;
 
@@ -354,40 +358,22 @@ DefineModule("CodeEngine",
 
             Application.LogDebug(method.toString());
 
-            try {
+            try{
 
-                $.when(
+                var result2 = await method.apply(null, arr);
 
-                //Run method.
-		        method.apply(null, arr)
+                Application.LogDebug("%LANG:S_FINISHEDMETHOD%");
 
-            ).then(
+                //Run next function.
+                _self.RunNextFunction(result2);
 
-                function finishedRun(result2) { //Sucess.     
+            }catch(e){
 
-                    Application.LogDebug("%LANG:S_FINISHEDMETHOD%");
-
-                    //Check if this thread is still running.
-                    if (!_self.CheckStatus())
-                        return;
-
-                    //Run next function.
-                    _self.RunNextFunction(result2);
-
-                },
-
-			    function (e) { //Error.
-			    }
-
-            );
-
-            } catch (e) {
-				
-				//Log the method for debugging purposes.
-				Application.Log.LogObject(method);
+                Application.Log.LogObject(method);
 				
                 if (e != "")
                     Application.Error(e);
+
                 if (Application.testMode)
                     _self.RunNextFunction(result_);
             }
@@ -400,13 +386,15 @@ DefineModule("CodeEngine",
          * @param {*} param_ Argument to pass into the next function.
          * @returns {void}
          */
-        this.RunNextFunction = function (param_) {
+        this.RunNextFunction = async function (param_) {
 
             if (m_queue.length > 0) {
-                m_queue[m_queue.length - 1].shift();    
-                setTimeout(function(){          
-                    _self.ResolveQueue(param_);  
-                },1);              
+                m_queue[m_queue.length - 1].shift();     
+                await _self.ResolveQueue(param_);             
+            }else{
+                setTimeout(async function(){
+                    await _self.RunNextThread();
+                },100);
             }
 
         };
@@ -479,24 +467,6 @@ DefineModule("CodeEngine",
         };
 
         /**
-         * Get the status of the current code thread.
-         * @memberof module:CodeEngine
-         * @protected
-         * @returns {boolean} Returns `true` if the current code thread is running.
-         */
-        this.CheckStatus = function () {
-
-            if (!m_running) {
-
-                _self.ClearThread();
-                _self.Start();
-
-                return false
-            }
-            return true;
-        };
-
-        /**
          * Stops all code threads (including the current).
          * @name $stopallthreads
          * @method
@@ -513,13 +483,9 @@ DefineModule("CodeEngine",
          */
         this.StopAllThreads = function () {
 
-            Application.LogDebug("%LANG:S_CLEARINGMETHODS%");
-            m_killed = m_killed.concat(m_priority);
-            if (m_killed.indexOf(m_currentThread) != -1)
-                m_killed.splice(m_killed.indexOf(m_currentThread), 1);
-            _self.Stop();            
+            Application.LogDebug("%LANG:S_CLEARINGMETHODS%");                               
 			m_priority = [];
-
+            m_threads = [];
         };
 
         /**
@@ -554,47 +520,37 @@ DefineModule("CodeEngine",
          */
         this.CreateThread = function (func, id, i, skipDelay, threaduid) {
 
-            if (skipDelay)
-                return $codeblock(func);
-
             if (id == null || threaduid != null) {
                 id = Default(threaduid, $id());
-                if (m_priority.indexOf(id) != -1)
+                if (m_priority.indexOf(id) !== -1)
                     return;
                 m_priority.push(id);
+                m_threads.push(func);
                 Application.Fire("ThreadCreated");
                 Application.LogDebug(Application.StrSubstitute("%LANG:S_CREATEDTHREAD%", id));
-            }
-			
-			//Check killed threads.
-            if (m_killed.indexOf(id) != -1) {
-                m_killed.splice(m_killed.indexOf(id), 1);
-                if (m_priority.indexOf(id) != -1) {
-                    m_priority.splice(m_priority.indexOf(id), 1);
-                }
+            }			
+            
+            setTimeout(async function(){
+                await _self.RunNextThread();
+            },100);
+        };
+
+        this.RunNextThread = function(){
+
+            if(m_priority.length === 0 || m_running)
                 return;
-            }
 
-            if (i == null) i = 0;
-            if (m_priority.length > 0) {
+            m_running = true;
 
-                //A different thread is still running.    
-                if (m_priority[0] != id || m_running == false) {				
-					
-                    setTimeout(function queueThread() {
-                        //Application.LogInfo(Application.StrSubstitute("%LANG:S_QUEUEDTHREAD%", id));
-                        $thread(func, id, i + 1);
-                    },1);
-                    return;
-                }
-            }
+            var id = m_priority[0];
+            var func = m_threads.shift();
 
             //Run this thread!
             m_currentThread = id;
             Application.LogDebug(Application.StrSubstitute("%LANG:S_STARTEDTHREAD%", id));
             Application.Fire("ThreadCreated");
 
-            $code(
+            return $codeblock(
 
                 function runThread() {
                     return func();
@@ -603,61 +559,21 @@ DefineModule("CodeEngine",
                 function(){
                     if(Application.transactionStarted > 0){
                         if(Application.developerMode)
-                            Application.Message('Transactions out of sync!!! Fixing...');
-                        Application.LogWarn('Transactions out of sync!!! Fixing...');
+                            Application.LogWarn('Transactions out of sync!!! Fixing...');
                         Application.transactionStarted = 1;
                         return Application.CommitTransaction();
                     }
                 },
                 
                 function finishThread() {					
-                    Application.LogDebug(Application.StrSubstitute("%LANG:S_STOPPEDTHREAD%", id));
-                    _self.Stop();
-                    Application.Fire("ThreadFinished");					
+                    Application.LogDebug(Application.StrSubstitute("%LANG:S_STOPPEDTHREAD%", id));                    
+                    m_priority.shift();
+                    m_running = false;
+                    Application.Fire("ThreadFinished");	                    
                 }                
 
             );
-
-        };
-
-        /**
-         * Clear the current thread.
-         * @memberof module:CodeEngine
-         * @protected
-         * @returns {void}
-         */
-        this.ClearThread = function () {
-            if (m_currentThread != 0) {
-                if (m_priority.length > 0)
-                    m_priority.splice(0, 1);
-                m_currentThread = 0;
-                m_queue = [];
-            }
-        };
-
-        /**
-         * Start the code engine.
-         * @memberof module:CodeEngine
-         * @protected
-         * @returns {void}
-         */
-        this.Start = function () {
-            if (m_queue.length <= 0) {
-                _self.ClearThread();
-                m_running = true;
-            }
-        };
-
-        /**
-         * Stop the code engine.
-         * @memberof module:CodeEngine
-         * @protected
-         * @returns {void}
-         */
-        this.Stop = function () {
-            m_running = false;
-            _self.Start();
-        };
+        }
 
         /**
          * Restart the code engine.
@@ -667,17 +583,8 @@ DefineModule("CodeEngine",
          */
         this.Restart = function () {
             m_queue = [];
+            m_running = false;
             _self.StopAllThreads();
-            //_self.Start();
-        };
-
-        /**
-         * @deprecated Since v5.4.0 
-         * @memberof module:CodeEngine
-         */
-        this.Locked = function () {
-            Application.LogWarn('CodeEngine.Locked has been deprecated since v5.4.0');
-            return m_queue.length != 0;
         };
 
         //#endregion

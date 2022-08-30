@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Textbox",
 
@@ -32,7 +32,7 @@ Define("Textbox",
                 type = "password";
 
             //Create the control.
-            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><input type="'+type+'" id="ctl' + _base.ID() + '" value="">');
+            var container = $('<label id="lbl' + _base.ID() + '" for="ctl' + _base.ID() + '" style="font-weight: bold;"></label><input type="'+type+'"'+(type === 'number' ? ' inputmode="decimal"':'')+' id="ctl' + _base.ID() + '" value="">');
 
             //Call base method.
             _base.Create(window_, container, _self.OnValueChange, function (cont) {

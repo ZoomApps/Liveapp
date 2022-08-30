@@ -1,10 +1,10 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;" manifest="%SERVERADDRESS%Pages/Manifest">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">
 <head>
     <title></title>
     
-    <link rel="icon" href="%SERVERADDRESS%favicon.png" type="image/x-icon" /> 
-    <link rel="shortcut icon" href="%SERVERADDRESS%favicon.png" type="image/x-icon" /> 
+    <link rel="icon" href="%SERVERADDRESS%Images/favicon.png" type="image/x-icon" /> 
+    <link rel="shortcut icon" href="%SERVERADDRESS%Images/favicon.png" type="image/x-icon" /> 
 
     <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -17,11 +17,11 @@
 
     </script>    
     
-    <link href="%SERVERADDRESS%f/?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/css" rel="stylesheet" />
+    <link href="%SERVERADDRESS%f/Liveapp.css?t=css&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/css" rel="stylesheet" />
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,500' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.4.85/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.4.85/css/materialdesignicons.min.css">
         
-    <script src="%SERVERADDRESS%f/?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true" type="text/javascript"></script>
+    <script src="%SERVERADDRESS%f/Liveapp.js?t=js&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true" type="text/javascript"></script>
     
     <style id="antiClickjack">
         body{display:none !important;}
@@ -112,9 +112,10 @@
     <![endif]-->
 
 </head>
-<body class="ui-widget-content main-page" style="background-color: whitesmoke;">
+<body class="ui-widget-content main-page" style="background-color: #FFF;">
 
     <div class="menu">
+        <div id="imgProfile" class="circle-img profile-img" style="display: none;"></div>
         <div id="mnuMain" class="menu-items-container"></div>
     </div>
 
@@ -128,17 +129,16 @@
                     <img id="imgLogo" class="navbar-logo" src="%SERVERADDRESS%Images/Logo.png">
                 </div>
                 <div class="search-container" style="display: none;">
-                    <i class="mdi mdi-magnify" style="font-size: 20px"></i>
+                    <i class="mdi mdi-magnify" style="font-size: 15px"></i>
                     <input id="txtGlobalSearch" autocomplete="new-password" class="search-box navbar-search" placeholder="Search" style="display: inline-block;">
                 </div>
-                <div id="lnkLogout" class="logout" style="display: none;" onclick="Application.App.Logout();"><i class="mdi mdi-logout"></i> Logout</div>
-                <div id="imgProfile" class="circle-img profile-img" style="display: none;"></div>
+                <div id="lnkLogout" class="logout" style="display: none;" onclick="Application.App.Logout();">Logout</div>               
             </div> 
         </nav> 
     </header>
     <table class="main-table" cellpadding="0" cellspacing="0">
         <tr>
-            <td colspan="2" style="padding: 3px 3px 0px 3px; max-width: 100vw;">
+            <td colspan="2" style="max-width: 100vw;">
                 <div id="AppWindows" class="main-windowstb">
                 </div>
             </td>
@@ -152,12 +152,11 @@
                 </div>
                 <center>
                     <!-- LOGIN FORM -->
-                    <div id="divLogin" class="ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all"
-                        style="text-align: left; width: 400px; display: none; margin-top: 50px; background-color: #FBFBFF; padding: 10px;">                        
+                    <div id="divLogin" style="text-align: left;width: 400px;margin-top:calc(50vh - 240px);padding: 10px;display: block;background: #FFF;opacity: 0.9;border-radius: 5px;">                        
                         <h1 id="hdrLogin">%LANG:S_LOGINPROMPT%</h1>                     
                         <fieldset id="fieldsLogin">                
-                            <input type="text" id="txtUsername" autocomplete="username" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="1" placeholder="Username" />
-                            <input type="password" id="txtPassword" autocomplete="password" class="text ui-widget-content ui-corner-all" style="font-size: 16pt;" value="" tabindex="2" placeholder="Password" />
+                            <input type="text" id="txtUsername" autocomplete="username" class="text" style="font-size: 16pt;border: 1px solid gainsboro;border-radius: 4px;" value="" tabindex="1" placeholder="Username" />
+                            <input type="password" id="txtPassword" autocomplete="password" class="text" style="font-size: 16pt;border: 1px solid gainsboro;border-radius: 4px;" value="" tabindex="2" placeholder="Password" />
                             <br />
                             <span id="spanRemember"><input type="checkbox" id="chkRemember" onclick="Application.App.RememberOnClick();" tabindex="3">%LANG:S_REMEMBER%</value></span>
                         </fieldset>                        
@@ -165,7 +164,7 @@
                         <div id="btnLogin" onclick="Application.RunNext(Application.App.Login);" 
                             onmouseover="$(this).addClass('mobilebtn-hover');" 
                             onmouseout="$(this).removeClass('mobilebtn-hover');"  
-                            class="mobilebtn unselectable">
+                            class="app-button unselectable" style="font-size: 20px;padding: 10px;width: 100%;box-sizing: border-box;text-align: center;">
                             Login
                         </div>
                     </div>                      

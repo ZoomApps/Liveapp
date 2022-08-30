@@ -1,4 +1,87 @@
-<a name="5.22"></a>
+<a name="5.24.0"></a>
+## 5.24.0 (2022-08-30)
+
+### Added
+
+- ✨ Update keys [5fdc1bd]
+- ✨ Editable reports [fdb98d2]
+- ✨ New code editor [7bfcaa9]
+- ✨ Multisets [3b22fff]
+- ✨ Add paging to grids [9c9c308]
+- ✨ Alert user for client updates [9da98b8]
+- ✨ Update UI [1ee74de]
+- ✨ Update Code Engine [eb116c8]
+- ✨ Offline mode [a80c77f]
+- ✨ Allow Codemodules to be cached locally [50fd48a]
+- ✨ Update filtering dropdown [9d48700]
+- ✨ Add &#x60;samesite&#x60; option to cookies [2df0158]
+- ✨ Add &#x60;single pass&#x60; option to resync tables [56c935c]
+- ✨ Refresh views on save of table [5f35cf5]
+- ✨ Added new view keyword &#x60;RECORDLOCK&#x60; [25ae5d5]
+- ✨ MULTISET [90f8bfc]
+- ✨ MULTISET [1c4856a]
+- ✨ Change file handler [90cffcb]
+- ✨ Upgrade Liveapp console to Chromium engine [1566526]
+- ✨ Add new view keywords FETCH and OFFSET [7d2a5ad]
+- ✨ Offline mode [326f067]
+- ✨ Make Global Asax Overridable [0e36091]
+- ✨ Not nullable [74fddeb]
+- ✨ Offline mode [be579c1]
+- ✨ Enable row versions [5e180f0]
+- ✨ Add new column property &#x60;DefaultConstraint&#x60; [9c3788b]
+- ✨ Offline mode [e859444]
+- ✨ Add new field type &#x60;GUID&#x60; [e114f42]
+
+### Changed
+
+- ⬆️ Upgrade plugins [c78ee73]
+
+### Removed
+
+- 🔥 Remove column properties [8b8c9ca]
+
+### Fixed
+
+- 🐛 Misc Fixes [0ac9ef3]
+- 🐛 Fix disconnect error [a5f58a0]
+- 🐛 Fix disconnect error [0cf453c]
+- 🐛 Fix camera issie in iOS [8de362b]
+- 🐛 Fix phantom module [1906db9]
+- 🐛 Exclude ej2 from minifier [d9d0858]
+- 🐛 Multiset Fix [05e4847]
+- 🐛 Fix install new instance error [636a594]
+- 🐛 Fix email queue error [12e4af1]
+- 🐛 Fix encoding on XML files [dc5c4dc]
+- 🐛 Dont drop foreign keys [d339822]
+- 🐛 Fix insert error - no columns specified [10c3e0d]
+
+### Miscellaneous
+
+- 🚀 Update version number [11eb52a]
+
+
+<a name="5.23.0"></a>
+## 5.23.0 (2021-04-19)
+
+### Fixed
+
+- 🐛 Fix solution timeout error [3dd03ad]
+- 🐛 Fix record refresh issue [28804f1]
+- 🐛 Fix readonly file issue [1657660]
+- 🚑 Upgrade to TLS 1.2 [8bdf801]
+
+### Miscellaneous
+
+- 🚀 Deploy new version [9015d72]
+- 📝 Update copyright year [e146c67]
+-  feat(server): add new button to &#x60;Table Designer&#x60; &#x60;Save Table (no keys)&#x60; [b7cec9e]
+-  feat(server): add new button to &#x60;Table Designer&#x60; &#x60;Save Table (no keys)&#x60; [afc9b5b]
+-  chore: update copyright date [3edd2f3]
+-  chore: move debug info [9ac3151]
+-  feat(server): added new setting &#x60;COMMIT_DEAD_SESSIONS&#x60; [5944f93]
+
+
+<a name="5.22.0"></a>
 # Liveapp v5.22 (September 2020)
 
 ## Bug Fixes

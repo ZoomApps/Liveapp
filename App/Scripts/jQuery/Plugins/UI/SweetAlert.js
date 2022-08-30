@@ -428,7 +428,8 @@
       }
     }
 
-    previousWindowKeyDown = window.onkeydown;
+    if (!previousWindowKeyDown)
+      previousWindowKeyDown = window.onkeydown;
     window.onkeydown = handleKeyDown;
 
     function handleOnBlur(event) {

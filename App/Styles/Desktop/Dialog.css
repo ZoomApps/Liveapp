@@ -1,4 +1,4 @@
-﻿/* Dialog
+/* Dialog
 ----------------------------------*/
 .ui-dialog  {
     position: relative; 
@@ -20,7 +20,7 @@
     zoom: 1; 
     background: 16px 16px;
 	padding: 1em 1.75em;
-	margin: 0em;                            
+	margin: 5px;                            
 }
 input.text { margin-bottom:12px; width:95%; padding: .4em; }
 fieldset { padding:0; border:0; margin-top:25px; }

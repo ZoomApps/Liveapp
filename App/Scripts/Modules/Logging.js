@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 DefineModule("Logging",
 
@@ -166,7 +166,7 @@ DefineModule("Logging",
 
             //Add date and time to msg.      
 			if(typeof msg == "string")
-				msg = Application.FormatDate(new Date(), '%LANG:FORMAT_LONGDATE% %LANG:FORMAT_TIME%') + " - " + msg;
+				msg = new Date().toISOString() + " - " + msg;
 
             //Console log.
             if (m_type == 0) {
@@ -181,17 +181,6 @@ DefineModule("Logging",
                         }
                     }
                 } catch (e) { }
-
-                try{
-                    if (type == 1) {                        
-                        SendRemote("error", msg, "remote error");
-                    } else if (type == 2) {                        
-                        SendRemote("log", "WARNING: " + msg, "remote warning");
-                    } else {                        
-                        SendRemote("log", msg);
-                    }
-                } catch (e) {
-                }
             }
 
             //Internal log.

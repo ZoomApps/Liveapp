@@ -1,4 +1,4 @@
-﻿
+
 
 Define("Batch", null, function () {
 
@@ -23,7 +23,13 @@ Define("Batch", null, function () {
 		if(r.Count > 0 && r.Record){
 
 		    if (Application.IsOffline()) {
-		        m_offlineRecords.push({ type: "INS", rec: r });
+				r.NewRecord = true;
+                r.Record.RecID = $id();
+                r.xRecord.RecID = r.Record.RecID;
+				r.SaveCurrent();
+				var r2 = new Record();
+				r2.Copy(r);
+		        m_offlineRecords.push({ type: "INS", rec: r2 });
 		        return;
 		    }
 
@@ -39,7 +45,9 @@ Define("Batch", null, function () {
 		if(r.Count > 0 && r.Record){
 
 		    if (Application.IsOffline()) {
-		        m_offlineRecords.push({ type: "MOD", rec: r });
+				var r2 = new Record();
+				r2.Copy(r);
+		        m_offlineRecords.push({ type: "MOD", rec: r2 });
 		        return;
 		    }
 
@@ -55,7 +63,9 @@ Define("Batch", null, function () {
 		if(r.Count > 0 && r.Record){
 
 		    if (Application.IsOffline()) {
-		        m_offlineRecords.push({ type: "DEL", rec: r });
+				var r2 = new Record();
+				r2.Copy(r);
+		        m_offlineRecords.push({ type: "DEL", rec: r2 });
 		        return;
 		    }
 

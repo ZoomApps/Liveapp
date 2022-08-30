@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("FileLookup",
 
@@ -101,22 +101,58 @@ Define("FileLookup",
                     });
                     $('#file' + _base.ID() + ',#' + _base.ID()).fileReaderJS({
                         on: {
+                            loadstart: function(){
+                                _base.Viewer().ShowLoad();    
+                            },
                             load: function (url, e, file) {
 
                                 m_loaded = false;
                                 $('#file' + _base.ID()).val("");
 
-                                url = file.extra.nameNoExtension + "." + file.extra.extension + "|" + url;
+                                var service = Application.OptionValue(_base.Viewer() && _base.Viewer().Page ? _base.Viewer().Page().Options : '','uploadservice'),
+                                    filename = file.extra.nameNoExtension + "." + file.extra.extension,
+                                    data = filename + "|" + url;
+                                    val = btoa(data);
 
-                                val = btoa(url);
-
-                                _self.OnValueChange(_base.Field().Name, val);
+                                if(service){
+                                                                            
+                                    Application.RunNext(function () {    
+                                        return Application.FileDownload.UploadFile(filename, val, function (file) {      
+                                            return $codeblock(
+                                                function(){
+                                                    var rec = _base.Viewer().Record();
+                                                    rec[_base.Field().Name] = val;
+                                                    rec.xRec[_base.Field().Name] = val;
+                                                    rec.SaveCurrent();
+                                                    return rec.Validate(_base.Field().Name, val, _base.Viewer());
+                                                },
+                                                function(){                                                    
+                                                    m_value = val;
+                                                    _self.FormatValue(val);                                                    
+                                                    Application.RunNext(function(){
+                                                        return $codeblock(
+                                                            function(){
+                                                                return Application.WebServiceWait(service, { auth: Application.auth, name_: file.Name, recid_: m_lastID, col_: _base.Field().Name });
+                                                            },
+                                                            function(){
+                                                                _base.Viewer().HideLoad();
+                                                            }
+                                                        );
+                                                    },null,null,true);                                                    
+                                                }
+                                            );
+                                        });
+                                    });
+                                        
+                                }else{                                    
+                                    _self.OnValueChange(_base.Field().Name, val);
+                                }
                             }
                         }
                     });
 
                 }
-
+                
                 function openFn() {
                     if (m_value) {
 
@@ -139,9 +175,11 @@ Define("FileLookup",
                         if(iOS){
                             var downloadlink = $('<div style="position: fixed; z-index: 50000; top: 0px; left: 0px; font-size: 30px; background-color: white; width: 100vw; height: 100vh; text-align: center; padding-top: 30vh;"></div>');
                             $('body').append(downloadlink);
-                            var $link = $('<a>Open Document</a>').on('click',function(){
+                            var $link = $('<a data-ripple style="border-radius: 5px;padding: 10px;background: gainsboro;"><i class="mdi mdi-file-document-box" style="margin-right: 10px;"></i>Open Document</a>')
+                            .on('click',function(){
                                 saveAs(blob, v[0]);    
-                            });
+                            })
+                            .ripple();
                             downloadlink.append($link);
                             downloadlink.on('click',function(){
                                 downloadlink.remove();
@@ -191,16 +229,25 @@ Define("FileLookup",
             return _base.CreateList(container, cont, value_);
         };
 
+        this.OnFormat = function(cont, value_){
+            
+        };
+
         this.FormatValue = function (value_) {
 
             var pathonly = Application.HasOption(_base.Field().Options, "pathonly");
-
+            var captionatend = Application.HasOption(_base.Field().Options, "captionatend");
+            
             if (pathonly){
                 _base.Control().html("Click to upload a " + _base.Field().Caption);
-            }else{            
-                $('#filelbl' + _base.ID()).html("Click to upload a " + _base.Field().Caption + 
-                    (!Application.IsInMobile()?" or drag and drop<br/>your " + _base.Field().Caption + " into this box.":""));
-            }
+            }else{    
+                if(!captionatend){        
+                    $('#filelbl' + _base.ID()).html("Click to upload a " + _base.Field().Caption + 
+                        (!Application.IsInMobile()?" or drag and drop<br/>your " + _base.Field().Caption + " into this box.":""));
+                }else{
+                    $('#filelbl' + _base.ID()).html("Click to upload "+(!Application.IsInMobile()?" or drag and drop into this box.":"")+"<br>"+_base.Field().Caption);
+                }
+            }            
 
             try {
 
@@ -221,6 +268,7 @@ Define("FileLookup",
                         $('#clear' + _base.ID()).show();
                     $('#open' + _base.ID()).show();
                     m_loaded = true;
+                    this.OnFormat(_base,value_);
                     return;
                 }
 
@@ -234,18 +282,20 @@ Define("FileLookup",
 
             $('#clear' + _base.ID()).hide();
             $('#open' + _base.ID()).hide();
+
+            this.OnFormat(_base,value_);
         };
 
         this.Update = function (rec_) {
             
             Application.LogInfo("Updating control: " + _base.ID() + ", Caption: " + _base.Field().Caption);
+        
+            var value = rec_[_base.Field().Name];
 
-            if (m_loaded && rec_.Record.RecID == m_lastID) {
+            if (m_loaded && rec_.Record.RecID == m_lastID && value === m_value) {
                 _self.Loaded(true);
                 return;
             }
-
-            var value = rec_[_base.Field().Name];
 
             m_value = value;
 

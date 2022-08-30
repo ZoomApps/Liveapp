@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("CodeViewer", null, function (options_) {
 
@@ -16,6 +16,8 @@ Define("CodeViewer", null, function (options_) {
     var m_container = null;
     var m_groups = [];
     var m_changed = false;
+    var m_editor = null;
+    var m_currid = null;
 
     //#endregion
 
@@ -51,8 +53,10 @@ Define("CodeViewer", null, function (options_) {
                     Application.Cache.Remove("PageFetch", m_id);
                     return new Page(m_id);
                 }
-                if (m_type == "CODE")
+                if (m_type == "CODE"){
+                    Application.Cache.Remove("CodeModuleFetch", m_id);
                     return new CodeModule(m_id, true);
+                }
             },
 
             function (obj) {
@@ -125,7 +129,7 @@ Define("CodeViewer", null, function (options_) {
 
                     var code = new Application.Objects.ArrayList();
                     for (var i = 0; i < m_groups.length; i++) {
-                        code[i] = m_groups[i].editor.Value();
+                        code[i] = m_groups[i].code;
                     }
 
                     return Application.SaveSource(m_type, m_id, code);
@@ -170,13 +174,43 @@ Define("CodeViewer", null, function (options_) {
     this.AddGroup = function (name_, caption_, code_) {
 
         var id = 'grp' + $id();
-        var mnu = $('<div class="ui-widget ui-state-default unselectable" style="border-width: 4px; padding: 4px; width: 100%; box-sizing: border-box; margin: 0px; text-align: left;">' + caption_ + '</div><textarea id="' + id + 'txt"></textarea>');
+        var mnu = $('<div class="app-button" style="cursor:pointer;width: 100%; box-sizing: border-box; margin: 3px; text-align: left;"> &nbsp;' + caption_ + '</div><textarea id="' + id + 'txt" class="code-text-area" style="display:none"></textarea>');
         m_container.append(mnu);
 
-        $("#" + id + "txt").val(code_);
+        var group = { name: name_, id: id, code: code_ };
 
-        var editor = new CodeEditor($("#" + id + "txt")[0], _self.Changed);
-        m_groups.push({ name: name_, id: id, editor: editor });
+        mnu.on('click',function(){
+            if(m_editor){
+                m_editor.toTextArea();    
+                $('.code-text-area').hide();            
+            }
+            if(m_currid !== id){
+                m_currid = id;
+                m_editor = CodeMirror.fromTextArea($("#" + id + "txt")[0],{
+                    lineNumbers: true,
+                    mode: 'javascript',
+                    lint: true,
+                    gutters: ['CodeMirror-lint-markers']
+                });
+                m_editor.on('change',function(){
+                    _self.Changed();
+                    group.code = m_editor.getValue();
+                    if((group.code||'')!==''){
+                        mnu.css('background','gainsboro');
+                    }else{
+                        mnu.css('background','');
+                    }
+                })
+            }else{
+                m_currid = null;
+            }
+        });
+
+        $("#" + id + "txt").val(code_);
+        if(code_)
+            mnu.css('background','gainsboro');
+        
+        m_groups.push(group);
 
         return $("#" + id);
     };
@@ -192,6 +226,9 @@ Define("CodeViewer", null, function (options_) {
         Application.LogInfo('Updating Code Viewer: ' + m_id);
 
         if (first_ == null) first_ = false;
+
+        if(m_loaded)
+            return;
 
         return $codeblock(
 

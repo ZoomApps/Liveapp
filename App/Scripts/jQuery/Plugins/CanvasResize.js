@@ -1182,6 +1182,7 @@ if (isCanvasSupported()) {
                     // Read Orientation Data in EXIF
                     $(img).exifLoadFromDataURL(function () {
                         var orientation = $(img).exif('Orientation')[0] || 1;
+                        orientation = 1;
                         orientation = methods.rotate(orientation, $this.options.rotate);
 
                         // CW or CCW ? replace width and height

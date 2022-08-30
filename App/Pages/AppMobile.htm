@@ -1,17 +1,25 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;" manifest="%SERVERADDRESS%Pages/Manifest">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">
 <head>
     <title></title>
     <meta charset="utf-8">
 
-	<link rel="icon" sizes="192x192" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon">
-    <link rel="icon" sizes="128x128" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon">
-    <link rel="shortcut icon" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon" />
-	<link rel="apple-touch-icon" sizes="128x128" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon">
-	<link rel="apple-touch-icon-precomposed" sizes="128x128" href="%SERVERADDRESS%Images/LogoSquare.png" type="image/x-icon">
-    <link rel="shortcut icon" href="%SERVERADDRESS%/favicon.png" type="image/x-icon" />
+	<link rel="icon" sizes="192x192" href="%SERVERADDRESS%Images/logosquare.png" type="image/x-icon">
+    <link rel="icon" sizes="128x128" href="%SERVERADDRESS%Images/logosquare.png" type="image/x-icon">
+    <link rel="shortcut icon" href="%SERVERADDRESS%Images/logosquare.png" type="image/x-icon" />
+	<link rel="apple-touch-icon" sizes="128x128" href="%SERVERADDRESS%Images/logosquare.png" type="image/x-icon">
+	<link rel="apple-touch-icon-precomposed" sizes="128x128" href="%SERVERADDRESS%Images/logosquare.png" type="image/x-icon">    
 
+    <link rel="apple-touch-startup-image" href="%SERVERADDRESS%Images/launch-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="%SERVERADDRESS%Images/launch-750x1294.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="%SERVERADDRESS%Images/launch-1242x2148.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="%SERVERADDRESS%Images/launch-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="%SERVERADDRESS%Images/launch-1536x2048.png" media="(min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="%SERVERADDRESS%Images/launch-1668x2224.png" media="(min-device-width: 834px) and (max-device-width: 834px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="%SERVERADDRESS%Images/launch-2048x2732.png" media="(min-device-width: 1024px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)">
+    
     <link rel="manifest" href="%SERVERADDRESS%manifest.json?instance=%PARAM:INSTANCE%" type="application/manifest">
+
     <meta name="theme-color" content="#999" />
 
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -28,7 +36,7 @@
 
     <link href="%SERVERADDRESS%f/?t=css&mobile=true&ver=%VERSION%&instance=%PARAM:INSTANCE%&includecustom=true" type="text/css" rel="stylesheet" />
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,500' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.4.85/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.4.85/css/materialdesignicons.min.css">
     
     <script src="%SERVERADDRESS%f/?t=js&mobile=true&ver=%VERSION%&instance=%PARAM:INSTANCE%&min=%PARAM:MINIFY%&includecustom=true" type="text/javascript"></script>
     
@@ -71,12 +79,12 @@
                
             $("#txtUsername,#txtPassword").textinput();
 
+            var chkrem = $('<span id="spanRemember"></span><label><input id="chkRemember" type="checkbox" class="filled-in" onclick="Application.App.RememberOnClick();" /><span>%LANG:S_REMEMBER%</span></label></span>');
+            chkrem.insertAfter('#txtPassword');
+            
             addToHomescreen({
                 detectHomescreen: true
             });
-
-            var chkrem = $('<span id="spanRemember"></span><label><input id="chkRemember" type="checkbox" class="filled-in" onclick="Application.App.RememberOnClick();" /><span>%LANG:S_REMEMBER%</span></label></span>');
-            chkrem.insertAfter('#txtPassword');
 
             //Overwrite Liveapp functions.
             
@@ -128,6 +136,9 @@
 </head>
 <body style="overflow-y: hidden;">    
     
+    <div id="divWarning" style="background-color: rgb(255, 255, 166);padding: 10px;font-weight: bold;position: absolute;z-index: 999999;width: 100%;left: 0;top: 50px;">
+        %LANG:S_CONNECTIVITY% 
+    </div>
     <div id="AppWorkspace" data-role="page">
     
         <div class="menu">

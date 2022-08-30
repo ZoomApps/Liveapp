@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 DefineModule("LoadingManager",
 
@@ -46,17 +46,14 @@ DefineModule("LoadingManager",
 
                 m_controls.push(cont);
 
-                var o;
-                if (Application.UnsupportedIE()) {
-                    o = $('<div id="' + cont + 'Overlay" class="ui-widget-overlay app-overlay" style="opacity: .8"></div>');
-                } else {
-                    o = $('<div id="' + cont + 'Overlay" class="ui-widget-overlay app-overlay" style="opacity: .8;"><input id="' + cont + 'OverlayProgress" type="text" data-thickness=".1" data-displayPrevious="true" data-linecap="round" readonly="true" data-min="0" data-max="100" style="position: absolute; opacity: .8" value="0"></div>');
-                }
+                var o = $('<div id="' + cont + 'Overlay" class="app-overlay" style="background: #FFF; opacity: 0.5">'+
+                '<div id="' + cont + 'OverlayProgress" class="md-linear" role="progressbar">'+
+                '<div class="md-linear-bar md-linear-bar-1"></div>'+
+                '<div class="md-linear-bar md-linear-bar-2"></div></div></div>');
                 c.append(o);
             }
-
-            if (!Application.UnsupportedIE())
-                $("#" + cont + 'OverlayProgress').knob().hide();
+            
+            //$("#" + cont + 'OverlayProgress').hide();
 
             var overlay = $("#" + cont + 'Overlay');
             overlay.width('100%').height('100%');
@@ -65,6 +62,7 @@ DefineModule("LoadingManager",
 
         this.Progress = function (cont, value, type) {
 
+            /*
             if (Application.UnsupportedIE())
                 return;
 
@@ -81,28 +79,16 @@ DefineModule("LoadingManager",
 
                 value = Math.round(value);
 
-                progressbar
-                    .css("display", "")
-                    .css("opacity", ".8")
-                    .knob()
-                    .show()
-                    .css("display", "")
-                    .css("opacity", ".8")
-                .position({
-                    'my': 'center',
-                    'at': 'center',
-                    'of': c[0]
-                });
-                progressbar.val(value).trigger('change');
-
+                progressbar.show();                           
 
             } else {
-                return parseInt(progressbar.val());
+                return +progressbar.val();
             }
+            */
         };
 
         this.Hide = function (cont) {            
-            $("#" + cont + 'OverlayProgress').hide();
+            //$("#" + cont + 'OverlayProgress').hide();
             $("#" + cont + 'Overlay').hide();
         };
 
@@ -119,7 +105,7 @@ DefineModule("LoadingManager",
 
                 m_overlays.push(cont);
 
-                var o = $('<div class="ui-widget-overlay" id="' + cont + 'Overlay2" style="width: 100%; height: 100%; color: black; font-size: 12pt; font-weight: bold; opacity: 0.5; text-align: center; z-index: 1;"><p style="top: 50%; position: relative;">' + msg + '</p></div>');
+                var o = $('<div class="app-overlay" id="' + cont + 'Overlay2" style="width: 100%; height: 100%; color: black; font-size: 12pt; font-weight: bold; opacity: 0.5; text-align: center; z-index: 1;"><p style="top: 50%; position: relative;">' + msg + '</p></div>');
                 c.append(o);
             }
 

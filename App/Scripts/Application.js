@@ -1169,45 +1169,24 @@ Application.ExecuteWebService = function (method, args, callback_, async_, progr
 		if(Application.Log.RemoteStatus() == Application.remoteStatus.Connected)
 			Application.LogInfo("Method: "+method+", Args: "+$.toJSON(args));
 	}      
-	
-    var xhr = $.ajax({
-        beforeSend: function (xhrObj) {
-            xhrObj.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-            xhrObj.setRequestHeader("Accept", "application/json");
+	    
+    fetch(url + '?m=' + method, {
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+            "Accept": "application/json"            
         },
-        async: async_,
-        type: "POST",
-        url: url + '?m=' + method,
-        dataType: 'json',
-        data: encodeURIComponent($.toJSON(args)), //Encode the arguments.
-		timeout: timeout_,
-        error: (function (e) {
-			
-			Application.Fire("ExecutedWebservice", method, false);
-			
-			if (e.statusText)
-                e = e.statusText;
-			
-			if ((method == "GetServerInfo" || method == "GetNotifications" || method == "GetMessage") && !Application.HasDisconnected(e))
-				return;            		
-            
-            if (overrideCallbacks_ && overrideCallbacks_.onerror) {
-                overrideCallbacks_.onerror(e);
-                return;
-            }
-            if (!Application.supressServiceErrors)
-                Application.Error(e);
-            if (method != "GetServerInfo" && method != "GetNotifications")
-                Application.supressServiceErrors = false;
-			if (callback_) callback_(false);
-        }),
-        success: (function (result) {
-			
-            Application.Fire("ExecutedWebservice", method, true);            
+        method: 'POST',        
+        body: encodeURIComponent(JSON.stringify(args)),
+        
+    }).then(async (response)=>{
+        
+        let result = await response.json();
 
-            if (!Application.connected) {
-                Application.Fire("Connected");
-                Application.connected = true;
+        Application.Fire("ExecutedWebservice", method, true);            
+
+        if (!Application.connected) {
+            Application.Fire("Connected");
+            Application.connected = true;
             }
             
             if (result != null) {
@@ -1228,19 +1207,33 @@ Application.ExecuteWebService = function (method, args, callback_, async_, progr
 			if (overrideCallbacks_ && overrideCallbacks_.onsuccess) {
                 overrideCallbacks_.onsuccess(result);
                 return;
-            }
-			
-            if (method != "GetServerInfo" && method != "GetNotifications")
-                Application.supressServiceErrors = false;
-            if (callback_) callback_(result);
-        }),
-        progress: function (e) {
-            if (progress_)
-                progress_(e.loaded);
         }
-    });
-    if (overrideCallbacks_ && overrideCallbacks_.onsend)
-        overrideCallbacks_.onsend(xhr);
+        
+        if (method != "GetServerInfo" && method != "GetNotifications")
+            Application.supressServiceErrors = false;
+        if (callback_) callback_(result);
+        
+    }).catch(async (e)=>{
+
+        Application.Fire("ExecutedWebservice", method, false);
+			
+        if (e.statusText)
+            e = e.statusText;
+        
+        if ((method == "GetServerInfo" || method == "GetNotifications" || method == "GetMessage") && !Application.HasDisconnected(e))
+            return;            		
+        
+        if (overrideCallbacks_ && overrideCallbacks_.onerror) {
+            overrideCallbacks_.onerror(e);
+            return;
+        }
+        if (!Application.supressServiceErrors)
+            Application.Error(e);
+        if (method != "GetServerInfo" && method != "GetNotifications")
+            Application.supressServiceErrors = false;
+        if (callback_) callback_(false);
+
+    });   
 };
 
 /**
@@ -1607,9 +1600,6 @@ Application.RollbackTransaction = function () {
     if(Application.transactionStarted <= 0){
         Application.transactionStarted = 0;
         Application.LogWarn("A transaction has not started. Ignored RollbackTransaction");
-		if(Application.developerMode){
-			Application.Message("Tried to rollback too many transactions!");
-		}
         return;
     }
 
@@ -2277,12 +2267,16 @@ Application.HookCacheEvents = function(instance){
 
     function ShowUpdateMsg(onupdate){
         if(Application.connected){
-            Application.Confirm("An updated version of the website has been downloaded. Load the new version?",function(r){
-        
-                if(!r)return;					  
-                onupdate();
-
-            },"Update Available");
+            var w = $wait();
+            Application.Confirm("A client framework update is available. Load the new version?",function(r){    
+                if(r){
+                    onupdate();
+                }else{
+                    Application.Message('Please reload your browser when you are ready to update.');
+                }
+                w.resolve();
+            },"Framework Update Available");
+            return w.promise();
         }else{
             onupdate();
         }
@@ -2293,8 +2287,26 @@ Application.HookCacheEvents = function(instance){
         var url = '%SERVERADDRESS%service-worker.js';
         navigator.serviceWorker.register(url)
         .then(function(reg) {
+
             Application.serviceWorkerReg = reg;
             Application.LogInfo("Registered service worker");
+
+            reg.onupdatefound = function(){
+                var installingWorker = reg.installing;
+                installingWorker.onstatechange = function(){
+                    switch (installingWorker.state) {
+                        case 'installed':                            
+                            Application.RunNext(function(){
+                                return ShowUpdateMsg(function(){
+                                    if(ThisViewer()) ThisViewer().ShowLoad();
+                                    Application.Reload();
+                                });
+                            });                            
+                            break;
+                    }
+                };
+            };
+
         }).catch(function(err) {
             Application.LogError("Service worker error: ", err)
         });
@@ -2764,6 +2776,8 @@ Application.HasDisconnected = function(e){
  */
 Application.Error = function (msg) {
 
+    msg = msg.message || msg;
+
     //Kill the timeout queue.
     Application.timeouts = [];
 
@@ -2782,7 +2796,8 @@ Application.Error = function (msg) {
 	}
 
 	if (typeof msg.indexOf != 'undefined') {
-		if (msg == "%LANG:SYS_ERR%" || msg.toLowerCase() == "unknown") {
+		if (msg == "%LANG:SYS_ERR%" || msg.toLowerCase() == "unknown" || msg.toLowerCase() == 'failed to fetch'  ||
+            msg.toLowerCase().indexOf('load failed') !== -1) {
 				
 				//Lost Connection
 				setTimeout(function(){
@@ -2809,7 +2824,12 @@ Application.Error = function (msg) {
 
     //Lost connection to server.
     if (typeof msg.indexOf != 'undefined') {
-        if (msg == "%LANG:SYS_ERR%" || msg.toLowerCase() == "%LANG:SYS_SERVERTOOBUSY%" || msg.toLowerCase() == "%LANG:SYS_INTERNALSERVERERR%" || msg.toLowerCase() == "unknown") {
+        if (msg == "%LANG:SYS_ERR%" || 
+        msg.toLowerCase() == "%LANG:SYS_SERVERTOOBUSY%" || 
+        msg.toLowerCase() == "%LANG:SYS_INTERNALSERVERERR%" ||
+        msg.toLowerCase() == "unknown" || 
+        msg.toLowerCase() == 'failed to fetch' ||
+        msg.toLowerCase().indexOf('load failed') !== -1) {
             Application.Fire("ConnectionLost");
             Application.connected = false;
         }
@@ -3705,7 +3725,7 @@ Application.ViewSubstitute = function (view) {
             var data = $.parseJSON(Application.auth.UserData);            
             if (data.filters) {
                 for (var i in data.filters) {
-                    eval("view = view.replace(/"+i+"/g, \""+data.filters[i]+"\");");
+                    view = view.replace(i, data.filters[i]);
                 }
             }
         } catch (e) {
@@ -3737,6 +3757,41 @@ Application.GetTop = function(view){
     return top;
 };
 
+Application.RemovePagingFromView = function(view){
+        
+    if (view.indexOf("TOP") != -1) {        
+
+        var check = new RegExp("TOP\\s*\\((.*?)\\)", 'g');
+        var matches = view.match(check);
+        if (matches) {
+            if(matches.length > 0){
+                view = view.replace("TOP(" + matches[0].replace(check, '$1') + ")","");
+            }
+        }
+    }
+    if (view.indexOf("OFFSET") != -1) {        
+
+        var check = new RegExp("OFFSET\\s*\\((.*?)\\)", 'g');
+        var matches = view.match(check);
+        if (matches) {
+            if(matches.length > 0){
+                view = view.replace("OFFSET(" + matches[0].replace(check, '$1') + ")","");
+            }
+        }
+    }
+    if (view.indexOf("FETCH") != -1) {        
+
+        var check = new RegExp("FETCH\\s*\\((.*?)\\)", 'g');
+        var matches = view.match(check);
+        if (matches) {
+            if(matches.length > 0){
+                view = view.replace("FETCH(" + matches[0].replace(check, '$1') + ")","");
+            }
+        }
+    }
+    return view;
+};
+
 /**
  * Returns the SORTING section of a view.
  * @memberof module:Application
@@ -3762,7 +3817,7 @@ Application.GetSorting = function(view){
         var matches = view.match(check);
         if (matches) {
             if(matches.length > 0){
-                sorting += " ORDER(" + matches[0].replace(check, '$1') + ") ";
+                sorting += "ORDER(" + matches[0].replace(check, '$1') + ") ";
             }
         }
     }
@@ -4432,6 +4487,96 @@ COUNT = function (id, filters, callback) {
                         return callback(r);
                     }
                 );
+        }
+    );    
+};
+
+/**
+ * @param {Function} callback The function to call after the record has been found
+ */
+ MULTISET = function (params, callback) {
+    var tablecache_ = {};
+    var recordsetcache_ = {};
+    $codeinsert(
+		function(r){
+			$flag;
+            var params_ = params.map(function(param){
+                var r = {Table:param.table,
+                    View: '',
+                    Reset: param.reset || false,
+                    Calcfields: param.calcfields || [],
+                    GroupFilters: param.groupfilters || [],
+                    LookupCols: param.lookupcols || [],
+                    Group: param.count || false,
+                    Fetchtable: true,
+                    Fetchrecordset: true
+                };
+                if(param.filters){
+                    if (typeof param.filters === 'string') {
+                        r.View = param.filters;
+                    }else{
+                        for (var i in param.filters) {
+                            r.View = Application.AddFilter(r.View, i, param.filters[i]);
+                        }
+                    }
+                    param.filters = r.View;
+                }
+                if (!tablecache_[r.Table]) {
+                    tablecache_[r.Table] = Application.Cache.Check("TableFetch",r.Table);
+                }
+                if (tablecache_[r.Table]) {
+                    r.Fetchtable = false;
+                }
+                if (!recordsetcache_[r.Table]) {
+                    recordsetcache_[r.Table] = Application.Cache.Check("RecordInit",r.Table);
+                }
+                if (recordsetcache_[r.Table]) {
+                    r.Fetchrecordset = false;
+                }
+                return r;
+            });
+            return Application.WebServiceWait("Multiset", { auth: Application.auth, multisetargs_: params_});
+        },
+        function (r) {
+            $flag;
+            var i = 0;
+            var recs = r.map(function(recinfo){
+                var rec = new Record();
+                var cr = recordsetcache_[params[i].table] || recinfo.RecordSetInfo;
+                if (!recordsetcache_[params[i].table])
+                    Application.Cache.Save("RecordInit",params[i].table,cr);
+                cr.Count = 0;
+                cr.Position = 0;
+                cr.NewRecord = false;
+                cr.View = params[i].filters;
+                cr.GroupFilters = params[i].groupfilters;
+                cr.LookupFields = params[i].lookupcols;
+                //Save the record.
+                app_transferObjectProperties.call(rec, cr);
+                rec.GetCurrent();
+
+                var tbl = new Table();
+                var ct = tablecache_[params[i].table] || recinfo.TableInfo;
+                if (!tablecache_[params[i].table])
+                    Application.Cache.Save("TableFetch",params[i].table,ct);
+                app_transferObjectProperties.call(tbl, ct);
+                for (var j in tbl.Columns) {
+                    var tempcol = new TableColumn();
+                    app_transferObjectProperties.call(tempcol, tbl.Columns[j]);
+                    tempcol.XName = tempcol.Name;
+                    tbl.Columns[j] = tempcol;
+                }
+                rec.Table = tbl;
+                if (params[i].count){
+                    rec.Count = recinfo.Obj;
+                } else {
+                    rec.SaveRecordList(recinfo.Obj);
+                }
+                i += 1;
+                return rec;
+            });
+            if(callback)
+                return callback.apply(this,recs);
         }
     );    
 };

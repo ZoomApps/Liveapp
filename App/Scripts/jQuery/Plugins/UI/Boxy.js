@@ -1,4 +1,4 @@
-﻿/**
+/**
 * Boxy 0.1.4 - Facebook-style dialog, with frills
 *
 * (c) 2008 Jason Frame
@@ -615,9 +615,9 @@ Boxy.prototype = {
                     "<div id='okbtn"+this.options.id+"' class='menu-icon' style='float: right' data-ripple><i class='mdi mdi-check' style='font-size: 30px'></i></div>"
                 );
             }else{
-                tb = jQuery("<div class='title-bar ui-header ui-bar-a ui-dialog-titlebar ui-widget-header app-boxy-titlebar'></div>").html("<h2 class='app-boxy-title' style='display: inline-block; max-width: "+(UI.MagicWidth()-20)+"px;'>" + this.options.title + "</h2>");
+                tb = jQuery("<div class='title-bar ui-header ui-bar-a ui-dialog-titlebar app-boxy-titlebar'></div>").html("<h2 class='app-boxy-title' style='display: inline-block; max-width: "+(UI.MagicWidth()-20)+"px;'>" + this.options.title + "</h2>");
                 if (this.options.closeable) {
-                    tb.append(jQuery('<a class="close mdi mdi-close" style="cursor: pointer;display: inline-block;float: right;font-size: 20px;line-height: 35px;margin-right: 10px;color: white;"></a>'));
+                    tb.append(jQuery('<a class="close mdi mdi-close" style="cursor: pointer;display: inline-block;float: right;font-size: 20px;line-height: 35px;margin-right: 10px;color: #000;"></a>'));
                 }
             }
            

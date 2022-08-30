@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Window", null, function () {
 
@@ -342,7 +342,7 @@ Define("Window", null, function () {
         $("#divFactbox").trigger("updatelayout");
 
         $('#btn' + m_id).scrollintoview();
-        $('#btn' + m_id).css("border-color", $("#title" + m_id).parent().css("background-color")).addClass("app-window-button-active").removeClass("app-window-button-inactive");
+        $('#btn' + m_id).addClass("main-windowsbtn-active");
 
         this.OnShow();
     };

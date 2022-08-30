@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Window", null, function () {
 
@@ -26,6 +26,11 @@ Define("Window", null, function () {
     var m_dialog = false;
     var m_boxy = null;
 	var m_tabName = "";
+
+    var m_divActions = null;
+    var m_divToolbar2 = null;
+    var m_divToolbar3 = null;
+    var m_divTitle = null;
 
     //#endregion
 
@@ -125,7 +130,7 @@ Define("Window", null, function () {
                     "<div id='" + m_id + "main' class='ui-widget-content app-window-main'></div>" +
                     "<div id='" + m_id + "toolbar3' style='display: none;' class='unselectable'>" +
 	                "</div></div>");
-                m_options.workspace.append(m_window);
+                m_options.workspace.append(m_window);                
 				
 				//Window style.
 				if (m_options.position == Application.position.right) {
@@ -162,7 +167,7 @@ Define("Window", null, function () {
                         if (!ret) {
                             m_okClicked = false;
                             return false
-                        }
+                        }                        
                         Application.RunNext(function () {
                             var okclicked = m_okClicked;
                             m_okClicked = false;
@@ -170,11 +175,11 @@ Define("Window", null, function () {
                         });                        
                         return false;
                     },
-                    toolbar: "<a id='okbtn" + m_id + "' style='float: right; font-size: 11pt; width: 100px; margin: 10px;'>OK</a>"
+                    toolbar: "<div id='okbtn" + m_id + "' class='app-button' style='float: right; font-size: 11pt; width: 100px; margin: 0 10px 10px 0;text-align:center;'>OK</div>"
                 });
 
                 m_window = $("#" + m_id);
-                $("#okbtn" + m_id).button().click(function () {
+                $("#okbtn" + m_id).click(function () {
                     m_okClicked = true;
                     m_boxy.hide();
                 });
@@ -184,17 +189,21 @@ Define("Window", null, function () {
             }
         }
 
+        m_divActions = $("#" + m_id + "actions");
+        m_divToolbar2 = $("#" + m_id + "toolbar2");
+        m_divToolbar3 = $("#" + m_id + "toolbar3");
+        m_divTitle = $(".title" + m_id);
+
         //Create the window shortcut.
         if (m_options.shortcutWorkspace != null) {
             var closebtn2 = "";
             if (m_options.closebutton == true) {
-                closebtn2 = "<a href='#' class='ui-dialog-titlebar-close ui-corner-all closebutton" + m_id + "'><span class='ui-icon ui-icon-closethick'>Close</span></a>";
+                closebtn2 = "<a href='#' class='ui-dialog-titlebar-close ui-corner-all closebutton" + m_id + "'><i class='mdi mdi-close' style='margin:5px'></i></a>";
             }
-            var winbtn = $("<div id='btn" + m_id + "' class='main-windowsbtn ui-widget ui-state-default app-window-button openbutton" + m_id + "' style='display: none;'><table><tr><td id='titleShortcut" + m_id + "' class='unselectable' style='font-weight: normal; font-size: 14px;'>" + m_title + "</td>" +
+            var winbtn = $("<div id='btn" + m_id + "' class='main-windowsbtn openbutton" + m_id + "'><table><tr><td id='titleShortcut" + m_id + "' class='unselectable' style='font-weight: normal; font-size: 14px;'>" + m_title + "</td>" +
         "<td>" + closebtn2 + "</td>" +
         "</tr></table></div>");
             m_options.shortcutWorkspace.append(winbtn);
-            winbtn.slideDown(UI.WindowManager.Count() == 0 ? 0 : 300);
         }
 
         if (!Application.restrictedMode) {
@@ -286,7 +295,7 @@ Define("Window", null, function () {
         m_visible = false;
 
         $('#' + m_id).css("display", "none");
-        $('#btn' + m_id).removeClass("ui-state-hover").addClass("app-window-button-inactive").removeClass("app-window-button-active");
+        $('#btn' + m_id).removeClass("main-windowsbtn-active");
 
         //Fix for CIMSability
         $(".dhtmlXTooltip").remove();
@@ -326,7 +335,7 @@ Define("Window", null, function () {
         if (!m_hidden) {
             $('#' + m_id).css("display", "inline-block");
         }
-        $('#btn' + m_id).addClass("ui-state-hover").addClass("app-window-button-active").removeClass("app-window-button-inactive");
+        $('#btn' + m_id).addClass("main-windowsbtn-active");
 
         //Only show the sub windows if the main window is visible.
         if (this.Visible()) {
@@ -386,15 +395,23 @@ Define("Window", null, function () {
         if (m_options.dialog == true)
             return;
 
-        $('#btn' + m_id).addClass("ui-state-hover");
-        var loader = $("<div id='" + m_id + "loader' class='ui-dialog ui-dialog-content ui-widget ui-widget-content ui-corner-all app-preloader'></div>");
+        var loader = $("<div id='" + m_id + "loader' class='app-preloader'>"+        
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div>'+
+        '<div class="app-loader-item"></div></div>');
         if (m_options.workspace)
             m_options.workspace.append(loader);
 
-        loader.height(UI.Height());
-        loader.slideDown(300, function () {
-            Application.Loading.Show(m_id + 'loader');
-        });
+        loader.height(UI.Height());        
+        Application.Loading.Show(m_id + 'loader');        
     };
 
     this.AddControl = function (cont) {
@@ -475,21 +492,7 @@ Define("Window", null, function () {
     };
 
     this.ToggleState = function (skipevent) {
-        if (m_state == 0) {            
-            $("#" + m_id + "main,#" + m_id + "actions,#" + m_id + "toolbar2,#" + m_id + "toolbar3").hide();
-            m_state = 1;
-        } else {   
-            $("#" + m_id + "main,#" + m_id + "actions,#" + m_id + "toolbar2,#" + m_id + "toolbar3").show();
-
-            //Scroll into view.
-            setTimeout(function () {
-                var offset = $("#" + m_id).offset().top;
-                $('html, body').scrollTop(offset - 60);
-            }, 50);
-
-            m_state = 0;
-        }		
-		_self.OnToggle(skipevent);
+        return; 
     };
 	
 	this.State = function(){
@@ -619,7 +622,7 @@ Define("Window", null, function () {
         if (image != "") {
             imgcode = UI.IconImage(image) + "&nbsp;"; //Issue #70 - Offline icons
         }
-        var $action = $("<div id='" + id + "' class='unselectable app-button' style='border-width: 0px;'>" + imgcode + UI.InputManager.AddKeyBinding(text, id, m_id) + "</div>");
+        var $action = $("<div id='" + id + "' class='unselectable app-button'>" + imgcode + UI.InputManager.AddKeyBinding(text, id, m_id) + "</div>");
 
         $action.on('mousedown',func);
         $("#" + m_id + "actions").append($action);
@@ -716,7 +719,9 @@ Define("Window", null, function () {
     };
 
     this.HeaderHeight = function () {
-        return $("#" + m_id + "actions").outerHeight(true) + $("#" + m_id + "toolbar2").outerHeight(true) + $("#" + m_id + "toolbar3").outerHeight(true) + $(".title" + m_id).outerHeight(true) + $("#" + m_id + "maxrecs").outerHeight(true);
+        if(!m_divActions)
+            return 0;
+        return m_divActions.outerHeight(true) + m_divToolbar2.outerHeight(true) + m_divToolbar3.outerHeight(true) + m_divTitle.outerHeight(true)+15;
     };
 
     this.Active = function () {

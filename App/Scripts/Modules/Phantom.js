@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 DefineModule("PhantomManager",
 
@@ -28,7 +28,6 @@ DefineModule("PhantomManager",
 		var m_timerID = null;
 		var m_currentBlock = "";
 		var m_currentAction = null;
-		var m_subWindow = null;
 		
 		var m_toASCII = {
         '188': '44',
@@ -107,7 +106,6 @@ DefineModule("PhantomManager",
 			if(m_recording){
 				var d = new Date();
 				m_blocks[m_blocks.length - 1].actions.push({ t: 'click', x: e.pageX, y: e.pageY, d: d.getTime() - m_timestamp });
-				m_subWindow.$("#phantom-actions-" + m_blocks.length).text("Actions: " + m_blocks[m_blocks.length - 1].actions.length);
 			}
 		};
 		
@@ -123,7 +121,6 @@ DefineModule("PhantomManager",
 				    return;
 				var d = new Date();				
 				m_blocks[m_blocks.length - 1].actions.push({ t: 'key', key: e.keyCode, s: e.shiftKey, c: e.ctrlKey, d: d.getTime() - m_timestamp });
-				m_subWindow.$("#phantom-actions-" + m_blocks.length).text("Actions: " + m_blocks[m_blocks.length - 1].actions.length);
 			}
 		};
 		
@@ -152,25 +149,14 @@ DefineModule("PhantomManager",
 			}
 		};
 		
-		this.StartRecording = function () {
-
-		    m_subWindow = window.open("", "phantom-rec", "width=400px,height=600px,resizable=0");
-		    m_subWindow.document.write('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">' +
-                '<html xmlns="http://www.w3.org/1999/xhtml" style="height: 100%;">' +
-                '<head><link href="' + Application.url + 'f/?t=css&ver=' + Application.version + '&instance=none" type="text/css" rel="stylesheet" />' +
-                '<script src="' + Application.url + 'f/?t=js&ver=' + Application.version + '" type="text/javascript"></script>' +
-                '<script language="javascript" type="text/javascript">function Append(html){ $("body").append(html); };</script>' +
-                '</head>' +
-                '<body style="font-family: Arial; font-size: 12px;"></body>' +
-                '</html>');
-
-		    m_running = true;
+		this.StartRecording = function () {		
+			m_running = true;
 			m_blocks = [];						
 			m_recording = true;
 			m_currentBlock = "";
 			_self.NewBlock();
 			var d = new Date();
-			m_timestamp = d.getTime();				
+			m_timestamp = d.getTime();						
         };  
 		
 		this.EndRecording = function () {
@@ -185,7 +171,6 @@ DefineModule("PhantomManager",
 				m_recording = false;
 				var name = prompt("Block Name");
 				m_blocks.push({ name: name, actions: [], errors: 0 });
-				m_subWindow.Append("<h1>"+name+"</h1><h3 id='phantom-actions-"+m_blocks.length+"'>Actions: </h3>");
 				m_currentBlock = name;
 				m_recording = true;
 			}
@@ -281,7 +266,7 @@ DefineModule("PhantomManager",
 
 					}else if(action.t == 'click'){
 
-					    ele.click();
+						ele.trigger('click').trigger('mousedown');
 
 					    FinishAction(action, i);
 

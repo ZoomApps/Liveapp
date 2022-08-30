@@ -169,7 +169,7 @@ Define("Grid",
                 scrollrows: true,
                 footerrow: footer_,
                 autoencode: true, //#85 - Sanitize String				
-				
+
                 grouping: (m_grouping != null),
                 groupingView: m_grouping,
 
@@ -198,8 +198,6 @@ Define("Grid",
                 },
 				onSortCol: function(){
                     _self.OnSortCol();
-                    if(m_dataSource)
-                        OnBind(0,m_dataSource.length);
 				},
                 beforeSelectRow: function (rowid, e) {                                       
 
@@ -549,7 +547,7 @@ Define("Grid",
                             cell = cell.replace(/\,/g,'');                        
 						if((field.Type == "Integer" || field.Type == "Decimal") && cell && cell != "")
 							return parseFloat(cell);
-						return cell;
+						return (cell||'');
 					},
                     edittype: 'custom',
                     align: colalign || align,
@@ -646,15 +644,20 @@ Define("Grid",
         };
 
         this.GetSort = function () {
-            return m_grid.getGridParam("sortname") + ";" + m_grid.getGridParam("sortorder");
+            return m_grid.getGridParam("sortname") + m_grid.getGridParam("sortorder");
         };
 
         this.SetSort = function (sort) {
             try {   
-                var columns = sort.split(";")[0].split(','); 
-                var order = sort.split(";")[1].split(',');
-                for(var i = 0; i < columns.length; i++){     
-                    m_grid.jqGrid('sortGrid', columns[i], true, Default(order[i],'asc'));
+                var columns = sort.split(','); 
+                for(var i = 0; i < columns.length; i++){   
+                    var c = columns[i];
+                    c = c.trim();
+                    var o = 'asc';
+                    if(c.indexOf(' desc') !== -1)
+                        o = 'desc';
+                    c = c.replace(' asc','').replace(' desc','');  
+                    m_grid.jqGrid('sortGrid', columns[i], true, o);
                 }
             } catch (e) {
             }
@@ -672,13 +675,12 @@ Define("Grid",
 
                     m_loading = true;
                     
-                    var load = Default(Application.OptionValue(_base.Viewer().Page().Options, "loadrows"), 50);
+                    var load = Default(Application.OptionValue(_base.Viewer().Page().Options, "loadrows"), 9999999999);
 
                     var srt = _self.GetSort();
-                    if (srt == ";asc") srt = null;
 
                     if (m_grouping != null || srt)
-                        load = 99999999;
+                        load = 9999999999;
 
 					var initdata = GetData(0, load);
 					
@@ -706,20 +708,16 @@ Define("Grid",
 						}
 					}
 					
-                    if (m_dataSource.length > load) {
-                        LoadNextRecords(load, load, selected);
-                    } else {
+                    m_loading = false;
 
-                        m_loading = false;
-
-                        if (selected != null) {
-                            var rid = _self.GetRowID(selected);
-                            _self.SelectRow(rid);
-                        }
-
-                        if (m_footer)
-                            _self.OnLoadFooter(_self);
+                    if (selected != null) {
+                        var rid = _self.GetRowID(selected);
+                        _self.SelectRow(rid);
                     }
+
+                    if (m_footer)
+                        _self.OnLoadFooter(_self);
+                
 
                     _base.Loaded(true);
                 }

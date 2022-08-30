@@ -115,15 +115,15 @@ Define("Page", null, function (id_, useCache_) {
                     Application.Cache.Remove("RecordInit", rec.Name);
                 }
 
-                if (action.ActionCode && action.ActionCode != "") {
-                    eval("var func = function runAction(rec){" + action.ActionCode + "};");
+                if (action.ActionCode && action.ActionCode != "") {                                  
+                    var FunctionRunner = Function("this.RunAction = function(rec,viewer,page,win){" + action.ActionCode + "};");                    
                     var page = _self;
                     var win = null;
                     if (viewer)
                         win = viewer.Window();
                     return $codeblock(
                         function () {
-                            return func(rec);
+                            return new FunctionRunner().RunAction(rec,viewer,page,win);
                         },
                         function (ret) {
                             rec.SaveCurrent();

@@ -94,7 +94,7 @@
  * @param {string} [name_] Name of the table. If `null`, the table definition will not be loaded.
  * @returns {Record|JQueryPromise(Record)} Returns a new `Record` object or a promise to return a new `Record` object.
  */
-Define("Record", null, function (name_) {
+ Define("Record", null, function (name_) {
 
     //#region Members
 
@@ -564,49 +564,53 @@ Define("Record", null, function (name_) {
         { auth: Application.auth, table_: m_name, view_: Default(this.View, ""), reset_: reset_, calcfields_: this.CalculatedFields, groupFilters_: this.GroupFilters, lookupCols_: this.LookupFields, group_: false }, function (r) {
 
             if (r) {
-                try {
-
-                    if (Application.maxRecords > 0) {
-                        var i = r.length - Application.maxRecords;
-                        if (i > 0)
-                            r.splice(Application.maxRecords, i);
-                    }
-
-                    m_records = CloneRecordSet(r);
-                    m_xrecords = CloneRecordSet(r);
-                    if (r.length == 0) { //No records.
-                        Application.LogDebug("No " + m_name + " records found.");
-                        _self.Clear();
-                        _self.GetCurrent();
-                        r = _self;
-                    } else if (first_) { //First record.
-                        Application.LogDebug(m_records.length + " " + m_name + " records found.");
-                        _self.Record = CloneRecord(m_records[0]);
-                        _self.xRecord = CloneRecord(m_xrecords[0]);
-                        _self.Position = 0;
-                        _self.Count = m_records.length;
-                        _self.Blank = false;
-                        _self.GetCurrent();
-                        r = _self;
-                    } else { //Last record.
-                        Application.LogDebug(m_records.length + " " + m_name + " records found.");
-                        _self.Record = CloneRecord(m_records[m_records.length - 1]);
-                        _self.xRecord = CloneRecord(m_xrecords[m_xrecords.length - 1]);
-                        _self.Position = m_records.length - 1;
-                        _self.Count = m_records.length;
-                        _self.Blank = false;
-                        _self.GetCurrent();
-                        r = _self;
-                    }
-                } catch (e) {
-                    Application.Error(e);
-                }
+                _self.SaveRecordList(r,first_);
             }
-            w.resolve(r);
+            w.resolve(_self);
 
         });
 
         return w.promise();
+    };
+
+    this.SaveRecordList = function(r,first_){
+
+        first_ = first_ || true;
+
+        try {
+
+            if (Application.maxRecords > 0) {
+                var i = r.length - Application.maxRecords;
+                if (i > 0)
+                    r.splice(Application.maxRecords, i);
+            }
+
+            m_records = CloneRecordSet(r);
+            m_xrecords = CloneRecordSet(r);
+            if (r.length == 0) { //No records.
+                Application.LogDebug("No " + m_name + " records found.");
+                _self.Clear();
+                _self.GetCurrent();                
+            } else if (first_) { //First record.
+                Application.LogDebug(m_records.length + " " + m_name + " records found.");
+                _self.Record = CloneRecord(m_records[0]);
+                _self.xRecord = CloneRecord(m_xrecords[0]);
+                _self.Position = 0;
+                _self.Count = m_records.length;
+                _self.Blank = false;
+                _self.GetCurrent();                
+            } else { //Last record.
+                Application.LogDebug(m_records.length + " " + m_name + " records found.");
+                _self.Record = CloneRecord(m_records[m_records.length - 1]);
+                _self.xRecord = CloneRecord(m_xrecords[m_xrecords.length - 1]);
+                _self.Position = m_records.length - 1;
+                _self.Count = m_records.length;
+                _self.Blank = false;
+                _self.GetCurrent();                
+            }
+        } catch (e) {
+            Application.Error(e);
+        }        
     };
 
     /**
@@ -1479,19 +1483,20 @@ Define("Record", null, function (name_) {
             function () {
                 _self[col] = value;
                 if (func_code != null) {
-
-                    var table = _self;
-
-                    //Issue #46 Error when using validate function.
-                    var win = null;
-                    if (viewer)
-                        win = viewer.Window();
-
-                    eval("var func = function validateRecord(rec){return $codeblock(" +
-                    "function(){" + func_code + "}, " +
-                    "function(){rec.SaveCurrent();return rec;}" +
-                    ");}");
-                    return func(_self);
+                    var FunctionRunner = Function(`
+                        this.ValidateRecord = function(rec,viewer){
+                            return $codeblock(
+                                function(){
+                                    ${func_code}
+                                },
+                                function(){
+                                    rec.SaveCurrent();
+                                    return rec;
+                                }
+                            );
+                        };
+                    `);       
+                    return new FunctionRunner().ValidateRecord(_self, viewer);
                 } else {
                     _self.SaveCurrent();
                     return _self;
@@ -1521,11 +1526,19 @@ Define("Record", null, function (name_) {
         return $codeblock(
             function () {
                 if (func_code != null) {
-                    eval("var func = function runTrigger(rec,viewer){return $codeblock(" +
-                    "function(){" + func_code + "}, " +
-                    "function(){return rec;}" +
-                    ");}");
-                    return func(_self,viewer);
+                    var FunctionRunner = Function(`
+                        this.RunTrigger = function(rec,viewer){
+                            return $codeblock(
+                                function(){
+                                    ${func_code}
+                                },
+                                function(){
+                                    return rec;
+                                }
+                            );
+                        };
+                    `);       
+                    return new FunctionRunner().RunTrigger(_self,viewer);
                 } else {
                     return _self;
                 }
@@ -1656,8 +1669,10 @@ Define("Record", null, function (name_) {
      * @memberof! Record#
      * @returns {Table} Returns this records `Table` object.
      */
-	this.DatabaseTable = function(){
-		return m_table;
+	this.DatabaseTable = function(value){
+        if(typeof value === 'undefined')
+		    return m_table;
+        m_table = value;
 	};
 
     /**
@@ -1763,9 +1778,9 @@ Define("Record", null, function (name_) {
             if (field && field.FlowField && field.FlowField.indexOf("FINDSET") == -1 && field.FlowField.indexOf("COUNT") == -1) {
 
                 if (field.FlowField.indexOf("function") == 0) { //Function.
-
-                    eval("var func = " + field.FlowField);
-                    var ret = func(_self);
+                                        
+                    var FunctionRunner = Function("this.FlowField = " + field.FlowField);                                                                           
+                    var ret = new FunctionRunner().FlowField(_self);
                     _self[f] = ret;
 
                 } else { //Record
@@ -1971,8 +1986,8 @@ Define("Record", null, function (name_) {
                         if (Application.IsOffline() && fields[i].OfflineCode != "")
                             code = fields[i].OfflineCode;
 
-                        eval("var func = " + code);
-                        return func(_self);
+                        var FunctionRunner = Function("this.FlowField = " + code);                                     
+                        return new FunctionRunner().FlowField(_self);
                     },
 
                     function (ret) {

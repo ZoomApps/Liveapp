@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 DefineModule("WindowManager",
 
@@ -224,10 +224,7 @@ DefineModule("WindowManager",
 
             if (m_queue.length != check && $("#btnCloseAll").length == 0) {
 
-                var winbtn = $("<div id='btnCloseAll' class='main-windowsbtn ui-widget ui-state-default app-closeall-btn'><table><tr><td class='unselectable' style='font-weight: normal; font-size: 14px;'>" + UI.IconImage("mdi-close-circle",null,15) + " Close All</td><td></td></tr></table></div>");
-                if (Application.IsInMobile()) {
-                    var winbtn = $("<div id='btnCloseAll' class='main-windowsbtn ui-page-theme-a ui-btn app-closeall-btn'><table><tr><td class='unselectable' style='font-weight: normal; font-size: 14px;'>" + UI.IconImage("mdi-close-circle",null,15) + " Close All</td><td></td></tr></table></div>");
-                }
+                var winbtn = $("<div id='btnCloseAll' class='main-windowsbtn app-closeall-btn'><table><tr><td class='unselectable' style='font-weight: normal; font-size: 14px;'>" + UI.IconImage("mdi-close-circle",null,15) + " Close All</td><td></td></tr></table></div>");
                 $("#AppWindows").append(winbtn);
                 winbtn.on("click", function () {
                     _self.GoHome();
@@ -621,15 +618,15 @@ DefineModule("WindowManager",
         };
 
         function GetWidth() {
-            return $("#tdMain").width() - 5;
+            return $("#tdMain").width() - 10;
         };
 
         function GetSideWidth() {
 			
             if (Application.IsInMobile())
-                return $("#divFactbox").innerWidth() - 5;
+                return $("#divFactbox").innerWidth() - 10;
 
-            return $("#tdSide").innerWidth() - 5;
+            return $("#tdSide").innerWidth() - 10;
         };
 
         function ShowScroll() {

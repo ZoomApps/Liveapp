@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("FilterToolbar",
 
@@ -18,6 +18,7 @@ Define("FilterToolbar",
         var m_filterFields = null;
         var m_filterClear = null;
         var m_firstCol = null;
+        var m_tableMode = false;
 
         //#endregion
 
@@ -32,6 +33,7 @@ Define("FilterToolbar",
         this.Create = function (window_, form_, table_) {
 
             m_id = window_.ID();
+            m_tableMode = form_.Name === '';
 		
             //Use toolbar 2 on the window.
             var toolbar = window_.Toolbar2();
@@ -43,11 +45,11 @@ Define("FilterToolbar",
             toolbar.css("border-width", "0px");
             toolbar.css("font-size", "13px");
 
-            toolbar.append("<select id='" + window_.ID() + "filterfields' class='ui-widget ui-widget-content ui-corner-left' style='width: auto; max-width: 100px; float: right; margin-right: 15px;' />");
-            toolbar.append("<input type='text' id='" + window_.ID() + "filterinput' placeholder='Type to filter (F7)' class='ui-widget ui-widget-content ui-corner-left' style='width: 150px; float: right;' />");
+            toolbar.append("<select id='" + window_.ID() + "filterfields' style='width: auto; max-width: 100px; float: right; margin-right: 15px;border: 1px solid #ccc;padding: 3px;border-radius: 4px;' />");
+            toolbar.append("<input type='text' id='" + window_.ID() + "filterinput' placeholder='Type to filter (F7)' style='width: 150px; float: right;border: 1px solid #ccc;padding: 3px;border-radius: 4px;' />");
 
-            toolbar.append("<div id='" + window_.ID() + "filterclear' class='ui-state-hover' style='display: none; cursor: pointer; float: right; margin-right: 15px; padding: 1px; border: 0px; background: gainsboro;'>Clear All " + UI.IconImage('delete') + "</div>");
-            toolbar.append("<label id='" + window_.ID() + "filtertxt' class='ui-state-hover' style='display: none; width: auto; float: right; margin-right: 3px; border: 0px;'></label>");
+            toolbar.append("<div id='" + window_.ID() + "filterclear' class='app-button' style='display:none;padding:3px;float: right; margin: 0px 10px 0px 3px;'>Clear All " + UI.IconImage('mdi-close') + "</div>");
+            toolbar.append("<label id='" + window_.ID() + "filtertxt' style='display: none; width: auto; float: right; margin-right: 3px; border: 0px;'></label>");
 
             //Save the filter controls.
             m_filterFields = $("#" + window_.ID() + "filterfields");
@@ -56,15 +58,27 @@ Define("FilterToolbar",
             m_filterText = $("#" + window_.ID() + "filtertxt");            
 
             //Add form fields.
-            for (var i = 0; i < form_.Fields.length; i++) {
-                if (!form_.Fields[i].Hidden) {
-                    var name = form_.Fields[i].Name;
-                    if (form_.Fields[i].LookupDisplayField != "") {
-                        name = "FF$" + form_.Fields[i].Name;
+            var fields = form_.Fields.concat([]);            
+            fields.sort(function(a,b){
+                if (a.Caption == b.Caption)
+                    return 0;
+                if (a.Caption > b.Caption) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            });
+            for (var i = 0; i < fields.length; i++) {
+                if (!fields[i].Hidden) {
+                    var name = fields[i].Name;
+                    if (fields[i].LookupDisplayField != "") {
+                        if(m_tableMode)
+                            m_filterFields.append("<option value='" + name + "'>" + fields[i].Caption + " ("+name+")</option>");
+                        name = "FF$" + fields[i].Name;
                     }
                     if (!m_firstCol)
                         m_firstCol = name;
-                    m_filterFields.append("<option value='" + name + "'>" + form_.Fields[i].Caption + "</option>");
+                    m_filterFields.append("<option value='" + name + "'>" + fields[i].Caption + (m_tableMode ? ' ('+name+')':'') + "</option>");
                 }
             }
 
@@ -84,13 +98,16 @@ Define("FilterToolbar",
             $.each(filters, function (index, filter) {
                 var pagefield = _base.Viewer().Page().GetField(filter.Name.replace("FF$", ""));
                 if (pagefield) {
-                    var filterbox = $("<div style='display: inline-block; background-color: gainsboro; margin-left: 4px; cursor: pointer; padding: 1px;'>" + pagefield.Name + "=FILTER(" + filter.Value + ")&nbsp;&nbsp;</div>");
+                    var name = pagefield.Name;
+                    if(m_tableMode)
+                        name = filter.Name;
+                    var filterbox = $("<div class='app-button' style='padding:3px; margin: 0px 2px 0px 3px;'>" + (m_tableMode ? name : pagefield.Caption) + "=FILTER(" + filter.Value + ")&nbsp;&nbsp;</div>");
                     m_filterText.append(filterbox);
                     filterbox.on("click", function () {
-                        _self.GetFilter(pagefield.Name);
+                        _self.GetFilter(name);
                         m_filterFields.val(filter.Name);
                     });
-                    var delbox = $(UI.IconImage('delete'));
+                    var delbox = $(UI.IconImage('mdi-close'));
                     delbox.on("click", function () {
                         Application.RunNext(function () {
                             return $codeblock(
@@ -123,7 +140,7 @@ Define("FilterToolbar",
             //Get the page filters.
             var filters = _base.Viewer().Filters();
             for (var i = 0; i < filters.length; i++) {
-                if (filters[i].Name == col || filters[i].Name == "FF$" + col) {
+                if (filters[i].Name == col || (!m_tableMode && filters[i].Name == "FF$" + col)) {
                     m_filterInput.val(filters[i].Value);
                     m_filterInput.select();
                     return;

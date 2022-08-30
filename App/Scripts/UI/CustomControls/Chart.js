@@ -1,4 +1,4 @@
-﻿/// <reference path="../Application.js" />
+/// <reference path="../Application.js" />
 
 Define("Chart",
 
@@ -94,8 +94,9 @@ Define("Chart",
 
         function CreateChart(id_, data_) {
 
-            if ($("#" + id_).length == 0) return;
-            $("#" + id_).html("");
+            var cont = $('#'+id_);
+            if (cont.length == 0) return;
+            cont.html("");
 
             m_chart = null;
 
@@ -123,7 +124,7 @@ Define("Chart",
             var type = Default(Application.OptionValue(_base.Viewer().Page().Options, "type"), "bar");
 
             if (type == "bar") {
-                m_chart = new Chartist.Bar(".ct-chart", { labels: labels, series: series, links: links }, {
+                m_chart = new Chartist.Bar(cont[0], { labels: labels, series: series, links: links }, {
                     axisY: {
                         scaleMinSpace: 50
                     }
@@ -135,7 +136,7 @@ Define("Chart",
                     }
                 });
             } else if (type == "stackbar") {
-                m_chart = new Chartist.Bar(".ct-chart", { labels: labels, series: series, links: links }, {
+                m_chart = new Chartist.Bar(cont[0], { labels: labels, series: series, links: links }, {
                     stackBars: true,
                     axisY: {
                         scaleMinSpace: 50,
@@ -151,7 +152,7 @@ Define("Chart",
                     }
                 });
             } else if (type == "line") {
-                m_chart = new Chartist.Line(".ct-chart", { labels: labels, series: series, links: links }, {
+                m_chart = new Chartist.Line(cont[0], { labels: labels, series: series, links: links }, {
                     lineSmooth: false,
                     axisY: {
                         scaleMinSpace: 50
@@ -163,26 +164,33 @@ Define("Chart",
                     ]
                 });
             } else if (type == "area") {
-                m_chart = new Chartist.Line(".ct-chart", { labels: labels, series: series, links: links }, {
+                m_chart = new Chartist.Line(cont[0], { labels: labels, series: series, links: links }, {
                     lineSmooth: false,
                     showArea: true,
-                    axisY: {
-                        scaleMinSpace: 50
-                    },
                     plugins: [
                         Chartist.plugins.tooltip({
                             appendToBody: true
                         })
-                    ]
+                    ],
+                    axisX: {
+                        showGrid: false
+                    },
+                    axisY: {
+                        showGrid: true,
+                        onlyInteger: true
+                    },
+                    chartPadding: {
+                        top: 20
+                    }
                 });
             } else if (type == "pie") {
-                m_chart = new Chartist.Pie(".ct-chart", { labels: labels, series: series, links: links }, {
+                m_chart = new Chartist.Pie(cont[0], { labels: labels, series: series, links: links }, {
                     axisY: {
                         scaleMinSpace: 50
                     }
                 });
             } else if (type == "gauge") {
-                m_chart = new Chartist.Pie(".ct-chart", { series: series, links: links }, {
+                m_chart = new Chartist.Pie(cont[0], { series: series, links: links }, {
                     donut: true,
                     donutWidth: 60,
                     startAngle: 270,
@@ -193,8 +201,37 @@ Define("Chart",
                 });
             }
 
+            m_chart.on('draw', function(data) {
+                if(data.type === 'line') {
+                    data.element.attr({
+                    style: 'stroke-width: 2'
+                    });
+                }
+                if(data.type === 'label') {
+                    data.element.attr({
+                    style: 'font-size:9px'
+                    });
+                }
+                if(data.type === 'point'){
+                    data.element.attr({
+                    style: 'stroke-width: 4'
+                    });
+                }
+                if(data.type === 'line' || data.type === 'area') {
+                    data.element.animate({
+                        d: {
+                            begin: 500 * data.index,
+                            dur: 500,
+                            from: data.path.clone().scale(1, 0).translate(0, data.chartRect.height()).stringify(),
+                            to: data.path.clone().stringify(),
+                            easing: Chartist.Svg.Easing.easeOutQuint
+                        }
+                    });
+                }
+            });
+
             //Add on click.
-            var chart = $('.ct-chart');
+            var chart = $(cont[0]);
             chart.unbind('click');
             chart.on('click', '.ct-point,.ct-bar', function () {
                 var point = $(this);
